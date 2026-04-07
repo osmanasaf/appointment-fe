@@ -1,0 +1,26 @@
+---
+description: Geliştirme öncesi LESSONS.md'den ilgili dersleri oku; sonrasında yeni ders ekle
+alwaysApply: true
+---
+
+# Lessons Learned Kuralı
+
+Bu kural, lessons-learned skill'ini tamamlar. Skill daha zengin akışı yönetir; bu kural davranışı otomatik uygular.
+
+## Ne Zaman?
+
+Her geliştirme, refactor veya hata düzeltme oturumunda.
+
+## Ne Yap?
+
+1. Proje kökündeki **LESSONS.md** dosyasını oku.
+2. Mevcut görevle etiket veya konu bazında eşleşen dersleri filtrele.
+3. Eşleşen ders varsa: bağlamına al ve aynı hatayı tekrarlama.
+4. Görev sonunda yeni sorun/öğrenme varsa LESSONS.md'ye ekle:
+
+```
+## YYYY-MM-DD — [Başlık]
+**Ne oldu:** ...  **Neden:** ...  **Çözüm:** ...  **Kural:** ...  **Etiketler:** #...
+```
+
+Dosya yoksa oluşturulmasını öner. Detaylı akış için `lessons-learned` skill'ini çağır.

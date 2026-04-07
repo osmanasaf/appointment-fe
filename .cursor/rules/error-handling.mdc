@@ -1,0 +1,36 @@
+---
+description: Hata yönetimi, exception hierarchy ve error response kuralları
+alwaysApply: true
+---
+
+# Hata Yönetimi Kuralları
+
+## Genel Kurallar
+
+1. **Proje exception hiyerarşisini kullan.** Bare `RuntimeException` veya generic `Error` fırlatma; projede tanımlı custom exception'lardan türet.
+2. **Sessizce yutma:** `catch (e) { }` yapma. En azından logla veya yeniden fırlat.
+3. **Controller/API katmanında** iş mantığı try-catch ile sarmalama; merkezi exception handler kullan.
+4. **Yeni exception lazımsa** proje base exception'ından türet ve anlamlı kod/mesaj ver.
+
+## Error Response Formatı (API)
+
+Tüm hata yanıtları tutarlı formatta dönsün. Örnek:
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Resource not found with id: ..."
+  },
+  "status": 404,
+  "timestamp": "2026-03-05T..."
+}
+```
+
+Projede farklı bir standart varsa ona uy.
+
+## Kullanım
+
+- Domain/validation hataları: anlamlı exception (örn. `IllegalArgumentException`, proje custom'ı).
+- Dış servis hataları: wrap edip merkezi handler'a bırak.
+- Client hataları (4xx): uygun HTTP status ve mesaj.

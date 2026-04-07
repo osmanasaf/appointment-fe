@@ -1,0 +1,54 @@
+---
+description: Git commit, branch ve versiyon yönetimi kuralları
+alwaysApply: false
+globs:
+  - ".gitignore"
+---
+
+# Git & Versiyon Kuralları
+
+## Commit Mesajı Formatı
+
+```
+<type>(<scope>): <kısa açıklama>
+
+<opsiyonel detay>
+```
+
+### Type'lar
+
+| Type | Açıklama |
+|------|----------|
+| `feat` | Yeni özellik |
+| `fix` | Hata düzeltme |
+| `refactor` | Kod iyileştirme (davranış değişmez) |
+| `docs` | Dokümantasyon |
+| `test` | Test ekleme/düzeltme |
+| `chore` | Build, config, dependency |
+| `style` | Formatlama (davranış değişmez) |
+
+### Scope
+
+Proje modüllerine göre (örn. `api`, `auth`, `ui`, `domain`). Boş bırakılabilir.
+
+### Örnekler
+
+```
+feat(auth): add JWT refresh endpoint
+fix(api): prevent N+1 in user list
+refactor(domain): extract value object from repeated logic
+test(api): add integration tests for payment
+docs: update README with setup steps
+```
+
+## Branch Stratejisi
+
+- `main` — production-ready kod
+- `develop` — aktif geliştirme (isteğe bağlı)
+- `feature/<konu>` — yeni özellik
+- `fix/<konu>` — hata düzeltme
+- `refactor/<konu>` — iyileştirme
+
+## .gitignore
+
+Commit'ten önce hassas ve üretilen dosyaların ignore edildiğinden emin ol: env, secrets, build çıktıları, IDE özel dosyaları.

@@ -1,0 +1,40 @@
+---
+description: Geliştirme pipeline ve .agent workflow kullanımı (projede pipeline varsa)
+alwaysApply: true
+---
+
+# Agent Pipeline ve Workflow Kullanımı
+
+Projede **.agent/workflows/** varsa geliştirme sürecini yapılandıran agent tanımları oradadır. Aşağıdaki durumlarda ilgili workflow dosyasını okuyup rolü üstlen.
+
+## Pipeline Sırası (tam döngü)
+
+1. **requirement-agent** → Gereksinim analizi
+2. **context-agent** → Kod tabanı / proje bağlamı
+3. **rule-agent** → Kuralların toplanması
+4. **planner-agent** → Fazlı teknik plan
+5. **task-generator-agent** → Somut görevlere bölme
+6. **pattern-decision-agent** → Tasarım deseni (isteğe bağlı)
+7. **validation-agent** → Görevlerin uygunluğu
+8. **review-agent** → Mühendislik incelemesi, go/no-go
+
+## Ne Zaman Hangi Workflow?
+
+| Kullanıcı isteği | Workflow |
+|------------------|----------|
+| "Gereksinim analizi yap", "İstekleri yapılandır" | requirement-agent.md |
+| "Bağlam topla", "Kod tabanını analiz et" | context-agent.md |
+| "Kuralları topla" | rule-agent.md |
+| "Plan oluştur", "Teknik plan" | planner-agent.md |
+| "Görevlere böl", "Task üret" | task-generator-agent.md |
+| "Desen analizi", "Hangi pattern" | pattern-decision-agent.md |
+| "Doğrula", "Validate et" | validation-agent.md |
+| "Review yap", "Go/no-go" | review-agent.md |
+
+## Uygulama
+
+- Kullanıcı pipeline adımı istediğinde **.agent/workflows/<adı>.md** dosyasını oku.
+- İçindeki rol, çerçeve ve çıktı formatına göre hareket et.
+- "Tüm pipeline'ı çalıştır" denirse sırayla 1→8 uygula.
+
+**.agent/** yoksa development-pipeline skill genel adımları uygular.

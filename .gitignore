@@ -24,7 +24,9 @@ dist-ssr
 *.sw?
 
 ### Local agent / IDE (do not commit) ###
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .claude/
 .agents/
 AGENTS.md

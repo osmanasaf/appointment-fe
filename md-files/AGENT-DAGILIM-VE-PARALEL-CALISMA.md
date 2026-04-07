@@ -139,7 +139,7 @@
 ### Platform: Cursor IDE (Agent modu)
 ### Branch: `feature/frontend-modernization`
 ### Skill'ler: `frontend-design`, `web-design-guidelines`, `battle-plan`, `debugger`
-### Kural dosyaları: `.cursor/rules/` — bu repoda `frontend-vue.mdc`; tam monorepoda 13 `.mdc` dosyası
+### Kural dosyaları: `.cursor/rules/` — **git’e konmaz**; yerelde veya üst monorepo `appointment/.cursor/rules/` içinde
 
 ### Modül 5 Başlangıç: Frontend Modernizasyon — WAVE 1
 

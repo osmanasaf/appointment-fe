@@ -237,7 +237,7 @@ Hazırsan bu adımları sırayla yap:
 
 - **Önce oku:** bu klasördeki `AGENT-DAGILIM-VE-PARALEL-CALISMA.md`. Monorepo kullanıyorsanız bağlam için `../appointment-service/md-files/DEVELOPMENT-CONTEXT.md` ve `GELISTIRME-PLANI-V2.md`.
 - **Dal:** repo kökünde `git checkout -b feature/frontend-modernization` (veya mevcut dalı kullan).
-- **Kurallar:** `.cursor/rules/frontend-vue.mdc` (bu repo). Üst `appointment/` monoreposunda tüm frontend `.vue` / `src/**/*.ts` için ek kurallar tanımlı olabilir.
+- **Kurallar:** `.cursor/rules/` yalnızca yerel; bu frontend reposunda **push edilmez**. Monorepo kullanıyorsanız `appointment/.cursor/rules/` kopyalayın veya symlink ile bağlayın.
 
 ---
 

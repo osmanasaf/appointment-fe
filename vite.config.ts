@@ -4,7 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  // tailwindcss() must run before vue() so @import "tailwindcss" is expanded
+  // before CSS chunks merge (otherwise @import can end up after other rules and utilities won't emit).
+  plugins: [tailwindcss(), vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

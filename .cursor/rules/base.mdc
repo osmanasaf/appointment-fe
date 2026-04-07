@@ -1,0 +1,43 @@
+---
+description: Tüm projelerde geçerli temel kod kalitesi, güvenlik, test ve eşzamanlılık kuralları
+alwaysApply: true
+---
+
+# Base Rules
+
+## Kod Kalitesi
+
+- SOLID ve Clean Code: isimler niyeti açıklamalı; max 20 satır metod, max 200 satır sınıf; max 3 parametre
+- Magic number / string yok; named constant veya enum kullan
+- İlgisiz koda dokunma; büyük refactor öncesi kullanıcıya sor
+- Karmaşık mantığı küçük, tek sorumlu fonksiyonlara böl
+
+## Yorumlar ve TODOs
+
+- Inline yorum yok; kod kendini anlatmalı
+- Commented-out kod yok
+- Production'da TODO / FIXME yok; her iş takip sistemine taşınmalı
+
+## Güvenlik Temeli
+
+- Tüm girdileri validate et; asla doğrudan güven
+- En az yetki prensibi; sadece gerektiğinde erişim ver
+- PII ve hassas veri loglara ve hata mesajlarına girmesin
+- Hassas verileri şifrele; düz metin saklama
+- Güvenlik konfigürasyonu ve migration dosyalarını talimat olmadan değiştirme
+
+## Eşzamanlılık
+
+- Paylaşılan durum thread-safe olmalı
+- Yarış koşullarını ve deadlock'ları test et
+
+## Test
+
+- Her değişiklik için unit + integration test ekle
+- Domain coverage hedefi: ≥ %80
+- Hata düzeltmelerinde: önce hatayı reproduce eden test, sonra düzeltme
+
+## Tarih / Saat
+
+- Dahili olarak UTC kullan; kullanıcıya gösterirken dönüştür
+- `java.time` / `Date` nesne türlerine proje standardına göre karar ver

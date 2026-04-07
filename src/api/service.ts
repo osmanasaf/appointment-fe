@@ -1,4 +1,5 @@
 import { api, type ApiResponse } from './client'
+import type { EmployeeResponse } from './employee'
 
 export interface ServiceResponse {
   id: number
@@ -67,5 +68,9 @@ export const serviceApi = {
   },
   delete(id: number) {
     return api.delete<ApiResponse<null>>(`/services/${id}`)
+  },
+  /** Bu hizmeti yapabilen çalışanları listeler (GET /services/{id}/employees) */
+  getCapableEmployees(id: number) {
+    return api.get<ApiResponse<EmployeeResponse[]>>(`/services/${id}/employees`)
   },
 }

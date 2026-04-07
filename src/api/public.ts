@@ -1,4 +1,5 @@
 import { api, type ApiResponse } from './client'
+import type { EmployeeResponse } from './employee'
 
 export interface BusinessResponse {
   id: number
@@ -19,13 +20,6 @@ export interface ServiceResponse {
   currency: string
 }
 
-export interface EmployeeResponse {
-  id: number
-  name: string
-  phoneNumber: string | null
-  email: string | null
-}
-
 export interface AvailableSlotResponse {
   startTime: string
   endTime: string
@@ -38,31 +32,69 @@ export const publicApi = {
   getBusiness(slug: string) {
     return api.get<ApiResponse<BusinessResponse>>(`/public/businesses/${slug}`)
   },
+
   getServices(slug: string) {
     return api.get<ApiResponse<ServiceResponse[]>>(`/public/businesses/${slug}/services`)
   },
+
   getEmployees(slug: string) {
     return api.get<ApiResponse<EmployeeResponse[]>>(`/public/businesses/${slug}/employees`)
   },
-  getAvailableDates(businessId: number, employeeId: number, serviceId: number, daysAhead = 14) {
-    return api.get<ApiResponse<string[]>>('/public/availability/dates', {
-      params: { businessId, employeeId, serviceId, daysAhead },
-    })
+
+  /** Belirli bir hizmeti yapabilen çalışanları listeler */
+  getEmployeesForService(slug: string, serviceId: number) {
+    return api.get<ApiResponse<EmployeeResponse[]>>(
+      `/public/businesses/${slug}/services/${serviceId}/employees`,
+    )
   },
-  getAvailableSlots(businessId: number, employeeId: number, serviceId: number, date: string) {
+
+  /** employeeId opsiyonel — verilmezse tüm yetkin çalışanların slotları birleştirilir */
+  getAvailableSlotsBySlug(
+    slug: string,
+    serviceId: number,
+    date: string,
+    employeeId?: number,
+  ) {
+    return api.get<ApiResponse<AvailableSlotResponse[]>>(
+      `/public/businesses/${slug}/availability`,
+      { params: { serviceId, date, ...(employeeId ? { employeeId } : {}) } },
+    )
+  },
+
+  getAvailableSlots(
+    businessId: number,
+    serviceId: number,
+    date: string,
+    employeeId?: number,
+  ) {
     return api.get<ApiResponse<AvailableSlotResponse[]>>('/public/availability', {
-      params: { businessId, employeeId, serviceId, date },
+      params: { businessId, serviceId, date, ...(employeeId ? { employeeId } : {}) },
     })
   },
-  createAppointment(slug: string, body: {
-    employeeId: number
-    serviceId: number
-    scheduledAt: string
-    customerName: string
-    phoneNumber: string
-    phoneCountryCode?: string
-    notes?: string
-  }) {
+
+  getAvailableDates(
+    businessId: number,
+    serviceId: number,
+    daysAhead = 14,
+    employeeId?: number,
+  ) {
+    return api.get<ApiResponse<string[]>>('/public/availability/dates', {
+      params: { businessId, serviceId, daysAhead, ...(employeeId ? { employeeId } : {}) },
+    })
+  },
+
+  createAppointment(
+    slug: string,
+    body: {
+      employeeId: number
+      serviceId: number
+      scheduledAt: string
+      customerName: string
+      phoneNumber: string
+      phoneCountryCode?: string
+      notes?: string
+    },
+  ) {
     return api.post<ApiResponse<unknown>>(`/public/businesses/${slug}/appointments`, body)
   },
 }

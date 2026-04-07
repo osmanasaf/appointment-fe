@@ -1,0 +1,95 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "all": "All",
+    "preview": "Preview",
+    "copyLink": "Copy link",
+    "copied": "Copied ✓"
+  },
+  "admin": {
+    "brand": "Booking Panel",
+    "logout": "Log out",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "publicBookingPage": "Public booking page",
+    "breadcrumb": "Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "appointments": "Appointments",
+    "customers": "Customers",
+    "employees": "Employees",
+    "services": "Services",
+    "packages": "Packages",
+    "settings": "Settings"
+  },
+  "pageTitles": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "appointments": "Appointments",
+    "customers": "Customers",
+    "employees": "Employees",
+    "services": "Services",
+    "packages": "Packages",
+    "settings": "Settings",
+    "default": "Admin"
+  },
+  "dashboard": {
+    "welcome": "Welcome{suffix}",
+    "welcomeSuffix": ", {name}",
+    "lead": "Your daily overview is below.",
+    "noBusiness": "Business information not found.",
+    "checkBusiness": "Check the settings page.",
+    "loadError": "Could not load summary. Check your connection and try again.",
+    "kpi": {
+      "todayAppointments": "Today's appointments",
+      "monthAppointments": "This month",
+      "occupancy": "Occupancy",
+      "occupancyHint": "Will update with analytics API",
+      "noShowRate": "No-show rate",
+      "pendingBadge": "{count} pending"
+    },
+    "stats": {
+      "services": "Services",
+      "customers": "Customers",
+      "employees": "Staff"
+    },
+    "todaySection": "Today's appointments",
+    "priceList": "Price list",
+    "noAppointmentsToday": "No appointments today.",
+    "createAppointment": "Create appointment",
+    "noActiveServices": "No active services yet.",
+    "addService": "Add service",
+    "moreAppointments": "+{count} more…",
+    "seeAll": "See all",
+    "bookingPageTitle": "Your booking page",
+    "bookingPageDesc": "Customers can book using this link.",
+    "minutesShort": "{n} min",
+    "customerFallback": "Customer #{id}"
+  },
+  "appointmentStatus": {
+    "PENDING": "Pending",
+    "CONFIRMED": "Confirmed",
+    "RISKY": "At risk",
+    "CANCELLED": "Cancelled",
+    "COMPLETED": "Completed",
+    "NO_SHOW": "No-show"
+  },
+  "table": {
+    "empty": "No records",
+    "emptyHint": "Change filters or add a new record."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "emptyTitle": "Calendar coming soon",
+    "emptyDescription": "Drag-and-drop and staff filters will be available here."
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "common": {
+    "loading": "Yükleniyor…",
+    "error": "Bir hata oluştu",
+    "retry": "Yeniden dene",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "all": "Tümü",
+    "preview": "Önizle",
+    "copyLink": "Linki kopyala",
+    "copied": "Kopyalandı ✓"
+  },
+  "admin": {
+    "brand": "Randevu Panel",
+    "logout": "Çıkış",
+    "menuOpen": "Menüyü aç",
+    "menuClose": "Menüyü kapat",
+    "publicBookingPage": "Randevu sayfası",
+    "breadcrumb": "Yönetim"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Takvim",
+    "appointments": "Randevular",
+    "customers": "Müşteriler",
+    "employees": "Çalışanlar",
+    "services": "Hizmetler",
+    "packages": "Paketler",
+    "settings": "Ayarlar"
+  },
+  "pageTitles": {
+    "dashboard": "Dashboard",
+    "calendar": "Takvim",
+    "appointments": "Randevular",
+    "customers": "Müşteriler",
+    "employees": "Çalışanlar",
+    "services": "Hizmetler",
+    "packages": "Paketler",
+    "settings": "Ayarlar",
+    "default": "Yönetim"
+  },
+  "dashboard": {
+    "welcome": "Hoş geldiniz{suffix}",
+    "welcomeSuffix": ", {name}",
+    "lead": "İşletmenizin günlük özeti aşağıda.",
+    "noBusiness": "İşletme bilgisi bulunamadı.",
+    "checkBusiness": "Ayarlar sayfasından kontrol edin.",
+    "loadError": "Özet yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.",
+    "kpi": {
+      "todayAppointments": "Bugünkü randevu",
+      "monthAppointments": "Bu ay randevu",
+      "occupancy": "Doluluk",
+      "occupancyHint": "Analitik API ile güncellenecek",
+      "noShowRate": "No-show oranı",
+      "pendingBadge": "{count} bekliyor"
+    },
+    "stats": {
+      "services": "Hizmet",
+      "customers": "Müşteri",
+      "employees": "Çalışan"
+    },
+    "todaySection": "Bugünkü randevular",
+    "priceList": "Fiyat listesi",
+    "noAppointmentsToday": "Bugün randevu yok.",
+    "createAppointment": "Randevu oluştur",
+    "noActiveServices": "Henüz aktif hizmet yok.",
+    "addService": "Hizmet ekle",
+    "moreAppointments": "+{count} daha…",
+    "seeAll": "Tümünü gör",
+    "bookingPageTitle": "Randevu sayfanız",
+    "bookingPageDesc": "Müşterileriniz bu linkten randevu alabilir.",
+    "minutesShort": "{n} dk",
+    "customerFallback": "Müşteri #{id}"
+  },
+  "appointmentStatus": {
+    "PENDING": "Beklemede",
+    "CONFIRMED": "Onaylı",
+    "RISKY": "Riskli",
+    "CANCELLED": "İptal",
+    "COMPLETED": "Tamamlandı",
+    "NO_SHOW": "Gelmedi"
+  },
+  "table": {
+    "empty": "Kayıt bulunamadı",
+    "emptyHint": "Filtreleri değiştirin veya yeni kayıt ekleyin."
+  },
+  "calendar": {
+    "title": "Takvim",
+    "emptyTitle": "Takvim yakında",
+    "emptyDescription": "Sürükle-bırak ve çalışan filtresi bu görünümde kullanılabilir olacak."
+  }
+}

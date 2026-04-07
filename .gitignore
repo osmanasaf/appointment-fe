@@ -34,3 +34,6 @@ CLAUDE.md
 .env
 .env.local
 .env.*.local
+
+### Local docs (agent prompts; keep in appointment-service/md-files as source of truth) ###
+md-files/

@@ -30,10 +30,22 @@ dist-ssr
 AGENTS.md
 CLAUDE.md
 
-### Env ###
+### Env & secrets (asla commit etmeyin) ###
 .env
+.env.*
+!.env.example
 .env.local
 .env.*.local
+*.pem
+*.p12
+*.pfx
+.secrets/
+credentials.json
+*-credentials.json
 
-### Local docs (agent prompts; keep in appointment-service/md-files as source of truth) ###
+### Markdown — repo dışında tutulur (README hariç) ###
+*.md
+!README.md
+
+### Local docs (agent prompts; kaynak: appointment-service/md-files) ###
 md-files/

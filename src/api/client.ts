@@ -7,11 +7,22 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+/** Sunucu MethodArgumentNotValidException / validation cevaplarındaki alan hataları */
+export interface ApiFieldError {
+  field: string
+  message: string
+}
+
 export interface ApiResponse<T> {
   success: boolean
   data?: T
   message?: string
-  error?: { code: string; message: string; timestamp?: string }
+  error?: {
+    code: string
+    message: string
+    details?: ApiFieldError[] | null
+    timestamp?: string
+  }
 }
 
 api.interceptors.request.use((config) => {

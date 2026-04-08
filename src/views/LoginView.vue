@@ -1,242 +1,108 @@
 <template>
-  <div class="auth-page">
-    <main class="auth-card">
-      <div class="auth-header">
-        <span class="auth-logo" aria-hidden="true">◇</span>
-        <h1 class="auth-title">Giriş</h1>
-        <p class="auth-subtitle">Randevu panelinize giriş yapın</p>
-      </div>
-      <form @submit.prevent="onSubmit" class="auth-form" novalidate>
-        <div class="field">
-          <label for="login-email">E-posta</label>
+  <div class="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+    <AppCard class="w-full max-w-md shadow-lg" :padded="true">
+      <template #title>
+        <div class="w-full text-center">
+          <span
+            class="mx-auto mb-3 flex size-12 items-center justify-center rounded-xl bg-indigo-600 text-xl text-white"
+            aria-hidden="true"
+            >◇</span
+          >
+          <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ t('auth.loginTitle') }}</h1>
+          <p class="mt-1 text-sm text-slate-600">{{ t('auth.loginSubtitle') }}</p>
+        </div>
+      </template>
+
+      <form class="flex flex-col gap-4" novalidate @submit.prevent="onSubmit">
+        <div>
+          <label for="login-email" class="mb-1 block text-sm font-medium text-slate-600">{{ t('auth.email') }}</label>
           <input
             id="login-email"
             v-model="email"
+            v-bind="emailAttrs"
             type="email"
-            name="email"
             autocomplete="email"
-            required
-            :aria-invalid="!!errors.email"
-            :aria-describedby="errors.email ? 'login-email-error' : undefined"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            :class="{ 'border-red-400': !!errors.email }"
           />
-          <span v-if="errors.email" id="login-email-error" class="error" role="alert">{{ errors.email }}</span>
+          <p v-if="errors.email" class="mt-1 text-sm text-red-600" role="alert">{{ errors.email }}</p>
         </div>
-        <div class="field">
-          <label for="login-password">Şifre</label>
+        <div>
+          <label for="login-password" class="mb-1 block text-sm font-medium text-slate-600">{{ t('auth.password') }}</label>
           <input
             id="login-password"
             v-model="password"
+            v-bind="passwordAttrs"
             type="password"
-            name="password"
             autocomplete="current-password"
-            required
-            :aria-invalid="!!errors.password"
-            :aria-describedby="errors.password ? 'login-password-error' : undefined"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            :class="{ 'border-red-400': !!errors.password }"
           />
-          <span v-if="errors.password" id="login-password-error" class="error" role="alert">{{ errors.password }}</span>
+          <p v-if="errors.password" class="mt-1 text-sm text-red-600" role="alert">{{ errors.password }}</p>
         </div>
-        <p v-if="submitError" class="submit-error" role="alert">{{ submitError }}</p>
-        <button type="submit" class="auth-btn" :disabled="loading">
-          {{ loading ? 'Giriş yapılıyor…' : 'Giriş yap' }}
-        </button>
+        <p v-if="submitError" class="text-sm text-red-600" role="alert">{{ submitError }}</p>
+        <AppButton type="submit" class="w-full justify-center" :loading="loading" :disabled="loading">
+          {{ loading ? t('auth.signingIn') : t('auth.signIn') }}
+        </AppButton>
       </form>
-      <p class="auth-footer">
-        Hesabınız yok mu?
-        <router-link to="/register">Kayıt olun</router-link>
-      </p>
-    </main>
+
+      <template #footer>
+        <p class="text-center text-sm text-slate-600">
+          {{ t('auth.noAccount') }}
+          <RouterLink to="/register" class="font-medium text-indigo-600 hover:underline">{{ t('auth.registerLink') }}</RouterLink>
+        </p>
+      </template>
+    </AppCard>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { z } from 'zod'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import AppCard from '@/components/ui/AppCard.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 
-const email = ref('')
-const password = ref('')
+const validationSchema = computed(() =>
+  toTypedSchema(
+    z.object({
+      email: z.string().min(1, t('auth.emailRequired')).email(t('auth.emailInvalid')),
+      password: z.string().min(1, t('auth.passwordRequired')),
+    }),
+  ),
+)
+
+const { handleSubmit, errors, defineField } = useForm({
+  validationSchema,
+  initialValues: { email: '', password: '' },
+})
+
+const [email, emailAttrs] = defineField('email')
+const [password, passwordAttrs] = defineField('password')
+
 const loading = ref(false)
-const errors = reactive<Record<string, string>>({})
 const submitError = ref('')
 
-function validate(): boolean {
-  submitError.value = ''
-  errors.email = ''
-  errors.password = ''
-  if (!email.value.trim()) {
-    errors.email = 'E-posta giriniz'
-    return false
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    errors.email = 'Geçerli bir e-posta giriniz'
-    return false
-  }
-  if (!password.value) {
-    errors.password = 'Şifre giriniz'
-    return false
-  }
-  return true
-}
-
-async function onSubmit() {
-  if (!validate()) return
+const onSubmit = handleSubmit(async values => {
   loading.value = true
   submitError.value = ''
   try {
-    await auth.login({ email: email.value.trim(), password: password.value })
+    await auth.login({ email: values.email.trim(), password: values.password })
     const redirect = (route.query.redirect as string) || '/admin'
     await router.push(redirect)
   } catch (e: unknown) {
-    submitError.value = e instanceof Error ? e.message : 'Giriş yapılamadı. Tekrar deneyin.'
+    submitError.value = e instanceof Error ? e.message : t('auth.loginFailed')
   } finally {
     loading.value = false
   }
-}
+})
 </script>
-
-<style scoped>
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: var(--color-background);
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 24rem;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--color-border);
-  padding: 2rem;
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
-.auth-logo {
-  width: 3rem;
-  height: 3rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-primary);
-  color: white;
-  border-radius: var(--radius-lg);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.auth-title {
-  margin: 0 0 0.25rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-}
-
-.auth-subtitle {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: var(--color-text-muted);
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.auth-form .field {
-  margin-bottom: 0;
-}
-
-.auth-form label {
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-.auth-form input {
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-family: inherit;
-  width: 100%;
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
-}
-
-.auth-form input[aria-invalid='true'] {
-  border-color: var(--color-danger);
-}
-
-.auth-form .error {
-  font-size: 0.875rem;
-  color: var(--color-danger);
-}
-
-.submit-error {
-  font-size: 0.875rem;
-  color: var(--color-danger);
-  margin: 0;
-}
-
-.auth-btn {
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: white;
-  background: var(--color-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.auth-btn:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.auth-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.auth-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  margin: 1.5rem 0 0;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.auth-footer a {
-  color: var(--color-primary);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-</style>

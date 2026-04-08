@@ -2,6 +2,12 @@ import { api, type ApiResponse } from './client'
 
 export type BusinessStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
 
+/** İşletme sektörü / kategori (dropdown); backend ile aynı kod değerleri */
+export interface BusinessCategoryResponse {
+  code: string
+  label: string
+}
+
 export interface BusinessResponse {
   id: number
   name: string
@@ -11,6 +17,8 @@ export interface BusinessResponse {
   address: string | null
   description: string | null
   logoUrl: string | null
+  /** İşletme kategorisi kodu (örn. BEAUTY_SALON) */
+  category: string | null
   autoConfirm: boolean
   reminderHoursBefore: number
   sameDayBookingAllowed: boolean
@@ -28,6 +36,7 @@ export interface CreateBusinessRequest {
   email?: string
   address?: string
   description?: string
+  category?: string
 }
 
 export interface UpdateBusinessRequest {
@@ -36,6 +45,7 @@ export interface UpdateBusinessRequest {
   address?: string
   description?: string
   logoUrl?: string
+  category?: string
   autoConfirm?: boolean
   reminderHoursBefore?: number
   sameDayBookingAllowed?: boolean
@@ -45,6 +55,9 @@ export interface UpdateBusinessRequest {
 }
 
 export const businessApi = {
+  getCategories() {
+    return api.get<ApiResponse<BusinessCategoryResponse[]>>('/businesses/categories')
+  },
   create(body: CreateBusinessRequest) {
     return api.post<ApiResponse<BusinessResponse>>('/businesses', body)
   },

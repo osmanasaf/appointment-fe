@@ -28,6 +28,8 @@ export interface RegisterRequest {
   name: string
   phoneNumber?: string
   businessName: string
+  /** `GET /businesses/categories` yanıtındaki `code` */
+  businessCategory: string
 }
 
 export const authApi = {

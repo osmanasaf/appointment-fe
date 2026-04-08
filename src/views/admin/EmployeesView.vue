@@ -1,295 +1,314 @@
 <template>
-  <div class="employees-page">
-    <div class="page-header">
+  <div class="employees-page space-y-6 p-4 sm:p-6">
+    <!-- Header -->
+    <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 class="page-title">Çalışanlar</h1>
-        <p class="page-desc">Randevu alabilecek ekip üyelerinizi tanımlayın.</p>
+        <h1 class="text-2xl font-bold text-slate-900">{{ t('pageTitles.employees') }}</h1>
+        <p class="mt-1 text-sm text-slate-500">{{ t('employees.lead') }}</p>
       </div>
-      <button
+      <AppButton
         v-if="businessId && !loading && !listError"
-        type="button"
-        class="btn primary"
+        variant="primary"
         @click="openCreate"
-        aria-label="Yeni çalışan ekle"
       >
-        + Yeni çalışan
-      </button>
+        + {{ t('employees.add') }}
+      </AppButton>
     </div>
 
-    <div v-if="!businessId" class="empty-state">İşletme bilgisi bulunamadı.</div>
+    <div v-if="!businessId" class="rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
+      {{ t('employees.noBusiness') }}
+    </div>
 
     <template v-else>
-      <div v-if="loading" class="loading-state" aria-busy="true">
-        <div class="skeleton-card" v-for="i in 3" :key="i" />
-      </div>
-      <div v-else-if="listError" class="error-state" role="alert">
-        <p>{{ listError }}</p>
-        <button type="button" class="btn primary" @click="loadList">Tekrar dene</button>
-      </div>
-      <template v-else>
-        <div v-if="employees.length === 0" class="empty-state empty-state-cta">
-          <p class="empty-title">Henüz çalışan yok</p>
-          <p class="empty-desc">Müşteriler randevu alırken çalışan seçebilir. En az bir çalışan ekleyin.</p>
-          <button type="button" class="btn primary" @click="openCreate">+ Yeni çalışan ekle</button>
+      <!-- Filters -->
+      <div v-if="!loading && !listError && employees.length > 0" class="flex flex-wrap gap-3">
+        <input
+          v-model="search"
+          type="search"
+          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-64"
+          :placeholder="t('employees.searchPlaceholder')"
+        />
+        <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm">
+          <button
+            v-for="opt in STATUS_FILTER_OPTIONS"
+            :key="opt.value"
+            type="button"
+            class="px-3 py-2 transition"
+            :class="statusFilter === opt.value
+              ? 'bg-indigo-500 text-white'
+              : 'bg-white text-slate-600 hover:bg-slate-50'"
+            @click="statusFilter = opt.value"
+          >
+            {{ t(opt.labelKey) }}
+          </button>
         </div>
-        <ul v-else class="list">
-          <li v-for="e in employees" :key="e.id" class="card">
-            <div class="card-head">
-              <span class="name">{{ e.name }}</span>
-              <span class="badge" :class="e.status === 'ACTIVE' ? 'active' : 'inactive'">
-                {{ e.status === 'ACTIVE' ? 'Aktif' : 'Pasif' }}
-              </span>
-              <span v-if="e.owner" class="badge owner">Sahip</span>
-            </div>
-            <p class="meta">
-              <span v-if="e.phoneNumber">{{ e.phoneNumber }}</span>
-              <span v-if="e.email"> · {{ e.email }}</span>
-            </p>
-            <div class="actions">
-              <button type="button" class="btn small" @click="openEdit(e)" aria-label="Düzenle">
-                Düzenle
-              </button>
-              <button
-                v-if="e.status === 'ACTIVE'"
-                type="button"
-                class="btn small"
-                @click="deactivate(e.id)"
-                aria-label="Pasifleştir"
-              >
-                Pasifleştir
-              </button>
-              <button
-                v-else
-                type="button"
-                class="btn small primary"
-                @click="activate(e.id)"
-                aria-label="Aktifleştir"
-              >
-                Aktifleştir
-              </button>
-              <button type="button" class="btn small danger" @click="confirmDelete(e)" aria-label="Sil">
-                Sil
-              </button>
-            </div>
-          </li>
-        </ul>
+      </div>
 
-        <dialog ref="dialogRef" class="modal" @cancel="closeModal">
-          <h2 class="modal-title">{{ editingId ? 'Çalışanı düzenle' : 'Yeni çalışan' }}</h2>
-          <form @submit.prevent="submitEmployee" class="form">
-            <div class="field">
-              <label for="emp-name">Ad soyad</label>
-              <input
-                id="emp-name"
-                v-model="form.name"
-                type="text"
-                name="name"
-                required
-                minlength="2"
-                maxlength="100"
-                :aria-invalid="!!formErrors.name"
-              />
-              <span v-if="formErrors.name" class="error">{{ formErrors.name }}</span>
-            </div>
-            <div class="field">
-              <label for="emp-phone">Telefon</label>
-              <input id="emp-phone" v-model="form.phoneNumber" type="tel" name="phone" />
-            </div>
-            <div class="field">
-              <label for="emp-email">E-posta</label>
-              <input
-                id="emp-email"
-                v-model="form.email"
-                type="email"
-                name="email"
-                :aria-invalid="!!formErrors.email"
-              />
-              <span v-if="formErrors.email" class="error">{{ formErrors.email }}</span>
-            </div>
-            <div class="field">
-              <label for="emp-bio">Biyografi</label>
-              <textarea id="emp-bio" v-model="form.bio" name="bio" rows="2" maxlength="500" />
-            </div>
-            <div class="field row">
-              <label><input v-model="form.owner" type="checkbox" /> İşletme sahibi</label>
-            </div>
-            <p v-if="formSubmitError" class="submit-error" role="alert">{{ formSubmitError }}</p>
-            <div class="modal-actions">
-              <button type="button" class="btn" @click="closeModal">İptal</button>
-              <button type="submit" class="btn primary" :disabled="formSaving">
-                {{ formSaving ? 'Kaydediliyor…' : 'Kaydet' }}
-              </button>
-            </div>
-          </form>
-        </dialog>
+      <!-- Loading skeleton -->
+      <div v-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div v-for="i in 6" :key="i" class="h-48 animate-pulse rounded-xl bg-slate-100" />
+      </div>
 
-        <dialog ref="deleteDialogRef" class="modal" @cancel="cancelDelete">
-          <h2 class="modal-title">Çalışanı sil</h2>
-          <p>«{{ toDelete?.name }}» silinsin mi? Bu işlem geri alınamaz.</p>
-          <div class="modal-actions">
-            <button type="button" class="btn" @click="cancelDelete">Vazgeç</button>
-            <button type="button" class="btn danger" @click="doDelete" :disabled="deleting">
-              {{ deleting ? 'Siliniyor…' : 'Sil' }}
-            </button>
-          </div>
-        </dialog>
-      </template>
+      <!-- Error -->
+      <div v-else-if="listError" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
+        <p class="text-sm text-red-600">{{ listError }}</p>
+        <AppButton variant="secondary" size="sm" class="mt-3" @click="loadList">{{ t('common.retry') }}</AppButton>
+      </div>
+
+      <!-- Empty state -->
+      <div
+        v-else-if="employees.length === 0"
+        class="flex flex-col items-center rounded-xl border border-slate-200 bg-white py-16 text-center"
+      >
+        <div class="mb-4 flex size-16 items-center justify-center rounded-full bg-slate-100 text-3xl">👥</div>
+        <p class="font-semibold text-slate-800">{{ t('employees.emptyTitle') }}</p>
+        <p class="mt-1 text-sm text-slate-500">{{ t('employees.emptyDesc') }}</p>
+        <AppButton variant="primary" size="sm" class="mt-4" @click="openCreate">+ {{ t('employees.add') }}</AppButton>
+      </div>
+
+      <!-- Filter empty -->
+      <div v-else-if="filteredEmployees.length === 0" class="py-10 text-center text-sm text-slate-400">
+        {{ t('employees.noFilterResults') }}
+      </div>
+
+      <!-- Card grid -->
+      <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <EmployeeCard
+          v-for="emp in filteredEmployees"
+          :key="emp.id"
+          :employee="emp"
+          :capabilities="capabilitiesMap.get(emp.id) ?? []"
+          :status-loading="statusLoadingId === emp.id"
+          @edit="openEdit"
+          @add-leave="openLeaveTab"
+          @activate="activate"
+          @deactivate="deactivate"
+          @offboard="openOffboard"
+          @delete="confirmDelete"
+        />
+      </div>
     </template>
+
+    <!-- Employee Form Modal (create / edit) -->
+    <EmployeeFormModal
+      v-model:visible="formModalVisible"
+      :employee="editingEmployee ?? undefined"
+      :business-id="businessId ?? 0"
+      :all-employees="employees"
+      :initial-tab="formModalInitialTab"
+      @saved="onEmployeeSaved"
+    />
+
+    <!-- Delete confirm -->
+    <AppModal
+      v-model:visible="deleteModalVisible"
+      :title="t('employees.deleteTitle')"
+    >
+      <p class="text-sm text-slate-700">
+        {{ t('employees.deleteConfirm', { name: toDelete?.name ?? '' }) }}
+      </p>
+      <template #footer>
+        <AppButton variant="secondary" @click="deleteModalVisible = false">{{ t('common.cancel') }}</AppButton>
+        <AppButton variant="danger" :loading="deleting" @click="doDelete">{{ t('employees.delete') }}</AppButton>
+      </template>
+    </AppModal>
+
+    <!-- Offboard Modal -->
+    <AppModal
+      v-model:visible="offboardModalVisible"
+      :title="t('employees.offboardTitle', { name: offboardEmployee?.name ?? '' })"
+      :style="{ width: 'min(36rem, 95vw)' }"
+    >
+      <div class="space-y-4">
+        <div v-if="offboardLoading" class="py-6 text-center text-sm text-slate-400">{{ t('common.loading') }}</div>
+        <template v-else>
+          <p v-if="affectedAppointments.length === 0" class="text-sm text-slate-500">{{ t('employees.offboardNone') }}</p>
+          <template v-else>
+            <p class="text-sm text-slate-700">{{ t('employees.offboardIntro', { count: affectedAppointments.length }) }}</p>
+            <ul class="divide-y divide-slate-100 rounded-xl border border-slate-200 text-sm">
+              <li v-for="a in affectedAppointments" :key="a.id" class="px-3 py-2 text-slate-700">
+                {{ formatApptLine(a) }}
+              </li>
+            </ul>
+            <div v-if="affectedAppointments.length" class="space-y-2">
+              <p class="text-sm font-medium text-slate-700">{{ t('employees.offboardAction') }}</p>
+              <label class="flex cursor-pointer items-center gap-2">
+                <input v-model="offboardAction" type="radio" value="CANCEL_ALL" />
+                <span class="text-sm">{{ t('employees.cancelAll') }}</span>
+              </label>
+              <label class="flex cursor-pointer items-center gap-2">
+                <input v-model="offboardAction" type="radio" value="REASSIGN_ALL" />
+                <span class="text-sm">{{ t('employees.reassignAll') }}</span>
+              </label>
+              <div v-if="offboardAction === 'REASSIGN_ALL'" class="space-y-1">
+                <label class="block text-sm font-medium text-slate-700">{{ t('employees.selectEmployee') }}</label>
+                <select v-model.number="offboardNewEmployeeId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                  <option :value="0">{{ t('employees.selectEmployee') }}</option>
+                  <option v-for="o in offboardTargetOptions" :key="o.id" :value="o.id">{{ o.name }}</option>
+                </select>
+              </div>
+            </div>
+          </template>
+          <p v-if="offboardError" class="text-sm text-red-500" role="alert">{{ offboardError }}</p>
+        </template>
+      </div>
+      <template #footer>
+        <AppButton variant="secondary" @click="offboardModalVisible = false">{{ t('common.cancel') }}</AppButton>
+        <AppButton
+          v-if="affectedAppointments.length"
+          variant="danger"
+          :loading="offboardSubmitting"
+          :disabled="offboardAction === 'REASSIGN_ALL' && !offboardNewEmployeeId"
+          @click="submitOffboard"
+        >
+          {{ t('employees.confirmOffboard') }}
+        </AppButton>
+        <AppButton
+          v-else
+          :loading="offboardSubmitting"
+          @click="deactivateOnlyOffboard"
+        >
+          {{ t('employees.deactivate') }}
+        </AppButton>
+      </template>
+    </AppModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { employeeApi, type EmployeeResponse, type CreateEmployeeRequest, type UpdateEmployeeRequest } from '@/api/employee'
+import { employeeApi, type AffectedAppointmentResponse, type EmployeeCapabilityResponse, type EmployeeResponse } from '@/api/employee'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppModal from '@/components/ui/AppModal.vue'
+import EmployeeCard from '@/components/employee/EmployeeCard.vue'
+import EmployeeFormModal from '@/components/employee/EmployeeFormModal.vue'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
 
-const employees = ref<EmployeeResponse[]>([])
-const loading = ref(true)
-const listError = ref('')
-const dialogRef = ref<HTMLDialogElement | null>(null)
-const deleteDialogRef = ref<HTMLDialogElement | null>(null)
-const editingId = ref<number | null>(null)
-const formSaving = ref(false)
-const formSubmitError = ref('')
-const toDelete = ref<EmployeeResponse | null>(null)
-const deleting = ref(false)
+// ── Filter ──────────────────────────────────────────────────────────────────
+const STATUS_FILTER_OPTIONS = [
+  { value: 'all', labelKey: 'common.all' },
+  { value: 'ACTIVE', labelKey: 'employees.active' },
+  { value: 'INACTIVE', labelKey: 'employees.inactive' },
+  { value: 'ON_LEAVE', labelKey: 'employees.onLeave' },
+]
 
-const form = reactive({
-  name: '',
-  phoneNumber: '',
-  email: '',
-  bio: '',
-  owner: false,
+const search = ref('')
+const statusFilter = ref('all')
+
+const filteredEmployees = computed(() => {
+  let list = employees.value
+  if (statusFilter.value !== 'all') list = list.filter((e) => e.status === statusFilter.value)
+  const q = search.value.toLowerCase().trim()
+  if (q) list = list.filter((e) => e.name.toLowerCase().includes(q) || e.title?.toLowerCase().includes(q))
+  return list
 })
 
-const formErrors = reactive<Record<string, string>>({})
+// ── Data ────────────────────────────────────────────────────────────────────
+const employees = ref<EmployeeResponse[]>([])
+const capabilitiesMap = ref<Map<number, EmployeeCapabilityResponse[]>>(new Map())
+const loading = ref(true)
+const listError = ref('')
+const statusLoadingId = ref<number | null>(null)
 
-function openCreate() {
-  editingId.value = null
-  form.name = ''
-  form.phoneNumber = ''
-  form.email = ''
-  form.bio = ''
-  form.owner = false
-  formErrors.name = ''
-  formErrors.email = ''
-  formSubmitError.value = ''
-  dialogRef.value?.showModal()
-}
-
-function openEdit(e: EmployeeResponse) {
-  editingId.value = e.id
-  form.name = e.name
-  form.phoneNumber = e.phoneNumber ?? ''
-  form.email = e.email ?? ''
-  form.bio = e.bio ?? ''
-  form.owner = e.owner
-  formErrors.name = ''
-  formErrors.email = ''
-  formSubmitError.value = ''
-  dialogRef.value?.showModal()
-}
-
-function closeModal() {
-  dialogRef.value?.close()
-}
-
-function validateForm(): boolean {
-  formErrors.name = ''
-  formErrors.email = ''
-  if (!form.name.trim()) {
-    formErrors.name = 'Çalışan adı giriniz'
-    return false
-  }
-  if (form.name.trim().length < 2) {
-    formErrors.name = 'En az 2 karakter olmalıdır'
-    return false
-  }
-  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    formErrors.email = 'Geçerli bir e-posta giriniz'
-    return false
-  }
-  return true
-}
-
-async function submitEmployee() {
-  if (!businessId.value || !validateForm()) return
-  formSaving.value = true
-  formSubmitError.value = ''
-  try {
-    if (editingId.value) {
-      const body: UpdateEmployeeRequest = {
-        name: form.name.trim(),
-        phoneNumber: form.phoneNumber.trim() || undefined,
-        email: form.email.trim() || undefined,
-        bio: form.bio.trim() || undefined,
-        owner: form.owner,
-      }
-      await employeeApi.update(editingId.value, body)
-    } else {
-      const body: CreateEmployeeRequest = {
-        businessId: businessId.value,
-        name: form.name.trim(),
-        phoneNumber: form.phoneNumber.trim() || undefined,
-        phoneCountryCode: '+90',
-        email: form.email.trim() || undefined,
-        bio: form.bio.trim() || undefined,
-        owner: form.owner,
-      }
-      await employeeApi.create(body)
-    }
-    await loadList()
-    closeModal()
-  } catch (e: unknown) {
-    formSubmitError.value = e instanceof Error ? e.message : 'Kaydedilemedi.'
-  } finally {
-    formSaving.value = false
-  }
-}
+onMounted(loadList)
 
 async function loadList() {
   if (!businessId.value) return
   loading.value = true
   listError.value = ''
   try {
-    const { data } = await employeeApi.list(businessId.value)
-    if (data.success && data.data) employees.value = data.data
+    const res = await employeeApi.list(businessId.value)
+    employees.value = res.data.data ?? []
+    await loadAllCapabilities()
   } catch {
-    listError.value = 'Liste yüklenemedi.'
+    listError.value = t('employees.loadError')
   } finally {
     loading.value = false
   }
 }
 
+async function loadAllCapabilities() {
+  const results = await Promise.allSettled(
+    employees.value.map((e) => employeeApi.getCapabilities(e.id)),
+  )
+  const map = new Map<number, EmployeeCapabilityResponse[]>()
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') map.set(employees.value[i].id, r.value.data.data ?? [])
+  })
+  capabilitiesMap.value = map
+}
+
+// ── Create / Edit ────────────────────────────────────────────────────────────
+const formModalVisible = ref(false)
+const editingEmployee = ref<EmployeeResponse | null>(null)
+const formModalInitialTab = ref<'profile' | 'leaves'>('profile')
+
+function openCreate() {
+  editingEmployee.value = null
+  formModalInitialTab.value = 'profile'
+  formModalVisible.value = true
+}
+
+function openEdit(emp: EmployeeResponse) {
+  editingEmployee.value = emp
+  formModalInitialTab.value = 'profile'
+  formModalVisible.value = true
+}
+
+function openLeaveTab(emp: EmployeeResponse) {
+  editingEmployee.value = emp
+  formModalInitialTab.value = 'leaves'
+  formModalVisible.value = true
+}
+
+function onEmployeeSaved(emp: EmployeeResponse) {
+  const idx = employees.value.findIndex((e) => e.id === emp.id)
+  if (idx !== -1) employees.value[idx] = emp
+  else employees.value.unshift(emp)
+}
+
+// ── Activate / Deactivate ────────────────────────────────────────────────────
 async function activate(id: number) {
+  statusLoadingId.value = id
   try {
-    await employeeApi.activate(id)
-    await loadList()
-  } catch {
-    listError.value = 'Aktifleştirilemedi.'
+    const res = await employeeApi.activate(id)
+    const updated = res.data.data
+    if (updated) {
+      const idx = employees.value.findIndex((e) => e.id === id)
+      if (idx !== -1) employees.value[idx] = updated
+    }
+  } finally {
+    statusLoadingId.value = null
   }
 }
 
 async function deactivate(id: number) {
+  statusLoadingId.value = id
   try {
-    await employeeApi.deactivate(id)
-    await loadList()
-  } catch {
-    listError.value = 'Pasifleştirilemedi.'
+    const res = await employeeApi.deactivate(id)
+    const updated = res.data.data
+    if (updated) {
+      const idx = employees.value.findIndex((e) => e.id === id)
+      if (idx !== -1) employees.value[idx] = updated
+    }
+  } finally {
+    statusLoadingId.value = null
   }
 }
 
-function confirmDelete(e: EmployeeResponse) {
-  toDelete.value = e
-  deleteDialogRef.value?.showModal()
-}
+// ── Delete ───────────────────────────────────────────────────────────────────
+const deleteModalVisible = ref(false)
+const toDelete = ref<EmployeeResponse | null>(null)
+const deleting = ref(false)
 
-function cancelDelete() {
-  toDelete.value = null
-  deleteDialogRef.value?.close()
+function confirmDelete(emp: EmployeeResponse) {
+  toDelete.value = emp
+  deleteModalVisible.value = true
 }
 
 async function doDelete() {
@@ -297,49 +316,75 @@ async function doDelete() {
   deleting.value = true
   try {
     await employeeApi.delete(toDelete.value.id)
-    await loadList()
-    cancelDelete()
-  } catch {
-    listError.value = 'Silinemedi.'
+    employees.value = employees.value.filter((e) => e.id !== toDelete.value!.id)
+    deleteModalVisible.value = false
   } finally {
     deleting.value = false
   }
 }
 
-onMounted(() => {
-  if (businessId.value) loadList()
-})
+// ── Offboard ─────────────────────────────────────────────────────────────────
+const offboardModalVisible = ref(false)
+const offboardEmployee = ref<EmployeeResponse | null>(null)
+const offboardLoading = ref(false)
+const affectedAppointments = ref<AffectedAppointmentResponse[]>([])
+const offboardAction = ref<'CANCEL_ALL' | 'REASSIGN_ALL'>('CANCEL_ALL')
+const offboardNewEmployeeId = ref(0)
+const offboardSubmitting = ref(false)
+const offboardError = ref('')
+
+const offboardTargetOptions = computed(() =>
+  employees.value.filter((e) => e.id !== offboardEmployee.value?.id && e.status === 'ACTIVE'),
+)
+
+async function openOffboard(emp: EmployeeResponse) {
+  offboardEmployee.value = emp
+  offboardAction.value = 'CANCEL_ALL'
+  offboardNewEmployeeId.value = 0
+  offboardError.value = ''
+  offboardModalVisible.value = true
+  offboardLoading.value = true
+  try {
+    const res = await employeeApi.offboardPreview(emp.id)
+    affectedAppointments.value = res.data.data ?? []
+  } finally {
+    offboardLoading.value = false
+  }
+}
+
+async function submitOffboard() {
+  if (!offboardEmployee.value) return
+  offboardSubmitting.value = true
+  offboardError.value = ''
+  try {
+    await employeeApi.offboard(offboardEmployee.value.id, {
+      action: offboardAction.value,
+      newEmployeeId: offboardAction.value === 'REASSIGN_ALL' ? offboardNewEmployeeId.value : undefined,
+    })
+    await loadList()
+    offboardModalVisible.value = false
+  } catch {
+    offboardError.value = t('common.error')
+  } finally {
+    offboardSubmitting.value = false
+  }
+}
+
+async function deactivateOnlyOffboard() {
+  if (!offboardEmployee.value) return
+  offboardSubmitting.value = true
+  try {
+    await employeeApi.deactivate(offboardEmployee.value.id)
+    await loadList()
+    offboardModalVisible.value = false
+  } finally {
+    offboardSubmitting.value = false
+  }
+}
+
+function formatApptLine(a: AffectedAppointmentResponse) {
+  const d = new Date(a.scheduledAt)
+  return d.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })
+}
 </script>
 
-<style scoped>
-.page-header { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
-.page-desc { margin: 0.25rem 0 0; font-size: 0.9375rem; color: var(--color-text-muted); }
-.empty-state, .error-state { padding: 2rem; text-align: center; background: var(--color-background-alt); border-radius: var(--radius-lg); color: var(--color-text-muted); }
-.error-state p { margin: 0 0 1rem; }
-.empty-state-cta .empty-title { font-weight: 600; color: var(--color-text); margin: 0 0 0.25rem; }
-.empty-state-cta .empty-desc { margin: 0 0 1.25rem; }
-.loading-state { display: flex; flex-direction: column; gap: 0.75rem; }
-.skeleton-card { height: 4.5rem; background: linear-gradient(90deg, var(--color-background-alt) 25%, var(--color-border-light) 50%, var(--color-background-alt) 75%); background-size: 200% 100%; animation: skeleton 1.2s ease-in-out infinite; border-radius: var(--radius-lg); }
-@keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
-.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.25rem; }
-.card-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.name { font-weight: 600; font-size: 1rem; }
-.badge { font-size: 0.75rem; padding: 0.125rem 0.5rem; border-radius: 9999px; }
-.badge.active { background: var(--color-success-bg); color: var(--color-success); }
-.badge.inactive { background: var(--color-background-alt); color: var(--color-text-muted); }
-.badge.owner { background: var(--color-primary-light); color: var(--color-primary); }
-.meta { margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--color-text-muted); }
-.actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.modal { padding: 1.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); max-width: 26rem; }
-.modal::backdrop { background: rgba(15, 23, 42, 0.4); }
-.modal-title { margin: 0 0 1.25rem; font-size: 1.25rem; font-weight: 600; }
-.form { display: flex; flex-direction: column; gap: 1rem; }
-.field { margin-bottom: 0; }
-.field.row { flex-direction: row; align-items: center; gap: 0.5rem; }
-.field label { font-weight: 500; font-size: 0.875rem; color: var(--color-text-muted); }
-.field input, .field textarea { padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1rem; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
-.error, .submit-error { font-size: 0.875rem; color: var(--color-danger); }
-.modal-actions { margin-top: 1.25rem; display: flex; gap: 0.5rem; justify-content: flex-end; }
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="business-page">
+  <div class="business-page space-y-6">
     <div class="page-header">
       <div>
         <h1 class="page-title">İşletme Ayarları</h1>
@@ -23,7 +23,7 @@
 
       <div v-else-if="error" class="error-state" role="alert">
         <p>{{ error }}</p>
-        <button type="button" class="btn primary" @click="loadBusiness">Tekrar dene</button>
+        <AppButton variant="primary" @click="loadBusiness">Tekrar dene</AppButton>
       </div>
 
       <form v-else @submit.prevent="onSubmit" class="biz-form" novalidate>
@@ -119,6 +119,26 @@
                   placeholder="İşletmenizi kısaca tanıtın…"
                 />
               </div>
+
+              <div class="field">
+                <label for="business-category">İşletme kategorisi <span class="req" aria-hidden="true">*</span></label>
+                <select
+                  id="business-category"
+                  v-model="form.category"
+                  name="category"
+                  required
+                  :disabled="categoriesLoading"
+                  :aria-invalid="!!errors.category"
+                  :aria-describedby="
+                    errors.category ? 'err-category' : categoriesLoadError ? 'warn-category' : undefined
+                  "
+                >
+                  <option value="">{{ categoriesLoading ? 'Yükleniyor…' : 'Seçiniz' }}</option>
+                  <option v-for="c in categoryOptions" :key="c.code" :value="c.code">{{ c.label }}</option>
+                </select>
+                <span v-if="categoriesLoadError" id="warn-category" class="field-error" role="status">{{ categoriesLoadError }}</span>
+                <span v-else-if="errors.category" id="err-category" class="field-error" role="alert">{{ errors.category }}</span>
+              </div>
             </div>
 
             <!-- Randevu linki -->
@@ -132,14 +152,14 @@
               <p class="link-block-desc">Bu linki paylaşın; müşterileriniz online randevu alabilsin.</p>
               <div class="link-box">
                 <code class="link-url">{{ publicUrl }}</code>
-                <button
-                  type="button"
-                  class="btn small primary"
+                <AppButton
+                  size="sm"
+                  variant="primary"
                   :aria-label="copyDone ? 'Link kopyalandı' : 'Randevu linkini kopyala'"
                   @click="copyLink"
                 >
                   {{ copyDone ? 'Kopyalandı ✓' : 'Kopyala' }}
-                </button>
+                </AppButton>
               </div>
             </div>
           </section>
@@ -295,9 +315,9 @@
                 Değişiklikler kaydedildi ✓
               </output>
               <p v-if="submitError" class="submit-error" role="alert" aria-live="assertive">{{ submitError }}</p>
-              <button type="submit" class="btn primary save-btn" :disabled="saving">
+              <AppButton native-type="submit" variant="primary" class="save-btn" :loading="saving" :disabled="saving">
                 {{ saving ? 'Kaydediliyor…' : 'Değişiklikleri Kaydet' }}
-              </button>
+              </AppButton>
             </div>
 
           </div><!-- /biz-right-col -->
@@ -310,7 +330,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { businessApi, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
+import { businessApi, type BusinessCategoryResponse, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
@@ -323,13 +344,12 @@ const submitError = ref('')
 const submitSuccess = ref(false)
 const copyDone = ref(false)
 
-const publicUrl = computed(() => {
-  const origin = globalThis.window?.location.origin ?? ''
-  if (!origin || !business.value?.slug) return ''
-  return `${origin}/b/${business.value.slug}`
-})
+const categories = ref<BusinessCategoryResponse[]>([])
+const categoriesLoading = ref(false)
+const categoriesLoadError = ref('')
 
 const form = reactive({
+  category: '',
   name: '',
   phoneNumber: '',
   email: '',
@@ -343,6 +363,21 @@ const form = reactive({
   whatsappSendPrice: false,
 })
 
+const categoryOptions = computed(() => {
+  const list = [...categories.value]
+  const cur = form.category
+  if (cur && !list.some(c => c.code === cur)) {
+    list.unshift({ code: cur, label: cur })
+  }
+  return list
+})
+
+const publicUrl = computed(() => {
+  const origin = globalThis.window?.location.origin ?? ''
+  if (!origin || !business.value?.slug) return ''
+  return `${origin}/b/${business.value.slug}`
+})
+
 const errors = reactive<Record<string, string>>({})
 
 function setFormFromBusiness(b: BusinessResponse) {
@@ -351,6 +386,7 @@ function setFormFromBusiness(b: BusinessResponse) {
   form.email = b.email ?? ''
   form.address = b.address ?? ''
   form.description = b.description ?? ''
+  form.category = b.category ?? ''
   form.autoConfirm = b.autoConfirm
   form.reminderHoursBefore = b.reminderHoursBefore
   form.sameDayBookingAllowed = b.sameDayBookingAllowed
@@ -361,9 +397,11 @@ function setFormFromBusiness(b: BusinessResponse) {
 
 function validate(): boolean {
   submitError.value = ''
+  errors.category = ''
   errors.name = ''
   errors.phoneNumber = ''
   errors.email = ''
+  if (!form.category.trim()) { errors.category = 'Bir kategori seçiniz'; return false }
   if (!form.name.trim()) { errors.name = 'İşletme adı giriniz'; return false }
   if (form.name.trim().length < 2) { errors.name = 'İşletme adı en az 2 karakter olmalıdır'; return false }
   if (!form.phoneNumber.trim()) { errors.phoneNumber = 'Telefon giriniz'; return false }
@@ -386,18 +424,41 @@ async function loadBusiness() {
   if (!businessId.value) return
   loading.value = true
   error.value = ''
+  categoriesLoadError.value = ''
+  categoriesLoading.value = true
   try {
-    const { data } = await businessApi.getById(businessId.value)
-    if (data.success && data.data) {
-      business.value = data.data
-      setFormFromBusiness(data.data)
+    const [bizSettled, catSettled] = await Promise.allSettled([
+      businessApi.getById(businessId.value),
+      businessApi.getCategories(),
+    ])
+
+    if (bizSettled.status === 'fulfilled') {
+      const { data } = bizSettled.value
+      if (data.success && data.data) {
+        business.value = data.data
+        setFormFromBusiness(data.data)
+      } else {
+        error.value = 'İşletme bilgisi alınamadı.'
+      }
     } else {
-      error.value = 'İşletme bilgisi alınamadı.'
+      error.value = 'İşletme yüklenirken hata oluştu.'
     }
-  } catch {
-    error.value = 'İşletme yüklenirken hata oluştu.'
+
+    if (catSettled.status === 'fulfilled') {
+      const { data: cat } = catSettled.value
+      if (cat.success && cat.data?.length) {
+        categories.value = cat.data
+      } else {
+        categories.value = []
+        categoriesLoadError.value = 'Kategoriler yüklenemedi. Sayfayı yenileyip tekrar deneyin.'
+      }
+    } else {
+      categories.value = []
+      categoriesLoadError.value = 'Kategoriler yüklenemedi. Sayfayı yenileyip tekrar deneyin.'
+    }
   } finally {
     loading.value = false
+    categoriesLoading.value = false
   }
 }
 
@@ -408,6 +469,7 @@ async function onSubmit() {
   submitSuccess.value = false
   try {
     const body: UpdateBusinessRequest = {
+      category: form.category.trim(),
       name: form.name.trim(),
       email: form.email.trim() || undefined,
       address: form.address.trim() || undefined,
@@ -553,6 +615,7 @@ onMounted(() => {
 }
 
 .field input,
+.field select,
 .field textarea {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
@@ -566,6 +629,7 @@ onMounted(() => {
 }
 
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
   outline: none;
   border-color: var(--color-primary);
@@ -573,6 +637,7 @@ onMounted(() => {
 }
 
 .field input[aria-invalid="true"],
+.field select[aria-invalid="true"],
 .field textarea[aria-invalid="true"] {
   border-color: var(--color-danger);
 }

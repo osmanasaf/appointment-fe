@@ -1,6 +1,6 @@
 <template>
   <button
-    type="button"
+    :type="nativeType"
     class="inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:pointer-events-none disabled:opacity-50"
     :class="[variantClass, sizeClass]"
     :disabled="disabled || loading"
@@ -20,12 +20,14 @@ const props = withDefaults(
     size?: 'sm' | 'md' | 'lg'
     disabled?: boolean
     loading?: boolean
+    nativeType?: 'button' | 'submit' | 'reset'
   }>(),
   {
     variant: 'primary',
     size: 'md',
     disabled: false,
     loading: false,
+    nativeType: 'button',
   },
 )
 

@@ -12,9 +12,17 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') },
-        { path: 'calendar', name: 'AdminCalendar', component: () => import('@/views/admin/CalendarView.vue') },
-        { path: 'settings', name: 'AdminSettings', component: () => import('@/views/admin/BusinessView.vue') },
+        { path: 'calendar', redirect: '/admin/appointments' },
+        {
+          path: 'settings',
+          component: () => import('@/views/admin/SettingsLayout.vue'),
+          children: [
+            { path: '', name: 'AdminSettings', component: () => import('@/views/admin/BusinessView.vue') },
+            { path: 'plan', name: 'AdminPlan', component: () => import('@/views/admin/PlanSettingsView.vue') },
+          ],
+        },
         { path: 'business', redirect: '/admin/settings' },
+        { path: 'onboarding', name: 'AdminOnboarding', component: () => import('@/views/admin/BusinessOnboardingView.vue') },
         { path: 'services', name: 'AdminServices', component: () => import('@/views/admin/ServicesView.vue') },
         { path: 'packages', name: 'AdminPackages', component: () => import('@/views/admin/PackagesView.vue') },
         { path: 'customers', name: 'AdminCustomers', component: () => import('@/views/admin/CustomersView.vue') },

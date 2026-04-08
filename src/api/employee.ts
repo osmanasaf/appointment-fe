@@ -2,7 +2,7 @@ import { api, type ApiResponse } from './client'
 
 // ─── Enums ─────────────────────────────────────────────────────────────────
 
-export type EmployeeStatus = 'ACTIVE' | 'INACTIVE'
+export type EmployeeStatus = 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE'
 export type SkillLevel = 'JUNIOR' | 'INTERMEDIATE' | 'SENIOR' | 'EXPERT'
 export type OffboardAction = 'CANCEL_ALL' | 'REASSIGN_ALL'
 export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'RISKY' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW'
@@ -34,11 +34,13 @@ export interface CreateEmployeeRequest {
   phoneCountryCode?: string
   email?: string
   bio?: string
+  title?: string
   owner?: boolean
 }
 
 export interface UpdateEmployeeProfileRequest {
   name: string
+  phoneNumber?: string
   title?: string
   email?: string
   bio?: string
@@ -97,6 +99,59 @@ export interface EmployeeScheduleRequest {
   breakStart?: string
   breakEnd?: string
   closed?: boolean
+}
+
+// ─── Leave Types ────────────────────────────────────────────────────────────
+
+export type LeaveType = 'ANNUAL' | 'SICK' | 'UNPAID' | 'OTHER'
+export type LeaveStatus = 'ACTIVE' | 'CANCELLED'
+export type LeaveConflictAction = 'CANCEL_ALL' | 'REASSIGN_ALL'
+
+export interface LeaveResponse {
+  id: number
+  employeeId: number
+  startDate: string       // "YYYY-MM-DD"
+  endDate: string         // "YYYY-MM-DD"
+  startTime: string | null  // "HH:mm:ss"
+  endTime: string | null    // "HH:mm:ss"
+  fullDay: boolean
+  leaveType: LeaveType
+  status: LeaveStatus
+  reason: string | null
+  createdAt: string
+}
+
+export interface CreateLeaveRequest {
+  startDate: string       // "YYYY-MM-DD"
+  endDate: string         // "YYYY-MM-DD"
+  startTime?: string      // "HH:mm"
+  endTime?: string        // "HH:mm"
+  leaveType: LeaveType
+  reason?: string
+}
+
+export interface ConflictingAppointment {
+  id: number
+  customerId: number
+  serviceId: number
+  scheduledAt: string
+  status: AppointmentStatus
+}
+
+export interface LeaveConflictPreviewResponse {
+  conflictingAppointments: ConflictingAppointment[]
+  totalCount: number
+  hasConflicts: boolean
+}
+
+export interface ResolveLeaveConflictRequest {
+  action: LeaveConflictAction
+  newEmployeeId?: number
+}
+
+export interface ResolveAndCreateLeaveRequest {
+  leave: CreateLeaveRequest
+  resolve: ResolveLeaveConflictRequest
 }
 
 // ─── Offboarding Types ──────────────────────────────────────────────────────
@@ -165,6 +220,23 @@ export const employeeApi = {
   },
   setDaySchedule(id: number, body: EmployeeScheduleRequest) {
     return api.post<ApiResponse<EmployeeScheduleResponse>>(`/employees/${id}/schedule`, body)
+  },
+
+  // Leaves
+  listLeaves(employeeId: number) {
+    return api.get<ApiResponse<LeaveResponse[]>>(`/employees/${employeeId}/leaves`)
+  },
+  createLeave(employeeId: number, body: CreateLeaveRequest) {
+    return api.post<ApiResponse<LeaveResponse>>(`/employees/${employeeId}/leaves`, body)
+  },
+  previewLeaveConflicts(employeeId: number, body: CreateLeaveRequest) {
+    return api.post<ApiResponse<LeaveConflictPreviewResponse>>(`/employees/${employeeId}/leaves/conflict-preview`, body)
+  },
+  resolveAndCreateLeave(employeeId: number, body: ResolveAndCreateLeaveRequest) {
+    return api.post<ApiResponse<LeaveResponse>>(`/employees/${employeeId}/leaves/resolve-and-create`, body)
+  },
+  cancelLeave(employeeId: number, leaveId: number) {
+    return api.delete<ApiResponse<null>>(`/employees/${employeeId}/leaves/${leaveId}`)
   },
 
   // Offboarding

@@ -9,6 +9,7 @@ export interface BusinessResponse {
   email: string | null
   address: string | null
   description: string | null
+  maxAdvanceBookingDays?: number
 }
 
 export interface ServiceResponse {
@@ -58,6 +59,13 @@ export const publicApi = {
     return api.get<ApiResponse<AvailableSlotResponse[]>>(
       `/public/businesses/${slug}/availability`,
       { params: { serviceId, date, ...(employeeId ? { employeeId } : {}) } },
+    )
+  },
+
+  getAvailableDatesBySlug(slug: string, serviceId: number, daysAhead = 30, employeeId?: number) {
+    return api.get<ApiResponse<string[]>>(
+      `/public/businesses/${slug}/availability/dates`,
+      { params: { serviceId, daysAhead, ...(employeeId ? { employeeId } : {}) } },
     )
   },
 

@@ -1,19 +1,18 @@
 <template>
-  <div class="customers-page">
+  <div class="customers-page space-y-6">
     <!-- Page header -->
     <div class="page-header">
       <div>
         <h1 class="page-title">Müşteriler</h1>
         <p class="page-desc">Müşteri kayıtları, iletişim bilgileri, paket ve randevu geçmişi.</p>
       </div>
-      <button
+      <AppButton
         v-if="businessId && !loading && !listError"
-        type="button"
-        class="btn primary"
+        variant="primary"
         @click="openCreate"
       >
         + Yeni müşteri
-      </button>
+      </AppButton>
     </div>
 
     <div v-if="!businessId" class="empty-state"><p>İşletme bilgisi bulunamadı.</p></div>
@@ -24,7 +23,7 @@
       </div>
       <div v-else-if="listError" class="error-state" role="alert">
         <p>{{ listError }}</p>
-        <button type="button" class="btn primary" @click="loadList">Tekrar dene</button>
+        <AppButton variant="primary" @click="loadList">Tekrar dene</AppButton>
       </div>
 
       <!-- Two-pane layout -->
@@ -45,7 +44,7 @@
           <div v-if="filteredCustomers.length === 0 && customers.length === 0" class="empty-list">
             <p class="empty-title">Henüz müşteri yok</p>
             <p class="empty-desc">İlk müşterinizi ekleyerek başlayın.</p>
-            <button type="button" class="btn small primary" @click="openCreate">+ Ekle</button>
+            <AppButton size="sm" variant="primary" @click="openCreate">+ Ekle</AppButton>
           </div>
           <div v-else-if="filteredCustomers.length === 0" class="empty-list">
             <p>«{{ searchQuery }}» için sonuç bulunamadı.</p>
@@ -102,32 +101,32 @@
                 </div>
               </div>
               <div class="detail-header-actions">
-                <button type="button" class="btn small" @click="openEdit(selectedCustomer)">Düzenle</button>
-                <button
+                <AppButton variant="secondary" size="sm" @click="openEdit(selectedCustomer)">Düzenle</AppButton>
+                <AppButton
                   v-if="!selectedCustomer.blacklisted"
-                  type="button"
-                  class="btn small danger-ghost"
+                  variant="danger"
+                  size="sm"
                   @click="openBlacklist(selectedCustomer)"
                 >
                   Kara listeye al
-                </button>
-                <button
+                </AppButton>
+                <AppButton
                   v-else
-                  type="button"
-                  class="btn small"
+                  variant="secondary"
+                  size="sm"
                   @click="doRemoveBlacklist(selectedCustomer)"
                 >
                   Kara listeden çıkar
-                </button>
-                <button
+                </AppButton>
+                <AppButton
                   v-if="selectedCustomer.noShowForcesManualApproval"
-                  type="button"
-                  class="btn small"
+                  variant="secondary"
+                  size="sm"
                   @click="doClearNoShowApproval(selectedCustomer)"
                 >
                   Onay zorunluluğunu kaldır
-                </button>
-                <button type="button" class="btn small danger-ghost" @click="openDeleteConfirm(selectedCustomer)">Sil</button>
+                </AppButton>
+                <AppButton variant="danger" size="sm" @click="openDeleteConfirm(selectedCustomer)">Sil</AppButton>
               </div>
             </div>
 
@@ -174,9 +173,9 @@
             <div class="detail-section">
               <div class="detail-section-head">
                 <h3 class="detail-section-title">Paketler</h3>
-                <button type="button" class="btn small primary" @click="openAddPackage(selectedCustomer)">
+                <AppButton variant="primary" size="sm" @click="openAddPackage(selectedCustomer)">
                   + Paket ata
-                </button>
+                </AppButton>
               </div>
 
               <div v-if="packagesLoading" class="loading-inline" aria-busy="true">
@@ -236,14 +235,14 @@
                                 {{ formatDateTime(a.scheduledAt) }} — {{ resolveServiceName(a.serviceId) }}
                               </option>
                             </select>
-                            <button
+                            <AppButton
                               v-if="assignAppointmentForSession[s.id]"
-                              type="button"
-                              class="btn tiny primary"
+                              variant="primary"
+                              size="sm"
                               @click="assignSessionToAppointment(p.id, s.id, Number(assignAppointmentForSession[s.id]))"
                             >
                               Ata
-                            </button>
+                            </AppButton>
                             <p v-else-if="futureAppointmentsForAssign.length === 0" class="session-assign-hint">
                               Bu müşteri için gelecek randevu yok.
                               <RouterLink :to="{ name: 'Appointments' }">Randevular</RouterLink>
@@ -252,13 +251,13 @@
                           </div>
                         </template>
                         <template v-else-if="s.status === 'SCHEDULED' && s.appointmentId">
-                          <button
-                            type="button"
-                            class="btn tiny"
+                          <AppButton
+                            variant="secondary"
+                            size="sm"
                             @click="unassignSessionFromAppointment(p.id, s.id)"
                           >
                             Randevudan kaldır
-                          </button>
+                          </AppButton>
                         </template>
                       </li>
                     </ul>
@@ -381,10 +380,10 @@
             </div>
             <p v-if="formSubmitError" class="submit-error" role="alert">{{ formSubmitError }}</p>
             <div class="modal-actions">
-              <button type="button" class="btn" @click="closeCreate">İptal</button>
-              <button type="submit" class="btn primary" :disabled="formSaving">
+              <AppButton variant="secondary" @click="closeCreate">İptal</AppButton>
+              <AppButton variant="primary" native-type="submit" :disabled="formSaving">
                 {{ formSaving ? 'Kaydediliyor…' : 'Kaydet' }}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
@@ -403,10 +402,10 @@
           </div>
           <p v-if="blacklistError" class="submit-error" role="alert">{{ blacklistError }}</p>
           <div class="modal-actions">
-            <button type="button" class="btn" @click="closeBlacklist">İptal</button>
-            <button type="button" class="btn danger" @click="doBlacklist" :disabled="blacklistSaving">
+            <AppButton variant="secondary" @click="closeBlacklist">İptal</AppButton>
+            <AppButton variant="danger" @click="doBlacklist" :disabled="blacklistSaving">
               {{ blacklistSaving ? 'İşleniyor…' : 'Kara listeye al' }}
-            </button>
+            </AppButton>
           </div>
         </div>
       </dialog>
@@ -420,10 +419,10 @@
           </p>
           <p v-if="deleteError" class="submit-error" role="alert">{{ deleteError }}</p>
           <div class="modal-actions">
-            <button type="button" class="btn" @click="closeDeleteConfirm">Vazgeç</button>
-            <button type="button" class="btn danger" @click="doDelete" :disabled="deleting">
+            <AppButton variant="secondary" @click="closeDeleteConfirm">Vazgeç</AppButton>
+            <AppButton variant="danger" @click="doDelete" :disabled="deleting">
               {{ deleting ? 'Siliniyor…' : 'Kalıcı sil' }}
-            </button>
+            </AppButton>
           </div>
         </div>
       </dialog>
@@ -469,10 +468,10 @@
             </div>
             <p v-if="pkgSubmitError" class="submit-error" role="alert">{{ pkgSubmitError }}</p>
             <div class="modal-actions">
-              <button type="button" class="btn" @click="closePackageModal">İptal</button>
-              <button type="submit" class="btn primary" :disabled="pkgSaving">
+              <AppButton variant="secondary" @click="closePackageModal">İptal</AppButton>
+              <AppButton variant="primary" native-type="submit" :disabled="pkgSaving">
                 {{ pkgSaving ? 'Kaydediliyor…' : 'Paketi oluştur' }}
-              </button>
+              </AppButton>
             </div>
           </form>
           <!-- Manuel: existing form -->
@@ -551,10 +550,10 @@
 
             <p v-if="pkgSubmitError" class="submit-error" role="alert">{{ pkgSubmitError }}</p>
             <div class="modal-actions">
-              <button type="button" class="btn" @click="closePackageModal">İptal</button>
-              <button type="submit" class="btn primary" :disabled="pkgSaving">
+              <AppButton variant="secondary" @click="closePackageModal">İptal</AppButton>
+              <AppButton variant="primary" native-type="submit" :disabled="pkgSaving">
                 {{ pkgSaving ? 'Kaydediliyor…' : 'Paketi oluştur' }}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
@@ -578,6 +577,7 @@ import { packageTemplateApi, type PackageTemplateResponse } from '@/api/packageT
 import { packageSessionApi, type PackageSessionResponse } from '@/api/packageSession'
 import { serviceApi, type ServiceResponse } from '@/api/service'
 import { appointmentApi, type AppointmentResponse, type AppointmentStatus } from '@/api/appointment'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
@@ -1739,22 +1739,6 @@ onMounted(() => {
   border-color: var(--color-danger);
 }
 
-/* ── Modals ──────────────────────────────────────────────────────────────── */
-.modal {
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  max-width: 26rem;
-  width: 90vw;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-
-.modal.modal-lg { max-width: 30rem; }
-.modal::backdrop { background: rgba(15, 23, 42, 0.45); }
-.modal-inner { padding: 1.5rem; }
-.modal-title { margin: 0 0 0.25rem; font-size: 1.25rem; font-weight: 700; color: var(--color-text); }
-.modal-sub { margin: 0 0 1.25rem; font-size: 0.9375rem; color: var(--color-text-muted); }
 
 .form { display: flex; flex-direction: column; gap: 1rem; }
 
@@ -1808,5 +1792,4 @@ onMounted(() => {
 
 .error { font-size: 0.8125rem; color: var(--color-danger); }
 .submit-error { font-size: 0.875rem; color: var(--color-danger); margin: 0; }
-.modal-actions { margin-top: 1.25rem; display: flex; gap: 0.5rem; justify-content: flex-end; }
 </style>

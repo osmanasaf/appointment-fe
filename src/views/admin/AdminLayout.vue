@@ -103,7 +103,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   LayoutDashboard,
-  CalendarDays,
   CalendarCheck,
   Users,
   UserCircle,
@@ -130,7 +129,6 @@ const publicBookUrl = computed(() => {
 
 const navItems = computed(() => [
   { to: '/admin', label: t('nav.dashboard'), icon: LayoutDashboard, exact: true },
-  { to: '/admin/calendar', label: t('nav.calendar'), icon: CalendarDays, exact: false },
   { to: '/admin/appointments', label: t('nav.appointments'), icon: CalendarCheck, exact: false },
   { to: '/admin/customers', label: t('nav.customers'), icon: Users, exact: false },
   { to: '/admin/employees', label: t('nav.employees'), icon: UserCircle, exact: false },
@@ -141,6 +139,9 @@ const navItems = computed(() => [
 
 function isNavActive(item: { to: string; exact?: boolean }) {
   if (item.exact) return route.path === item.to
+  if (item.to === '/admin/settings') {
+    return route.path === '/admin/settings' || route.path.startsWith('/admin/settings/')
+  }
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
 }
 
@@ -153,7 +154,9 @@ const breadcrumbLabel = computed(() => {
   if (p.startsWith('/admin/employees')) return t('pageTitles.employees')
   if (p.startsWith('/admin/services')) return t('pageTitles.services')
   if (p.startsWith('/admin/packages')) return t('pageTitles.packages')
+  if (p.startsWith('/admin/settings/plan')) return t('pageTitles.plan')
   if (p.startsWith('/admin/settings')) return t('pageTitles.settings')
+  if (p.startsWith('/admin/onboarding')) return t('pageTitles.onboarding')
   return t('pageTitles.default')
 })
 

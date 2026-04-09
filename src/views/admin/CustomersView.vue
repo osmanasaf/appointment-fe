@@ -213,6 +213,7 @@
                   <!-- Seans listesi -->
                   <div v-if="sessionsByPackageId[p.id]?.length" class="pkg-sessions-list">
                     <div class="pkg-sessions-head">Seanslar</div>
+                    <p v-if="sessionAssignError" class="submit-error" role="alert">{{ sessionAssignError }}</p>
                     <ul class="session-rows">
                       <li v-for="s in sessionsByPackageId[p.id]" :key="s.id" class="session-row">
                         <span class="session-num">#{{ s.sessionNumber }}</span>
@@ -243,11 +244,13 @@
                             >
                               Ata
                             </AppButton>
-                            <p v-else-if="futureAppointmentsForAssign.length === 0" class="session-assign-hint">
-                              Bu müşteri için gelecek randevu yok.
-                              <RouterLink :to="{ name: 'Appointments' }">Randevular</RouterLink>
-                              sayfasından randevu oluşturun.
-                            </p>
+                            <RouterLink
+                              v-else
+                              :to="{ name: 'AdminAppointments', query: { createFor: selectedCustomer?.id } }"
+                              class="session-new-appt-btn"
+                            >
+                              + Randevu oluştur
+                            </RouterLink>
                           </div>
                         </template>
                         <template v-else-if="s.status === 'SCHEDULED' && s.appointmentId">
@@ -301,14 +304,15 @@
                 Bu müşteriye ait randevu kaydı yok.
               </div>
               <ul v-else class="appt-list">
-                <li v-for="a in customerAppointments.slice(0, 8)" :key="a.id" class="appt-item">
+                <li v-for="a in customerAppointments.slice(0, 12)" :key="a.id" class="appt-item">
                   <span class="appt-date">{{ formatDateTime(a.scheduledAt) }}</span>
                   <span class="appt-service">{{ resolveServiceName(a.serviceId) }}</span>
+                  <span v-if="a.packageSessionId" class="appt-pkg-badge" title="Paket seansı">Paket</span>
                   <span class="appt-badge" :class="apptStatusClass(a.status)">{{ apptStatusLabel(a.status) }}</span>
                 </li>
               </ul>
-              <p v-if="customerAppointments.length > 8" class="more-hint">
-                +{{ customerAppointments.length - 8 }} randevu daha
+              <p v-if="customerAppointments.length > 12" class="more-hint">
+                +{{ customerAppointments.length - 12 }} randevu daha
               </p>
             </div>
           </template>
@@ -320,7 +324,12 @@
       <!-- Create / Edit customer -->
       <dialog ref="createDialogRef" class="modal" @cancel="closeCreate">
         <div class="modal-inner">
-          <h2 class="modal-title">{{ editingId ? 'Müşteri düzenle' : 'Yeni müşteri' }}</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">{{ editingId ? 'Müşteri düzenle' : 'Yeni müşteri' }}</h2>
+            <button type="button" class="modal-close-btn" aria-label="Kapat" @click="closeCreate">
+              <X :size="22" :stroke-width="2" aria-hidden="true" />
+            </button>
+          </div>
           <form @submit.prevent="submitCustomer" class="form">
             <div class="field">
               <label for="cust-name">Ad soyad <span class="req">*</span></label>
@@ -392,7 +401,12 @@
       <!-- Blacklist -->
       <dialog ref="blacklistDialogRef" class="modal" @cancel="closeBlacklist">
         <div class="modal-inner">
-          <h2 class="modal-title">Kara listeye al</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">Kara listeye al</h2>
+            <button type="button" class="modal-close-btn" aria-label="Kapat" @click="closeBlacklist">
+              <X :size="22" :stroke-width="2" aria-hidden="true" />
+            </button>
+          </div>
           <p class="modal-sub" v-if="blacklistTarget">
             «<strong>{{ blacklistTarget.name }}</strong>» kara listeye alınacak. Gerekçe giriniz.
           </p>
@@ -413,7 +427,12 @@
       <!-- Delete confirm -->
       <dialog ref="deleteDialogRef" class="modal" @cancel="closeDeleteConfirm">
         <div class="modal-inner">
-          <h2 class="modal-title">Müşteriyi sil</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">Müşteriyi sil</h2>
+            <button type="button" class="modal-close-btn" aria-label="Kapat" @click="closeDeleteConfirm">
+              <X :size="22" :stroke-width="2" aria-hidden="true" />
+            </button>
+          </div>
           <p class="modal-sub">
             «<strong>{{ deleteTarget?.name }}</strong>» kalıcı olarak silinecek. Bu işlem geri alınamaz.
           </p>
@@ -430,7 +449,12 @@
       <!-- Package assign -->
       <dialog ref="packageDialogRef" class="modal modal-lg" @cancel="closePackageModal">
         <div class="modal-inner">
-          <h2 class="modal-title">Paket ata</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">Paket ata</h2>
+            <button type="button" class="modal-close-btn" aria-label="Kapat" @click="closePackageModal">
+              <X :size="22" :stroke-width="2" aria-hidden="true" />
+            </button>
+          </div>
           <p class="modal-sub" v-if="packageCustomer">
             <strong>{{ packageCustomer.name }}</strong> için yeni paket tanımlayın.
           </p>
@@ -526,10 +550,9 @@
               </div>
               <div class="field">
                 <label for="pkg-expires">Bitiş tarihi <span class="req">*</span></label>
-                <input
+                <AppDateField
                   id="pkg-expires"
                   v-model="pkgForm.expiresAt"
-                  type="date"
                   required
                   :min="tomorrowDate()"
                   :aria-invalid="!!pkgFormErrors.expiresAt"
@@ -564,6 +587,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { fetchAllPageContent } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import {
   customerApi,
@@ -578,6 +602,8 @@ import { packageSessionApi, type PackageSessionResponse } from '@/api/packageSes
 import { serviceApi, type ServiceResponse } from '@/api/service'
 import { appointmentApi, type AppointmentResponse, type AppointmentStatus } from '@/api/appointment'
 import AppButton from '@/components/ui/AppButton.vue'
+import AppDateField from '@/components/ui/AppDateField.vue'
+import { X } from 'lucide-vue-next'
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
@@ -637,6 +663,7 @@ const pkgFormErrors = reactive<Record<string, string>>({})
 // ── Sessions per package (for selected customer) ───────────────────────────────
 const sessionsByPackageId = ref<Record<number, PackageSessionResponse[]>>({})
 const assignAppointmentForSession = reactive<Record<number, string>>({})
+const sessionAssignError = ref('')
 
 // ── Service map ───────────────────────────────────────────────────────────────
 const serviceMap = computed(() => {
@@ -723,8 +750,16 @@ function formatPrice(p: number | string): string {
   return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(n)
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(new Date(iso))
+function formatDate(iso: string | null | undefined): string {
+  if (iso == null || String(iso).trim() === '') {
+    return '—'
+  }
+  const d = new Date(iso)
+  const t = d.getTime()
+  if (Number.isNaN(t) || t === 0) {
+    return '—'
+  }
+  return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(d)
 }
 
 function formatDateTime(iso: string): string {
@@ -767,20 +802,16 @@ function selectCustomer(c: CustomerResponse) {
 watch(selectedCustomer, async (c) => {
   customerPackages.value = []
   customerAppointments.value = []
+  sessionsByPackageId.value = {}
+  sessionAssignError.value = ''
   if (!c) return
 
   packagesLoading.value = true
   apptLoading.value = true
 
-  const today = new Date()
-  const end = new Date(today)
-  end.setDate(end.getDate() + 90)
-  const startDate = today.toISOString().slice(0, 10)
-  const endDate = end.toISOString().slice(0, 10)
-
   const [pkgRes, apptRes] = await Promise.allSettled([
     customerApi.getPackages(c.id),
-    appointmentApi.list(businessId.value!, startDate, endDate),
+    appointmentApi.listByCustomer(c.id),
   ])
 
   packagesLoading.value = false
@@ -806,7 +837,6 @@ watch(selectedCustomer, async (c) => {
 
   if (apptRes.status === 'fulfilled' && apptRes.value.data.success) {
     customerAppointments.value = (apptRes.value.data.data ?? [])
-      .filter(a => a.customerId === c.id)
       .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
   }
 })
@@ -878,7 +908,6 @@ async function submitCustomer() {
       }
     } else {
       const body: CreateCustomerRequest = {
-        businessId: businessId.value,
         name: form.name.trim(),
         phoneNumber: form.phoneNumber.trim(),
         phoneCountryCode: '+90',
@@ -1072,39 +1101,45 @@ async function submitPackage() {
 }
 
 async function assignSessionToAppointment(packageId: number, sessionId: number, appointmentId: number) {
+  sessionAssignError.value = ''
   try {
     await packageSessionApi.assign(packageId, sessionId, { appointmentId })
-    const { data } = await packageSessionApi.listByPackage(packageId)
-    if (data.success && data.data) {
-      sessionsByPackageId.value = { ...sessionsByPackageId.value, [packageId]: data.data }
+    const [sessRes, apptRes] = await Promise.allSettled([
+      packageSessionApi.listByPackage(packageId),
+      appointmentApi.listByCustomer(selectedCustomer.value!.id),
+    ])
+    if (sessRes.status === 'fulfilled' && sessRes.value.data.success && sessRes.value.data.data) {
+      sessionsByPackageId.value = { ...sessionsByPackageId.value, [packageId]: sessRes.value.data.data }
     }
-    const apptRes = await appointmentApi.list(businessId.value!, undefined, undefined)
-    if (apptRes.data.success && apptRes.data.data && selectedCustomer.value) {
-      customerAppointments.value = (apptRes.data.data ?? [])
-        .filter(a => a.customerId === selectedCustomer.value!.id)
+    if (apptRes.status === 'fulfilled' && apptRes.value.data.success && apptRes.value.data.data) {
+      customerAppointments.value = apptRes.value.data.data
         .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
     }
     assignAppointmentForSession[sessionId] = ''
-  } catch {
-    // ignore
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { error?: { message?: string } } } }
+    sessionAssignError.value = err.response?.data?.error?.message ?? 'Randevu atanamadı.'
   }
 }
 
 async function unassignSessionFromAppointment(packageId: number, sessionId: number) {
+  sessionAssignError.value = ''
   try {
     await packageSessionApi.unassign(packageId, sessionId)
-    const { data } = await packageSessionApi.listByPackage(packageId)
-    if (data.success && data.data) {
-      sessionsByPackageId.value = { ...sessionsByPackageId.value, [packageId]: data.data }
+    const [sessRes, apptRes] = await Promise.allSettled([
+      packageSessionApi.listByPackage(packageId),
+      appointmentApi.listByCustomer(selectedCustomer.value!.id),
+    ])
+    if (sessRes.status === 'fulfilled' && sessRes.value.data.success && sessRes.value.data.data) {
+      sessionsByPackageId.value = { ...sessionsByPackageId.value, [packageId]: sessRes.value.data.data }
     }
-    const apptRes = await appointmentApi.list(businessId.value!, undefined, undefined)
-    if (apptRes.data.success && apptRes.data.data && selectedCustomer.value) {
-      customerAppointments.value = (apptRes.data.data ?? [])
-        .filter(a => a.customerId === selectedCustomer.value!.id)
+    if (apptRes.status === 'fulfilled' && apptRes.value.data.success && apptRes.value.data.data) {
+      customerAppointments.value = apptRes.value.data.data
         .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime())
     }
-  } catch {
-    // ignore
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { error?: { message?: string } } } }
+    sessionAssignError.value = err.response?.data?.error?.message ?? 'Randevu kaldırılamadı.'
   }
 }
 
@@ -1152,14 +1187,14 @@ async function loadList() {
   loading.value = true
   listError.value = ''
   try {
-    const [custRes, svcRes, tplRes] = await Promise.all([
-      customerApi.list(businessId.value),
-      serviceApi.list(businessId.value),
-      packageTemplateApi.listByBusiness(businessId.value),
+    const [custList, svcRes, tplRes] = await Promise.all([
+      fetchAllPageContent((page, size) => customerApi.list({ page, size })),
+      serviceApi.list(),
+      packageTemplateApi.list(),
     ])
-    if (custRes.data.success && custRes.data.data) customers.value = custRes.data.data
-    if (svcRes.data.success && svcRes.data.data) services.value = svcRes.data.data
-    if (tplRes.data.success && tplRes.data.data) packageTemplates.value = tplRes.data.data
+    customers.value = custList
+    services.value = svcRes.data.success && svcRes.data.data ? svcRes.data.data : []
+    packageTemplates.value = tplRes.data.success && tplRes.data.data ? tplRes.data.data : []
   } catch {
     listError.value = 'Liste yüklenemedi.'
   } finally {
@@ -1187,6 +1222,98 @@ onMounted(() => {
   margin: 0.25rem 0 0;
   font-size: 0.9375rem;
   color: var(--color-text-muted);
+}
+
+/* ── Native dialog modals ─────────────────────────────────────────────────── */
+dialog.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  max-width: calc(100vw - 2rem);
+  width: min(26rem, 100%);
+  max-height: min(90vh, 100%);
+  overflow: auto;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+
+dialog.modal::backdrop {
+  background: rgb(15 23 42 / 0.45);
+}
+
+dialog.modal.modal-lg {
+  width: min(36rem, 100%);
+}
+
+.modal-inner {
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.modal-close-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: -0.125rem -0.125rem 0 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modal-close-btn:hover {
+  background: var(--color-background-alt);
+  color: var(--color-text);
+}
+
+.modal-close-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.modal-sub {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
 }
 
 /* ── Two-pane layout ─────────────────────────────────────────────────────── */
@@ -1639,6 +1766,16 @@ onMounted(() => {
   white-space: nowrap;
 }
 
+.appt-pkg-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.125rem 0.4rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
 .badge-pending  { background: var(--color-warning-bg); color: var(--color-warning); }
 .badge-active   { background: var(--color-success-bg); color: var(--color-success); }
 .badge-risky    { background: var(--color-danger-bg); color: var(--color-danger); }
@@ -1706,6 +1843,14 @@ onMounted(() => {
 .session-assign-select { max-width: 12rem; padding: 0.25rem 0.5rem; font-size: 0.8125rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
 .session-assign-hint { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--color-text-muted); }
 .session-assign-hint a { color: var(--color-primary); text-decoration: underline; }
+.session-new-appt-btn {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0.25rem 0.625rem; border-radius: 0.5rem;
+  font-size: 0.75rem; font-weight: 600;
+  background: var(--color-primary); color: #fff;
+  text-decoration: none; transition: background 0.15s;
+}
+.session-new-appt-btn:hover { background: var(--color-primary-dark, #4338ca); }
 .btn.tiny { padding: 0.2rem 0.5rem; font-size: 0.75rem; }
 
 /* ── States ──────────────────────────────────────────────────────────────── */

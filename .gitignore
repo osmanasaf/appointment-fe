@@ -49,3 +49,7 @@ credentials.json
 
 ### Local docs (agent prompts; kaynak: appointment-service/md-files) ###
 md-files/
+
+### Test artifacts ###
+playwright-report/
+test-results/

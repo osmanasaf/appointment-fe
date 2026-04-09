@@ -1,7 +1,7 @@
 <template>
   <AppModal
     :visible="visible"
-    :title="isCreate ? t('employees.modalCreateTitle') : employee?.name ?? t('employees.modalEditTitle')"
+    :title="modalTitle"
     :style="{ width: 'min(40rem, 95vw)' }"
     @update:visible="$emit('update:visible', $event)"
   >
@@ -25,6 +25,7 @@
     <div class="min-h-60">
       <EmployeeProfileTab
         v-if="activeTab === 'profile'"
+        :key="employee?.id ?? 'new'"
         :employee="employee"
         :business-id="businessId"
         :is-create="isCreate"
@@ -32,28 +33,22 @@
       />
       <EmployeeScheduleTab
         v-else-if="activeTab === 'schedule' && employee"
+        :key="employee.id"
         :employee-id="employee.id"
       />
       <EmployeeCapabilitiesTab
         v-else-if="activeTab === 'capabilities' && employee"
+        :key="employee.id"
         :employee-id="employee.id"
         :business-id="businessId"
       />
       <EmployeeLeaveTab
         v-else-if="activeTab === 'leaves' && employee"
+        :key="employee.id"
         :employee-id="employee.id"
-        @show-conflicts="onShowConflicts"
+        :other-employees="otherEmployees"
       />
     </div>
-
-    <!-- Leave conflict modal -->
-    <LeaveConflictModal
-      v-if="employee"
-      v-model:visible="conflictModalVisible"
-      :preview="conflictPreview"
-      :other-employees="otherEmployees"
-      @resolve="onResolveConflict"
-    />
   </AppModal>
 </template>
 
@@ -65,9 +60,7 @@ import EmployeeProfileTab from './tabs/EmployeeProfileTab.vue'
 import EmployeeScheduleTab from './tabs/EmployeeScheduleTab.vue'
 import EmployeeCapabilitiesTab from './tabs/EmployeeCapabilitiesTab.vue'
 import EmployeeLeaveTab from './tabs/EmployeeLeaveTab.vue'
-import LeaveConflictModal from './LeaveConflictModal.vue'
-import { useEmployeeLeave } from '../../composables/useEmployeeLeave'
-import type { EmployeeResponse, LeaveConflictAction, LeaveConflictPreviewResponse } from '../../api/employee'
+import type { EmployeeResponse } from '../../api/employee'
 
 const { t } = useI18n()
 
@@ -86,6 +79,10 @@ const emit = defineEmits<{
 
 const isCreate = computed(() => !props.employee)
 
+const modalTitle = computed(() =>
+  isCreate.value ? t('employees.modalCreateTitle') : props.employee?.name ?? t('employees.modalEditTitle'),
+)
+
 type TabKey = 'profile' | 'schedule' | 'capabilities' | 'leaves'
 
 const ALL_TABS: { key: TabKey; labelKey: string }[] = [
@@ -96,8 +93,9 @@ const ALL_TABS: { key: TabKey; labelKey: string }[] = [
 ]
 
 const visibleTabs = computed(() => {
-  if (isCreate.value) return [ALL_TABS[0]]
-  return ALL_TABS.map((tab) => ({ ...tab, label: t(tab.labelKey) }))
+  const tabs = ALL_TABS.map((tab) => ({ ...tab, label: t(tab.labelKey) }))
+  if (isCreate.value) return [tabs[0]]
+  return tabs
 })
 
 const activeTab = ref<TabKey>(props.initialTab ?? 'profile')
@@ -109,15 +107,8 @@ watch(
   },
 )
 
-const conflictModalVisible = ref(false)
-const conflictPreview = ref<LeaveConflictPreviewResponse | null>(null)
-
 const otherEmployees = computed(() =>
   (props.allEmployees ?? []).filter((e) => e.id !== props.employee?.id && e.status === 'ACTIVE'),
-)
-
-const leaveComposable = computed(() =>
-  props.employee ? useEmployeeLeave(props.employee.id) : null,
 )
 
 function onProfileSaved(emp: EmployeeResponse) {
@@ -127,15 +118,4 @@ function onProfileSaved(emp: EmployeeResponse) {
   }
 }
 
-function onShowConflicts(preview: LeaveConflictPreviewResponse) {
-  conflictPreview.value = preview
-  conflictModalVisible.value = true
-}
-
-async function onResolveConflict(action: LeaveConflictAction, newEmployeeId?: number) {
-  if (!conflictPreview.value || !leaveComposable.value || !props.employee) return
-  // The EmployeeLeaveTab has already composed the leave form; we resolve here
-  // This emits up to parent which should call resolveAndCreate
-  emit('update:visible', false)
-}
 </script>

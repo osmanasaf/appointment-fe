@@ -154,8 +154,8 @@ async function runChecks() {
   try {
     const [bRes, sRes, eRes] = await Promise.all([
       businessApi.getById(businessId.value),
-      serviceApi.list(businessId.value),
-      employeeApi.list(businessId.value),
+      serviceApi.list(),
+      employeeApi.list({ page: 0, size: 20 }),
     ])
     if (bRes.data.success && bRes.data.data) {
       hasBusiness.value = !!bRes.data.data.name?.trim()
@@ -165,8 +165,9 @@ async function runChecks() {
       hasServices.value = sRes.data.data.length > 0
     }
     if (eRes.data.success && eRes.data.data) {
-      hasEmployees.value = eRes.data.data.length > 0
-      hasActiveEmployee.value = eRes.data.data.some(e => e.status === 'ACTIVE')
+      const emps = eRes.data.data.content ?? []
+      hasEmployees.value = emps.length > 0
+      hasActiveEmployee.value = emps.some((e) => e.status === 'ACTIVE')
     }
   } catch { /* partial checks may fail */ }
   saveToStorage()

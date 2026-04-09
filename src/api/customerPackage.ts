@@ -20,6 +20,11 @@ export const packageApi = {
       params: { customerId },
     })
   },
+  listByTemplate(templateId: number) {
+    return api.get<ApiResponse<PackageResponse[]>>('/packages', {
+      params: { templateId },
+    })
+  },
   getById(id: number) {
     return api.get<ApiResponse<PackageResponse>>(`/packages/${id}`)
   },

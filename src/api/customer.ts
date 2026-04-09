@@ -1,4 +1,4 @@
-import { api, type ApiResponse } from './client'
+import { api, type ApiResponse, type PageResponse } from './client'
 
 export interface CustomerResponse {
   id: number
@@ -18,7 +18,6 @@ export interface CustomerResponse {
 }
 
 export interface CreateCustomerRequest {
-  businessId: number
   name: string
   phoneNumber: string
   phoneCountryCode?: string
@@ -44,16 +43,16 @@ export interface PackageResponse {
   name: string
   totalSessions: number
   remainingSessions: number
-  expiresAt: string
+  expiresAt: string | null
   active: boolean
   expired: boolean
   lowOnSessions: boolean
 }
 
 export const customerApi = {
-  list(businessId: number) {
-    return api.get<ApiResponse<CustomerResponse[]>>('/customers', {
-      params: { businessId },
+  list(params?: { page?: number; size?: number }) {
+    return api.get<ApiResponse<PageResponse<CustomerResponse>>>('/customers', {
+      params: { page: 0, size: 20, ...params },
     })
   },
   getById(id: number) {

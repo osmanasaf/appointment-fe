@@ -1,6 +1,6 @@
 <template>
   <label class="inline-flex cursor-pointer items-start gap-2.5" :class="disabled ? 'opacity-50 cursor-not-allowed' : ''">
-    <span class="relative mt-0.5 flex shrink-0">
+    <span class="relative mt-px flex shrink-0">
       <input
         type="checkbox"
         class="peer sr-only"
@@ -11,16 +11,16 @@
       />
       <!-- Box -->
       <span
-        class="flex size-5 items-center justify-center rounded-md border-2 transition-all
-               border-slate-300 bg-white
-               peer-checked:border-indigo-600 peer-checked:bg-indigo-600
+        class="flex h-[1.125rem] w-[1.125rem] shrink-0 items-center justify-center rounded-sm border-2 transition-all
+               border-slate-300 bg-white shadow-sm
+               peer-checked:border-indigo-600 peer-checked:bg-indigo-600 peer-checked:shadow-md peer-checked:shadow-indigo-600/15
                peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-400 peer-focus-visible:ring-offset-1
                peer-disabled:cursor-not-allowed"
       >
         <!-- Checkmark -->
         <svg
           v-show="modelValue"
-          class="size-3 text-white"
+          class="size-2.5 text-white"
           viewBox="0 0 12 12"
           fill="none"
           stroke="currentColor"

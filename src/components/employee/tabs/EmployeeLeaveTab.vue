@@ -6,11 +6,11 @@
       <div class="grid gap-3 sm:grid-cols-2">
         <div class="space-y-1">
           <label class="block text-sm font-medium text-slate-700" for="lv-start">{{ t('leave.startDate') }} *</label>
-          <input id="lv-start" v-model="form.startDate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="date" :min="today" required />
+          <AppDateField id="lv-start" v-model="form.startDate" :min="today" required />
         </div>
         <div class="space-y-1">
           <label class="block text-sm font-medium text-slate-700" for="lv-end">{{ t('leave.endDate') }} *</label>
-          <input id="lv-end" v-model="form.endDate" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="date" :min="form.startDate || today" required />
+          <AppDateField id="lv-end" v-model="form.endDate" :min="form.startDate || today" required />
         </div>
         <div class="space-y-1 sm:col-span-2">
           <label class="block text-sm font-medium text-slate-700">{{ t('leave.type') }} *</label>
@@ -36,7 +36,7 @@
           <p class="text-sm font-medium text-amber-800">
             {{ t('leave.conflictWarning', { count: conflictPreview.totalCount }) }}
           </p>
-          <AppButton variant="ghost" size="sm" class="mt-1 text-amber-700 underline" @click="$emit('show-conflicts', conflictPreview)">
+          <AppButton variant="ghost" size="sm" class="mt-1 text-amber-700 underline" @click="openConflictModal">
             {{ t('leave.viewConflicts') }}
           </AppButton>
         </div>
@@ -105,30 +105,62 @@
         </li>
       </ul>
     </div>
+
+    <LeaveConflictModal
+      v-model:visible="conflictModalVisible"
+      :preview="conflictPreview"
+      :other-employees="otherEmployees"
+      :resolve-loading="conflictResolving"
+      @resolve="onConflictResolve"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppButton from '../../ui/AppButton.vue'
+import AppDateField from '../../ui/AppDateField.vue'
+import LeaveConflictModal from '../LeaveConflictModal.vue'
 import { useEmployeeLeave } from '../../../composables/useEmployeeLeave'
-import type { LeaveConflictPreviewResponse, LeaveType } from '../../../api/employee'
+import type { EmployeeResponse, LeaveConflictAction, LeaveType } from '../../../api/employee'
 
 const { t } = useI18n()
 
-const props = defineProps<{ employeeId: number }>()
-const emit = defineEmits<{ 'show-conflicts': [preview: LeaveConflictPreviewResponse] }>()
+const props = withDefaults(
+  defineProps<{ employeeId: number; otherEmployees?: EmployeeResponse[] }>(),
+  { otherEmployees: () => [] },
+)
 
 const LEAVE_TYPES: LeaveType[] = ['ANNUAL', 'SICK', 'UNPAID', 'OTHER']
 const leaveTypes = LEAVE_TYPES
 
 const today = new Date().toISOString().slice(0, 10)
 
-const { leaves, loading, conflictPreview, conflictLoading, loadLeaves, previewConflicts, createLeave, cancelLeave: doCancel } = useEmployeeLeave(props.employeeId)
+const {
+  leaves,
+  loading,
+  conflictPreview,
+  conflictLoading,
+  loadLeaves,
+  previewConflicts,
+  createLeave,
+  resolveAndCreate,
+  cancelLeave: doCancel,
+} = useEmployeeLeave(props.employeeId)
 
 const cancellingId = ref<number | null>(null)
 const formError = ref<string | null>(null)
+const conflictModalVisible = ref(false)
+const conflictResolving = ref(false)
+
+onBeforeUnmount(() => {
+  conflictModalVisible.value = false
+})
+
+function openConflictModal() {
+  if (conflictPreview.value?.hasConflicts) conflictModalVisible.value = true
+}
 
 const form = reactive({
   startDate: '',
@@ -170,6 +202,34 @@ async function cancelLeave(leaveId: number) {
   cancellingId.value = leaveId
   await doCancel(leaveId)
   cancellingId.value = null
+}
+
+async function onConflictResolve(action: LeaveConflictAction, newEmployeeId?: number) {
+  if (!conflictPreview.value?.hasConflicts) return
+  if (!form.startDate || !form.endDate) return
+  conflictResolving.value = true
+  formError.value = null
+  try {
+    const created = await resolveAndCreate({
+      leave: {
+        startDate: form.startDate,
+        endDate: form.endDate,
+        leaveType: form.leaveType,
+        reason: form.reason || undefined,
+      },
+      resolve: { action, newEmployeeId },
+    })
+    if (created) {
+      conflictModalVisible.value = false
+      form.startDate = ''
+      form.endDate = ''
+      form.reason = ''
+    } else {
+      formError.value = t('common.error')
+    }
+  } finally {
+    conflictResolving.value = false
+  }
 }
 
 function formatDateRange(leave: { startDate: string; endDate: string; fullDay: boolean; startTime: string | null; endTime: string | null }) {

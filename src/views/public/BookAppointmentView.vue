@@ -129,7 +129,13 @@
               <div class="calendar-weekdays" aria-hidden="true">
                 <span v-for="wd in ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz']" :key="wd">{{ wd }}</span>
               </div>
-              <div class="calendar-grid" :aria-label="`${twoWeeks.length} günlük takvim`">
+              <div class="calendar-grid" :aria-label="`Rezervasyon takvimi, ${twoWeeks.length} gün`">
+                <div
+                  v-for="i in calendarLeadingEmptyCount"
+                  :key="'cal-pad-' + i"
+                  class="calendar-grid-pad"
+                  aria-hidden="true"
+                />
                 <button
                   v-for="day in twoWeeks"
                   :key="day.date"
@@ -396,7 +402,7 @@ const twoWeeks = computed(() => {
   for (let i = 0; i < days; i++) {
     const d = new Date(start)
     d.setDate(d.getDate() + i)
-    const dateStr = d.toISOString().slice(0, 10)
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     result.push({
       date: dateStr,
       weekday: new Intl.DateTimeFormat('tr-TR', { weekday: 'short' }).format(d),
@@ -408,8 +414,21 @@ const twoWeeks = computed(() => {
   return result
 })
 
+function columnIndexMondayFirst(y: number, monthIndex: number, day: number): number {
+  const d = new Date(y, monthIndex, day)
+  return (d.getDay() + 6) % 7
+}
+
+const calendarLeadingEmptyCount = computed(() => {
+  const first = twoWeeks.value[0]
+  if (!first) return 0
+  const [y, m, day] = first.date.split('-').map(Number)
+  return columnIndexMondayFirst(y, m - 1, day)
+})
+
 function formatDateLong(dateStr: string): string {
-  return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long' }).format(new Date(dateStr))
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long' }).format(new Date(y, m - 1, d))
 }
 
 const timeFmt = new Intl.DateTimeFormat('tr-TR', { timeStyle: 'short' })
@@ -457,9 +476,9 @@ async function loadAvailableDates() {
   try {
     const { data } = await publicApi.getAvailableDates(
       business.value.id,
-      Number(selectedEmployeeId.value),
       Number(selectedServiceId.value),
-      business.value.maxAdvanceBookingDays ?? 30
+      business.value.maxAdvanceBookingDays ?? 30,
+      Number(selectedEmployeeId.value),
     )
     if (data.success && data.data) availableDates.value = data.data
   } catch {
@@ -478,9 +497,9 @@ async function loadSlots(date: string) {
   try {
     const { data } = await publicApi.getAvailableSlots(
       business.value.id,
-      Number(selectedEmployeeId.value),
       Number(selectedServiceId.value),
-      date
+      date,
+      Number(selectedEmployeeId.value),
     )
     if (myId !== slotsRequestId.value) return
     if (data.success && data.data) slots.value = data.data
@@ -633,7 +652,8 @@ const slotGroups = computed(() => {
   return groups.filter(g => g.slots.length > 0)
 })
 
-const todayStr = new Date().toISOString().slice(0, 10)
+const today = new Date()
+const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
 </script>
 
 <style scoped>
@@ -1017,6 +1037,10 @@ const todayStr = new Date().toISOString().slice(0, 10)
   grid-template-columns: repeat(7, 1fr);
   gap: 0.375rem;
   min-width: 18rem;
+}
+.calendar-grid-pad {
+  min-height: 4.25rem;
+  pointer-events: none;
 }
 .day-cell {
   position: relative;

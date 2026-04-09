@@ -324,6 +324,7 @@ import { customerApi, type CustomerResponse } from '@/api/customer'
 import { employeeApi } from '@/api/employee'
 import { appointmentApi, type AppointmentResponse } from '@/api/appointment'
 import { dashboardApi, type DashboardStatsResponse, type DashboardPeriod } from '@/api/dashboard'
+import { fetchAllPageContent } from '@/api/client'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSkeleton from '@/components/ui/AppSkeleton.vue'
@@ -519,7 +520,7 @@ async function loadPeriodStats() {
   if (!businessId.value) return
   statsLoading.value = true
   try {
-    const res = await dashboardApi.getStats(businessId.value, period.value)
+    const res = await dashboardApi.getStats(period.value)
     if (res.data.success && res.data.data) {
       periodStats.value = res.data.data
     }
@@ -537,26 +538,25 @@ async function loadBaseData() {
   }
   const today = new Date().toISOString().slice(0, 10)
   try {
-    const [bRes, sRes, cRes, eRes, aToday] = await Promise.all([
+    const [bRes, svcRes, customersList, employeesList, todayList] = await Promise.all([
       businessApi.getById(businessId.value),
-      serviceApi.list(businessId.value),
-      customerApi.list(businessId.value),
-      employeeApi.list(businessId.value),
-      appointmentApi.list(businessId.value, today, today),
+      serviceApi.list(),
+      fetchAllPageContent((page, size) => customerApi.list({ page, size })),
+      fetchAllPageContent((page, size) => employeeApi.list({ page, size })),
+      fetchAllPageContent((page, size) =>
+        appointmentApi.list({ startDate: today, endDate: today, page, size }),
+      ),
     ])
     if (bRes.data.success && bRes.data.data) businessSlug.value = bRes.data.data.slug
-    if (sRes.data.success && sRes.data.data) {
-      allServices.value = sRes.data.data
-      baseStats.value.services = sRes.data.data.length
-    }
-    if (cRes.data.success && cRes.data.data) {
-      baseStats.value.customers = cRes.data.data.length
-      const map = new Map<number, string>()
-      for (const c of cRes.data.data as CustomerResponse[]) map.set(c.id, c.name)
-      customerMap.value = map
-    }
-    if (eRes.data.success && eRes.data.data) baseStats.value.employees = eRes.data.data.length
-    if (aToday.data.success && aToday.data.data) todayAppointments.value = aToday.data.data
+    const servicesList = svcRes.data.success && svcRes.data.data ? svcRes.data.data : []
+    allServices.value = servicesList
+    baseStats.value.services = servicesList.length
+    baseStats.value.customers = customersList.length
+    const map = new Map<number, string>()
+    for (const c of customersList as CustomerResponse[]) map.set(c.id, c.name)
+    customerMap.value = map
+    baseStats.value.employees = employeesList.length
+    todayAppointments.value = todayList as AppointmentResponse[]
   } catch {
     loadError.value = true
   } finally {

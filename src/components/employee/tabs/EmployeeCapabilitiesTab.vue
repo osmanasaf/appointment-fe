@@ -112,8 +112,8 @@ async function loadCaps() {
 async function loadServices() {
   servicesLoading.value = true
   try {
-    const res = await serviceApi.list(props.businessId)
-    services.value = res.data.data ?? []
+    const res = await serviceApi.list()
+    services.value = res.data.success && res.data.data ? res.data.data : []
   } finally {
     servicesLoading.value = false
   }

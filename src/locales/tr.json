@@ -220,6 +220,7 @@
     "email": "E-posta",
     "titleLabel": "Unvan",
     "bio": "Biyografi",
+    "profileImageUrl": "Profil fotoğrafı (URL)",
     "experienceYears": "Deneyim (yıl)",
     "acceptsOnlineBooking": "Online randevu kabul eder",
     "ownerCheck": "İşletme sahibi",

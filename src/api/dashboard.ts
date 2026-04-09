@@ -26,9 +26,9 @@ export interface DashboardStatsResponse {
 }
 
 export const dashboardApi = {
-  getStats(businessId: number, period: DashboardPeriod = 'DAILY') {
+  getStats(period: DashboardPeriod = 'DAILY') {
     return api.get<ApiResponse<DashboardStatsResponse>>('/dashboard/stats', {
-      params: { businessId, period },
+      params: { period },
     })
   },
 }

@@ -42,53 +42,24 @@ export const publicApi = {
     return api.get<ApiResponse<EmployeeResponse[]>>(`/public/businesses/${slug}/employees`)
   },
 
-  /** Belirli bir hizmeti yapabilen çalışanları listeler */
   getEmployeesForService(slug: string, serviceId: number) {
     return api.get<ApiResponse<EmployeeResponse[]>>(
       `/public/businesses/${slug}/services/${serviceId}/employees`,
     )
   },
 
-  /** employeeId opsiyonel — verilmezse tüm yetkin çalışanların slotları birleştirilir */
-  getAvailableSlotsBySlug(
-    slug: string,
-    serviceId: number,
-    date: string,
-    employeeId?: number,
-  ) {
+  getAvailableSlots(slug: string, serviceId: number, date: string, employeeId?: number) {
     return api.get<ApiResponse<AvailableSlotResponse[]>>(
       `/public/businesses/${slug}/availability`,
       { params: { serviceId, date, ...(employeeId ? { employeeId } : {}) } },
     )
   },
 
-  getAvailableDatesBySlug(slug: string, serviceId: number, daysAhead = 30, employeeId?: number) {
+  getAvailableDates(slug: string, serviceId: number, daysAhead = 30, employeeId?: number) {
     return api.get<ApiResponse<string[]>>(
       `/public/businesses/${slug}/availability/dates`,
       { params: { serviceId, daysAhead, ...(employeeId ? { employeeId } : {}) } },
     )
-  },
-
-  getAvailableSlots(
-    businessId: number,
-    serviceId: number,
-    date: string,
-    employeeId?: number,
-  ) {
-    return api.get<ApiResponse<AvailableSlotResponse[]>>('/public/availability', {
-      params: { businessId, serviceId, date, ...(employeeId ? { employeeId } : {}) },
-    })
-  },
-
-  getAvailableDates(
-    businessId: number,
-    serviceId: number,
-    daysAhead = 14,
-    employeeId?: number,
-  ) {
-    return api.get<ApiResponse<string[]>>('/public/availability/dates', {
-      params: { businessId, serviceId, daysAhead, ...(employeeId ? { employeeId } : {}) },
-    })
   },
 
   createAppointment(

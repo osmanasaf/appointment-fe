@@ -45,7 +45,8 @@
             <li
               v-for="t in templates"
               :key="t.id"
-              class="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+              class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors"
+              @click="router.push({ name: 'AdminPackageDetail', params: { id: t.id } })"
             >
               <div class="space-y-0.5">
                 <div class="flex items-center gap-2">
@@ -56,9 +57,10 @@
                   <span>{{ resolveServiceName(t.serviceId) }}</span>
                   <span>{{ t.totalSessions }} seans</span>
                   <span v-if="t.price != null" class="font-medium text-indigo-600">{{ formatPrice(t.price) }}</span>
+                  <span class="font-medium text-slate-600">{{ templateSaleCount(t.id) }} satış</span>
                 </div>
               </div>
-              <div class="flex gap-2">
+              <div class="flex gap-2" @click.stop>
                 <AppButton variant="secondary" size="sm" @click="openTemplateModal(t)">Düzenle</AppButton>
                 <AppButton variant="danger" size="sm" @click="confirmDeactivate(t)">Devre dışı</AppButton>
               </div>
@@ -68,13 +70,16 @@
 
         <!-- ── Customer Packages ────────────────────────────────────────── -->
         <section class="space-y-4">
-          <h2 class="text-lg font-semibold text-slate-800">Müşteri paketleri</h2>
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-semibold text-slate-800">Satılan paketler</h2>
+            <p class="text-sm text-slate-500">Şablona göre gruplandırılmış</p>
+          </div>
 
           <!-- Summary stats -->
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div class="rounded-xl border border-slate-200 bg-white p-4 text-center">
               <p class="text-2xl font-bold text-slate-800">{{ allPackages.length }}</p>
-              <p class="text-xs text-slate-500">Toplam</p>
+              <p class="text-xs text-slate-500">Toplam satış</p>
             </div>
             <div class="rounded-xl border border-slate-200 bg-white p-4 text-center">
               <p class="text-2xl font-bold text-emerald-600">{{ activePackages.length }}</p>
@@ -90,75 +95,93 @@
             </div>
           </div>
 
-          <!-- Filter tabs -->
-          <div class="flex gap-0.5 rounded-lg border border-slate-200 bg-slate-100 p-1 w-fit">
-            <button
-              v-for="f in FILTERS"
-              :key="f.value"
-              type="button"
-              class="rounded-md px-3 py-1.5 text-sm font-medium transition"
-              :class="activeFilter === f.value
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'"
-              @click="activeFilter = f.value"
-            >
-              {{ f.label }}
-            </button>
-          </div>
-
-          <!-- Empty filter -->
           <div v-if="allPackages.length === 0" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-400">
-            Henüz müşteri paketi yok. Müşteri detayından paket atayabilirsiniz.
-          </div>
-          <div v-else-if="displayedPackages.length === 0" class="py-8 text-center text-sm text-slate-400">
-            Bu filtrede paket yok.
+            Henüz satılan paket yok. Müşteri detayından veya şablon üzerinden paket atayabilirsiniz.
           </div>
 
-          <!-- Package list -->
-          <ul v-else class="space-y-2">
-            <li
-              v-for="p in displayedPackages"
-              :key="p.id"
-              class="rounded-xl border bg-white px-4 py-3"
-              :class="p.expired ? 'border-slate-200 opacity-60' : p.lowOnSessions ? 'border-amber-200' : 'border-slate-200'"
+          <!-- Grouped by template -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="group in groupedByTemplate"
+              :key="group.templateId ?? 'manual'"
+              class="rounded-xl border border-slate-200 bg-white overflow-hidden"
             >
-              <div class="flex flex-wrap items-start justify-between gap-2">
-                <div class="space-y-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <span class="font-semibold text-slate-800">{{ p.name }}</span>
-                    <span
-                      class="rounded-full px-2 py-0.5 text-xs font-medium"
-                      :class="p.expired
-                        ? 'bg-slate-100 text-slate-500'
-                        : p.lowOnSessions
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-emerald-100 text-emerald-700'"
-                    >
-                      {{ p.expired ? 'Süresi doldu' : p.lowOnSessions ? 'Az kaldı' : 'Aktif' }}
+              <!-- Group header -->
+              <div
+                class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+                :class="group.templateId ? '' : 'border-b-0'"
+                @click="group.templateId ? router.push({ name: 'AdminPackageDetail', params: { id: group.templateId } }) : toggleManualGroup()"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700">
+                    <Package class="size-4" />
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="font-semibold text-slate-800">{{ group.name }}</span>
+                      <span v-if="!group.templateId" class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">Manuel</span>
+                    </div>
+                    <p class="text-xs text-slate-500">{{ resolveServiceName(group.serviceId) }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <!-- Stats pills -->
+                  <div class="flex items-center gap-2">
+                    <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                      {{ group.activeCount }} aktif
+                    </span>
+                    <span v-if="group.lowCount > 0" class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                      {{ group.lowCount }} az kalan
+                    </span>
+                    <span v-if="group.expiredCount > 0" class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-500">
+                      {{ group.expiredCount }} doldu
                     </span>
                   </div>
-                  <p class="text-sm font-medium text-indigo-600">{{ resolveCustomerName(p.customerId) }}</p>
-                  <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span>{{ resolveServiceName(p.serviceId) }}</span>
-                    <span>{{ formatDate(p.expiresAt) }}'e kadar</span>
+                  <span class="text-sm font-medium text-slate-600">{{ group.packages.length }} müşteri</span>
+                  <div v-if="group.templateId" class="flex items-center gap-1 text-xs text-indigo-500 font-medium">
+                    Detay <ChevronRight class="size-3.5" />
                   </div>
-                </div>
-
-                <!-- Session progress -->
-                <div class="flex items-center gap-2 text-sm">
-                  <div class="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200">
-                    <div
-                      class="h-full rounded-full transition-all"
-                      :class="p.expired ? 'bg-slate-400' : p.lowOnSessions ? 'bg-amber-400' : 'bg-emerald-500'"
-                      :style="{ width: sessionsPercent(p) + '%' }"
-                    />
-                  </div>
-                  <span class="font-medium text-slate-700 tabular-nums">{{ p.remainingSessions }}/{{ p.totalSessions }}</span>
-                  <span class="text-slate-400">seans</span>
+                  <ChevronDown
+                    v-else
+                    class="size-4 text-slate-400 transition-transform"
+                    :class="manualGroupOpen ? 'rotate-180' : ''"
+                  />
                 </div>
               </div>
-            </li>
-          </ul>
+
+              <!-- Inline owner list (only for manual / expanded) -->
+              <div
+                v-if="!group.templateId && manualGroupOpen"
+                class="divide-y divide-slate-100 border-t border-slate-100"
+              >
+                <div
+                  v-for="p in group.packages"
+                  :key="p.id"
+                  class="flex flex-wrap items-center gap-3 px-4 py-2.5"
+                >
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-slate-800 truncate">{{ resolveCustomerName(p.customerId) }}</p>
+                    <p class="text-xs text-slate-400">{{ packageExpiryLine(p.expiresAt) }}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200">
+                      <div
+                        class="h-full rounded-full"
+                        :class="p.expired ? 'bg-slate-400' : p.lowOnSessions ? 'bg-amber-400' : 'bg-emerald-500'"
+                        :style="{ width: sessionsPercent(p) + '%' }"
+                      />
+                    </div>
+                    <span class="text-xs font-semibold tabular-nums text-slate-600">{{ p.remainingSessions }}/{{ p.totalSessions }}</span>
+                    <span
+                      class="rounded-full px-2 py-0.5 text-xs font-medium"
+                      :class="p.expired ? 'bg-slate-100 text-slate-500' : p.lowOnSessions ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'"
+                    >{{ p.expired ? 'Doldu' : p.lowOnSessions ? 'Az' : 'Aktif' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
       </template>
     </template>
@@ -167,7 +190,7 @@
     <AppModal
       v-model:visible="showTemplateModal"
       :title="editingTemplate ? 'Şablonu düzenle' : 'Yeni paket şablonu'"
-      :style="{ width: 'min(32rem, 95vw)' }"
+      :dialog-style="{ width: 'min(32rem, 95vw)' }"
     >
       <form class="space-y-4" @submit.prevent="saveTemplate">
         <div class="space-y-1">
@@ -263,16 +286,19 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { Package, ChevronDown, ChevronRight } from 'lucide-vue-next'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import { fetchAllPageContent } from '@/api/client'
 import { customerApi, type CustomerResponse, type PackageResponse } from '@/api/customer'
 import { serviceApi, type ServiceResponse } from '@/api/service'
 import { packageTemplateApi, type PackageTemplateResponse } from '@/api/packageTemplate'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const businessId = computed(() => auth.user?.businessId ?? null)
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -284,24 +310,51 @@ const loading = ref(true)
 const pageError = ref('')
 
 // ── Filter ────────────────────────────────────────────────────────────────────
-type FilterValue = 'all' | 'active' | 'low' | 'expired'
-const FILTERS: { value: FilterValue; label: string }[] = [
-  { value: 'all', label: 'Tümü' },
-  { value: 'active', label: 'Aktif' },
-  { value: 'low', label: 'Az kalan' },
-  { value: 'expired', label: 'Süresi dolan' },
-]
-const activeFilter = ref<FilterValue>('all')
-
 const activePackages = computed(() => allPackages.value.filter((p) => !p.expired && p.remainingSessions > 0))
 const lowPackages = computed(() => allPackages.value.filter((p) => p.lowOnSessions && !p.expired))
 const expiredPackages = computed(() => allPackages.value.filter((p) => p.expired))
-const displayedPackages = computed(() => {
-  if (activeFilter.value === 'active') return activePackages.value
-  if (activeFilter.value === 'low') return lowPackages.value
-  if (activeFilter.value === 'expired') return expiredPackages.value
-  return allPackages.value
+
+// ── Group by template ─────────────────────────────────────────────────────────
+const manualGroupOpen = ref(false)
+
+interface PackageGroup {
+  templateId: number | null
+  name: string
+  serviceId: number
+  packages: PackageResponse[]
+  activeCount: number
+  lowCount: number
+  expiredCount: number
+}
+
+const groupedByTemplate = computed<PackageGroup[]>(() => {
+  const map = new Map<string, PackageGroup>()
+  for (const p of allPackages.value) {
+    const key = p.templateId == null ? 'manual' : String(p.templateId)
+    let group = map.get(key)
+    if (!group) {
+      group = {
+        templateId: p.templateId ?? null,
+        name: p.name,
+        serviceId: p.serviceId,
+        packages: [],
+        activeCount: 0,
+        lowCount: 0,
+        expiredCount: 0,
+      }
+      map.set(key, group)
+    }
+    group.packages.push(p)
+    if (p.expired) group.expiredCount++
+    else if (p.lowOnSessions) { group.lowCount++; group.activeCount++ }
+    else group.activeCount++
+  }
+  return [...map.values()].sort((a, b) => b.packages.length - a.packages.length)
 })
+
+function toggleManualGroup() {
+  manualGroupOpen.value = !manualGroupOpen.value
+}
 
 // ── Template form ─────────────────────────────────────────────────────────────
 const showTemplateModal = ref(false)
@@ -340,8 +393,20 @@ function sessionsPercent(p: PackageResponse): number {
   return Math.round((p.remainingSessions / p.totalSessions) * 100)
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(new Date(iso))
+function templateSaleCount(templateId: number): number {
+  return allPackages.value.filter(p => p.templateId === templateId).length
+}
+
+function packageExpiryLine(iso: string | null | undefined): string {
+  if (iso == null || String(iso).trim() === '') {
+    return 'Süresiz'
+  }
+  const d = new Date(iso)
+  const t = d.getTime()
+  if (Number.isNaN(t) || t === 0) {
+    return 'Süresiz'
+  }
+  return `${new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(d)}'e kadar`
 }
 
 function formatPrice(price: number): string {
@@ -380,7 +445,6 @@ async function saveTemplate() {
       })
     } else {
       await packageTemplateApi.create({
-        businessId: businessId.value,
         serviceId,
         name,
         totalSessions,
@@ -419,8 +483,8 @@ async function doDeactivate() {
 async function loadTemplates() {
   if (!businessId.value) return
   try {
-    const res = await packageTemplateApi.listByBusiness(businessId.value)
-    if (res.data.success && res.data.data) templates.value = res.data.data
+    const { data } = await packageTemplateApi.list()
+    templates.value = data.success && data.data ? data.data : []
   } catch {
     templates.value = []
   }
@@ -431,14 +495,14 @@ async function load() {
   loading.value = true
   pageError.value = ''
   try {
-    const [custRes, svcRes, tmplRes] = await Promise.all([
-      customerApi.list(businessId.value),
-      serviceApi.list(businessId.value),
-      packageTemplateApi.listByBusiness(businessId.value),
+    const [custList, svcRes, tplRes] = await Promise.all([
+      fetchAllPageContent((page, size) => customerApi.list({ page, size })),
+      serviceApi.list(),
+      packageTemplateApi.list(),
     ])
-    if (custRes.data.success && custRes.data.data) customers.value = custRes.data.data
-    if (svcRes.data.success && svcRes.data.data) services.value = svcRes.data.data
-    if (tmplRes.data.success && tmplRes.data.data) templates.value = tmplRes.data.data
+    customers.value = custList
+    services.value = svcRes.data.success && svcRes.data.data ? svcRes.data.data : []
+    templates.value = tplRes.data.success && tplRes.data.data ? tplRes.data.data : []
 
     if (customers.value.length > 0) {
       const pkgResults = await Promise.all(

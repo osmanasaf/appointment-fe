@@ -7,6 +7,7 @@ export interface UserInfo {
   email: string
   name: string
   businessId: number | null
+  businessSlug: string | null
   role: UserRole
 }
 

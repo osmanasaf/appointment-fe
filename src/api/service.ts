@@ -21,7 +21,6 @@ export interface ServiceResponse {
 }
 
 export interface CreateServiceRequest {
-  businessId: number
   name: string
   description?: string
   durationMinutes: number
@@ -46,9 +45,10 @@ export interface UpdateServiceRequest {
 }
 
 export const serviceApi = {
-  list(businessId: number, activeOnly = false, packageEligible?: boolean) {
+  /** Backend düz dizi döndürür (sayfalama yok). */
+  list(params?: { activeOnly?: boolean; packageEligible?: boolean }) {
     return api.get<ApiResponse<ServiceResponse[]>>('/services', {
-      params: { businessId, activeOnly, packageEligible },
+      params: params ?? {},
     })
   },
   getById(id: number) {
@@ -69,7 +69,6 @@ export const serviceApi = {
   delete(id: number) {
     return api.delete<ApiResponse<null>>(`/services/${id}`)
   },
-  /** Bu hizmeti yapabilen çalışanları listeler (GET /services/{id}/employees) */
   getCapableEmployees(id: number) {
     return api.get<ApiResponse<EmployeeResponse[]>>(`/services/${id}/employees`)
   },

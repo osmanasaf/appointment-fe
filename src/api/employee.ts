@@ -1,4 +1,4 @@
-import { api, type ApiResponse } from './client'
+import { api, type ApiResponse, type PageResponse } from './client'
 
 // ─── Enums ─────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,6 @@ export interface EmployeeResponse {
 export interface EmployeeDetailResponse extends EmployeeResponse {}
 
 export interface CreateEmployeeRequest {
-  businessId: number
   name: string
   phoneNumber?: string
   phoneCountryCode?: string
@@ -179,9 +178,9 @@ export interface OffboardSummaryResponse {
 
 export const employeeApi = {
   // Employee CRUD
-  list(businessId: number, activeOnly = false) {
-    return api.get<ApiResponse<EmployeeResponse[]>>('/employees', {
-      params: { businessId, activeOnly },
+  list(params?: { activeOnly?: boolean; page?: number; size?: number }) {
+    return api.get<ApiResponse<PageResponse<EmployeeResponse>>>('/employees', {
+      params: { page: 0, size: 20, ...params },
     })
   },
   getById(id: number) {

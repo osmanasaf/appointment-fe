@@ -194,19 +194,11 @@
         <div class="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
           <label class="flex min-w-[8rem] flex-col gap-1">
             <span class="text-xs font-medium text-slate-500">Başlangıç</span>
-            <input
-              v-model="filterStart"
-              type="date"
-              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
+            <AppDateField v-model="filterStart" />
           </label>
           <label class="flex min-w-[8rem] flex-col gap-1">
             <span class="text-xs font-medium text-slate-500">Bitiş</span>
-            <input
-              v-model="filterEnd"
-              type="date"
-              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
+            <AppDateField v-model="filterEnd" />
           </label>
           <label class="flex min-w-[9rem] flex-col gap-1">
             <span class="text-xs font-medium text-slate-500">Durum</span>
@@ -434,7 +426,7 @@
     <AppModal
       v-model:visible="showCreateModal"
       :title="wizardTitles[wizardStep - 1]"
-      :style="{ width: 'min(40rem, 95vw)' }"
+      :dialog-style="{ width: 'min(40rem, 95vw)' }"
     >
       <!-- Step indicators -->
       <div class="mb-6 flex items-center gap-0">
@@ -518,35 +510,74 @@
           <div class="size-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
         </div>
         <div v-else-if="availableDates.length === 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">
-          Önümüzdeki {{ DAYS_AHEAD }} gün içinde uygun tarih bulunamadı.
+          Önümüzdeki {{ maxAdvanceBookingDays }} gün içinde uygun tarih bulunamadı.
         </div>
         <template v-else>
-          <p class="text-sm text-slate-500">Uygun günler gösteriliyor ({{ DAYS_AHEAD }} gün ileri).</p>
-          <!-- Mini calendar grid -->
-          <div class="space-y-2">
-            <div class="grid grid-cols-7 text-center text-[0.65rem] font-semibold uppercase text-slate-400">
+          <div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <!-- Month navigation -->
+            <div class="mb-3 flex items-center justify-between">
+              <button
+                type="button"
+                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-30"
+                :disabled="calMonthIndex === 0"
+                @click="calMonthIndex--"
+              >
+                <ChevronLeft class="size-4" aria-hidden="true" />
+              </button>
+              <span class="text-sm font-semibold capitalize text-slate-800">{{ currentCalMonthLabel }}</span>
+              <button
+                type="button"
+                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-30"
+                :disabled="calMonthIndex >= availableMonths.length - 1"
+                @click="calMonthIndex++"
+              >
+                <ChevronRight class="size-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <!-- Day headers -->
+            <div class="mb-1 grid grid-cols-7 text-center text-[0.65rem] font-semibold uppercase tracking-wide text-slate-400">
               <span v-for="d in ['Pt','Sa','Ça','Pe','Cu','Ct','Pz']" :key="d">{{ d }}</span>
             </div>
+
+            <!-- Calendar cells -->
             <div class="grid grid-cols-7 gap-1">
               <template v-for="cell in calendarCells" :key="cell.iso ?? cell.index">
                 <div v-if="!cell.iso" />
                 <button
                   v-else
                   type="button"
-                  class="flex aspect-square items-center justify-center rounded-lg text-sm font-medium transition"
+                  class="flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-sm font-medium transition"
                   :class="cell.available
                     ? wizardForm.date === cell.iso
                       ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'hover:bg-indigo-50 text-slate-700 border border-slate-200'
-                    : 'cursor-not-allowed text-slate-300'"
+                      : 'text-slate-800 hover:bg-indigo-50 hover:text-indigo-700'
+                    : 'cursor-not-allowed opacity-35'"
                   :disabled="!cell.available"
                   @click="wizardForm.date = cell.iso"
                 >
-                  {{ cell.day }}
+                  <span>{{ cell.day }}</span>
+                  <span
+                    class="size-1 rounded-full"
+                    :class="cell.available
+                      ? wizardForm.date === cell.iso
+                        ? 'bg-white/70'
+                        : 'bg-indigo-400'
+                      : 'bg-transparent'"
+                  />
                 </button>
               </template>
             </div>
           </div>
+
+          <!-- Selected date pill -->
+          <div v-if="wizardForm.date" class="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
+            <CalendarCheck class="size-4 shrink-0" aria-hidden="true" />
+            <span class="font-medium">{{ formatDateFull(wizardForm.date) }}</span>
+          </div>
+          <p v-else class="text-xs text-slate-400">
+            Yeşil tarihlerden birini seçin — {{ availableDates.length }} uygun gün bulundu.
+          </p>
           <span v-if="wizardErrors.date" class="text-xs text-red-600">{{ wizardErrors.date }}</span>
         </template>
       </div>
@@ -560,28 +591,52 @@
           Bu tarihte uygun saat yok. Geri dönüp başka gün seçin.
         </div>
         <template v-else>
-          <p class="text-sm text-slate-500">
-            {{ formatDateFull(wizardForm.date) }} için uygun saatler:
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="slot in availableSlots"
-              :key="slot.startTime"
-              type="button"
-              class="flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition"
-              :class="wizardForm.time === slot.startTime.slice(11, 16)
-                ? 'border-indigo-400 bg-indigo-600 text-white shadow-sm'
-                : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50'"
-              @click="wizardForm.time = slot.startTime.slice(11, 16)"
-            >
-              {{ slot.startTime.slice(11, 16) }}
-              <span
-                v-if="slot.instantConfirmation"
-                class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-semibold"
-                :class="wizardForm.time === slot.startTime.slice(11, 16) ? 'bg-white/20' : 'bg-emerald-100 text-emerald-700'"
-              >Anında</span>
-            </button>
+          <!-- Date context -->
+          <div class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <CalendarCheck class="size-3.5 shrink-0 text-indigo-500" aria-hidden="true" />
+            <span class="font-medium text-slate-700">{{ formatDateFull(wizardForm.date) }}</span>
+            <span class="text-slate-400">·</span>
+            <span>{{ availableSlots.length }} uygun saat</span>
           </div>
+
+          <!-- Grouped slots -->
+          <div class="space-y-4">
+            <div v-for="group in slotGroups" :key="group.label" class="space-y-2">
+              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ group.label }}</h3>
+              <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <button
+                  v-for="slot in group.slots"
+                  :key="slot.startTime"
+                  type="button"
+                  class="flex flex-col items-center rounded-xl border px-2 py-2.5 text-center transition"
+                  :class="wizardForm.time === slot.startTime
+                    ? 'border-indigo-400 bg-indigo-600 text-white shadow-sm'
+                    : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700'"
+                  @click="wizardForm.time = slot.startTime"
+                >
+                  <span class="text-sm font-semibold tabular-nums">{{ slot.startTime.slice(11, 16) }}</span>
+                  <span
+                    class="mt-0.5 text-[0.65rem] tabular-nums"
+                    :class="wizardForm.time === slot.startTime ? 'text-indigo-200' : 'text-slate-400'"
+                  >→ {{ slot.endTime.slice(11, 16) }}</span>
+                  <span
+                    v-if="slot.instantConfirmation"
+                    class="mt-1 rounded-full px-1.5 py-0.5 text-[0.6rem] font-semibold"
+                    :class="wizardForm.time === slot.startTime ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'"
+                  >Anında</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected slot summary -->
+          <div v-if="wizardForm.time" class="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
+            <Check class="size-4 shrink-0" aria-hidden="true" />
+            <span class="font-medium">{{ wizardForm.time.slice(11, 16) }} – {{ availableSlots.find(s => s.startTime === wizardForm.time)?.endTime.slice(11, 16) }}</span>
+            <span class="text-indigo-400">·</span>
+            <span class="text-indigo-500">{{ availableSlots.find(s => s.startTime === wizardForm.time)?.durationMinutes }} dk</span>
+          </div>
+
           <span v-if="wizardErrors.time" class="text-xs text-red-600">{{ wizardErrors.time }}</span>
         </template>
       </div>
@@ -594,58 +649,206 @@
           <span class="text-slate-300">·</span>
           <span>{{ resolveServiceName(wizardForm.serviceId as number) }}</span>
           <span class="text-slate-300">·</span>
-          <span>{{ formatDateFull(wizardForm.date) }} {{ wizardForm.time }}</span>
+          <span>{{ formatDateFull(wizardForm.date) }} {{ wizardForm.time.slice(11, 16) }}</span>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <label class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-slate-700">Müşteri adı <span class="text-red-500">*</span></span>
-            <input
-              v-model="wizardForm.customerName"
-              type="text"
-              placeholder="Ad soyad…"
-              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
-            <span v-if="wizardErrors.customerName" class="text-xs text-red-600">{{ wizardErrors.customerName }}</span>
-          </label>
-          <label class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-slate-700">Telefon <span class="text-red-500">*</span></span>
-            <input
-              v-model="wizardForm.phoneNumber"
-              type="tel"
-              placeholder="5XX XXX XX XX"
-              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
-            <span v-if="wizardErrors.phoneNumber" class="text-xs text-red-600">{{ wizardErrors.phoneNumber }}</span>
-          </label>
+        <!-- Mod seçimi: Mevcut / Yeni -->
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="flex-1 rounded-xl border py-2 text-sm font-medium transition"
+            :class="customerMode === 'existing'
+              ? 'border-indigo-400 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
+              : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+            @click="customerMode = 'existing'"
+          >
+            Mevcut müşteri
+          </button>
+          <button
+            type="button"
+            class="flex-1 rounded-xl border py-2 text-sm font-medium transition"
+            :class="customerMode === 'new'
+              ? 'border-indigo-400 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
+              : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
+            @click="customerMode = 'new'; clearExistingCustomer()"
+          >
+            Yeni müşteri
+          </button>
         </div>
 
-        <div>
-          <span class="mb-1.5 block text-sm font-medium text-slate-700">Kaynak</span>
-          <div class="flex gap-2">
-            <label
-              v-for="src in SOURCES"
-              :key="src.value"
-              class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition"
-              :class="wizardForm.source === src.value ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'"
+        <!-- ── Mevcut müşteri seçimi ── -->
+        <template v-if="customerMode === 'existing'">
+          <!-- Arama -->
+          <div class="relative">
+            <input
+              v-model="customerSearch"
+              type="search"
+              placeholder="İsim veya telefon ara…"
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 pl-9 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            />
+            <svg class="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+
+          <!-- Seçili müşteri -->
+          <div
+            v-if="selectedExistingCustomer"
+            class="flex items-center justify-between rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3"
+          >
+            <div>
+              <p class="text-sm font-semibold text-indigo-800">{{ selectedExistingCustomer.name }}</p>
+              <p class="text-xs text-indigo-500">{{ selectedExistingCustomer.phoneNumber }}</p>
+            </div>
+            <button
+              type="button"
+              class="rounded-lg px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-100"
+              @click="clearExistingCustomer()"
             >
-              <input v-model="wizardForm.source" type="radio" :value="src.value" class="sr-only" />
-              <component :is="src.icon" class="size-4" aria-hidden="true" />
-              {{ src.label }}
+              Değiştir
+            </button>
+          </div>
+
+          <!-- Müşteri listesi -->
+          <ul v-else class="max-h-48 overflow-y-auto divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+            <li v-if="filteredCustomersForWizard.length === 0" class="px-4 py-3 text-center text-sm text-slate-400">
+              Müşteri bulunamadı
+            </li>
+            <li
+              v-for="c in filteredCustomersForWizard"
+              :key="c.id"
+              class="flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition"
+              @click="selectExistingCustomer(c)"
+            >
+              <div class="flex items-center gap-2.5">
+                <div
+                  class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                  :style="{ backgroundColor: employeeColor(c.id) }"
+                >{{ c.name.charAt(0).toUpperCase() }}</div>
+                <div>
+                  <p class="text-sm font-medium text-slate-800">{{ c.name }}</p>
+                  <p class="text-xs text-slate-400">{{ c.phoneNumber }}</p>
+                </div>
+              </div>
+              <span v-if="c.blacklisted" class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">Kara liste</span>
+              <span v-else-if="c.noShowForcesManualApproval" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Onay zorunlu</span>
+            </li>
+          </ul>
+          <span v-if="wizardErrors.customer" class="text-xs text-red-600">{{ wizardErrors.customer }}</span>
+
+          <!-- Paket seans seçimi -->
+          <template v-if="selectedExistingCustomer">
+            <div v-if="packagesLoadingForWizard" class="flex items-center gap-2 text-xs text-slate-400">
+              <div class="size-3 animate-spin rounded-full border border-slate-300 border-t-indigo-400" />
+              Paketler yükleniyor…
+            </div>
+            <div v-else-if="pendingSessionsForWizard.length > 0" class="space-y-2">
+              <p class="text-sm font-medium text-slate-700">Paket seansı ata <span class="font-normal text-slate-400">(isteğe bağlı)</span></p>
+              <div class="space-y-1.5">
+                <!-- "Atamasız" seçeneği -->
+                <label
+                  class="flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition"
+                  :class="selectedSessionId === null
+                    ? 'border-indigo-300 bg-indigo-50'
+                    : 'border-slate-200 hover:bg-slate-50'"
+                >
+                  <input v-model="selectedSessionId" type="radio" :value="null" class="sr-only" />
+                  <div class="flex size-4 shrink-0 items-center justify-center rounded-full border-2"
+                    :class="selectedSessionId === null ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'">
+                    <div v-if="selectedSessionId === null" class="size-1.5 rounded-full bg-white" />
+                  </div>
+                  <span class="text-sm text-slate-600">Seans atama (paketsiz randevu)</span>
+                </label>
+                <!-- Seans seçenekleri -->
+                <label
+                  v-for="{ pkg, session } in pendingSessionsForWizard"
+                  :key="session.id"
+                  class="flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition"
+                  :class="selectedSessionId === session.id
+                    ? 'border-indigo-300 bg-indigo-50'
+                    : 'border-slate-200 hover:bg-slate-50'"
+                >
+                  <input v-model="selectedSessionId" type="radio" :value="session.id" class="sr-only" />
+                  <div class="flex size-4 shrink-0 items-center justify-center rounded-full border-2"
+                    :class="selectedSessionId === session.id ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'">
+                    <div v-if="selectedSessionId === session.id" class="size-1.5 rounded-full bg-white" />
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-slate-800">{{ pkg.name }}</p>
+                    <p class="text-xs text-slate-400">Seans #{{ session.sessionNumber }} · {{ pkg.remainingSessions }} seans kaldı</p>
+                  </div>
+                  <span class="shrink-0 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">Paket</span>
+                </label>
+              </div>
+            </div>
+            <div v-else-if="!packagesLoadingForWizard && eligiblePackages.length === 0 && customerPackagesForWizard.length > 0" class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+              Bu müşterinin bu hizmet için bekleyen paket seansı bulunmuyor.
+            </div>
+          </template>
+
+          <!-- Not -->
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-slate-700">Not <span class="font-normal text-slate-400">(isteğe bağlı)</span></span>
+            <textarea
+              v-model="wizardForm.notes"
+              rows="2"
+              maxlength="500"
+              placeholder="Varsa not…"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            />
+          </label>
+        </template>
+
+        <!-- ── Yeni müşteri formu ── -->
+        <template v-else>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-slate-700">Müşteri adı <span class="text-red-500">*</span></span>
+              <input
+                v-model="wizardForm.customerName"
+                type="text"
+                placeholder="Ad soyad…"
+                class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+              />
+              <span v-if="wizardErrors.customerName" class="text-xs text-red-600">{{ wizardErrors.customerName }}</span>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-medium text-slate-700">Telefon <span class="text-red-500">*</span></span>
+              <input
+                v-model="wizardForm.phoneNumber"
+                type="tel"
+                placeholder="5XX XXX XX XX"
+                class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+              />
+              <span v-if="wizardErrors.phoneNumber" class="text-xs text-red-600">{{ wizardErrors.phoneNumber }}</span>
             </label>
           </div>
-        </div>
 
-        <label class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium text-slate-700">Not <span class="font-normal text-slate-400">(isteğe bağlı)</span></span>
-          <textarea
-            v-model="wizardForm.notes"
-            rows="2"
-            maxlength="500"
-            placeholder="Varsa not…"
-            class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-          />
-        </label>
+          <div>
+            <span class="mb-1.5 block text-sm font-medium text-slate-700">Kaynak</span>
+            <div class="flex gap-2">
+              <label
+                v-for="src in SOURCES"
+                :key="src.value"
+                class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition"
+                :class="wizardForm.source === src.value ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'"
+              >
+                <input v-model="wizardForm.source" type="radio" :value="src.value" class="sr-only" />
+                <component :is="src.icon" class="size-4" aria-hidden="true" />
+                {{ src.label }}
+              </label>
+            </div>
+          </div>
+
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-medium text-slate-700">Not <span class="font-normal text-slate-400">(isteğe bağlı)</span></span>
+            <textarea
+              v-model="wizardForm.notes"
+              rows="2"
+              maxlength="500"
+              placeholder="Varsa not…"
+              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            />
+          </label>
+        </template>
 
         <p v-if="createSubmitError" class="text-xs text-red-600" role="alert">{{ createSubmitError }}</p>
       </div>
@@ -678,12 +881,15 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import type { ApiResponse } from '@/api/client'
+import { fetchAllPageContent, type ApiResponse } from '@/api/client'
 import { appointmentApi, type AppointmentResponse, type AppointmentStatus } from '@/api/appointment'
 import { employeeApi, type EmployeeResponse, type EmployeeCapabilityResponse } from '@/api/employee'
 import { serviceApi, type ServiceResponse } from '@/api/service'
-import { customerApi, type CustomerResponse } from '@/api/customer'
+import { customerApi, type CustomerResponse, type PackageResponse } from '@/api/customer'
+import { packageApi } from '@/api/customerPackage'
+import { packageSessionApi, type PackageSessionResponse } from '@/api/packageSession'
 import { publicApi, type AvailableSlotResponse } from '@/api/public'
+import { businessApi } from '@/api/business'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -693,15 +899,18 @@ import {
   List, Calendar, Plus, X, RefreshCw, Users,
   Check, CheckCheck, UserMinus, UserCircle2,
   Scissors, PhoneCall, MapPin, Globe, CalendarX2,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, CalendarCheck,
 } from 'lucide-vue-next'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSkeleton from '@/components/ui/AppSkeleton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import AppDateField from '@/components/ui/AppDateField.vue'
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
+const businessSlug = ref<string | null>(null)
+const maxAdvanceBookingDays = ref(60)
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
@@ -735,6 +944,8 @@ const calendarLoadedKey = ref('')
 const calendarLoading = ref(false)
 const listLoading = ref(false)
 const empLoading = ref(true)
+
+const loading = computed(() => listLoading.value || calendarLoading.value || empLoading.value)
 
 const appointments = ref<AppointmentResponse[]>([])
 const employees = ref<EmployeeResponse[]>([])
@@ -782,7 +993,7 @@ const employeeAppointmentCounts = computed(() => {
 const hasActiveFilters = computed(() => !!(filterStatus.value || filterEmployee.value !== ''))
 
 const filteredAppointments = computed(() => {
-  let list = appointments.value
+  let list = Array.isArray(appointments.value) ? appointments.value : []
   if (filterStatus.value) list = list.filter((a) => a.status === filterStatus.value)
   if (filterEmployee.value !== '') list = list.filter((a) => a.employeeId === filterEmployee.value)
   return list
@@ -919,12 +1130,14 @@ async function reloadList() {
   listLoading.value = true
   listError.value = ''
   try {
-    const { data } = await appointmentApi.list(
-      businessId.value,
-      filterStart.value || undefined,
-      filterEnd.value || undefined,
-    )
-    if (data.success && data.data) appointments.value = data.data
+    const start = filterStart.value || undefined
+    const end = filterEnd.value || undefined
+    appointments.value =
+      start && end
+        ? await fetchAllPageContent((page, size) =>
+            appointmentApi.list({ startDate: start, endDate: end, page, size }),
+          )
+        : await fetchAllPageContent((page, size) => appointmentApi.list({ page, size }))
   } catch {
     listError.value = 'Randevular yüklenemedi.'
   } finally {
@@ -939,8 +1152,9 @@ async function loadCalendarRange(start: string, end: string) {
   if (!businessId.value) return
   calendarLoading.value = true
   try {
-    const { data } = await appointmentApi.list(businessId.value, start, end)
-    if (data.success && data.data) appointments.value = data.data
+    appointments.value = await fetchAllPageContent((page, size) =>
+      appointmentApi.list({ startDate: start, endDate: end, page, size }),
+    )
   } catch {
     listError.value = 'Randevular yüklenemedi.'
   } finally {
@@ -952,14 +1166,19 @@ async function loadEmployeesAndServices() {
   if (!businessId.value) return
   empLoading.value = true
   try {
-    const [empRes, svcRes, custRes] = await Promise.all([
-      employeeApi.list(businessId.value, true),
-      serviceApi.list(businessId.value, true),
-      customerApi.list(businessId.value),
+    const [emps, svcRes, custs, bizRes] = await Promise.all([
+      fetchAllPageContent((page, size) => employeeApi.list({ activeOnly: true, page, size })),
+      serviceApi.list({ activeOnly: true }),
+      fetchAllPageContent((page, size) => customerApi.list({ page, size })),
+      businessApi.getById(businessId.value),
     ])
-    if (empRes.data.success && empRes.data.data) employees.value = empRes.data.data
-    if (svcRes.data.success && svcRes.data.data) services.value = svcRes.data.data
-    if (custRes.data.success && custRes.data.data) customers.value = custRes.data.data
+    employees.value = emps
+    services.value = svcRes.data.success && svcRes.data.data ? svcRes.data.data : []
+    customers.value = custs
+    if (bizRes.data.success && bizRes.data.data) {
+      businessSlug.value = bizRes.data.data.slug
+      maxAdvanceBookingDays.value = bizRes.data.data.maxAdvanceBookingDays
+    }
   } catch {
     listError.value = 'Çalışan ve hizmet listesi yüklenemedi.'
   } finally {
@@ -1024,8 +1243,7 @@ async function markNoShow(a: AppointmentResponse) {
     await appointmentApi.markNoShow(a.id)
     await reloadList()
     if (businessId.value) {
-      const res = await customerApi.list(businessId.value)
-      if (res.data.success && res.data.data) customers.value = res.data.data
+      customers.value = await fetchAllPageContent((page, size) => customerApi.list({ page, size }))
     }
   } catch { listError.value = 'İşaretlenemedi.' }
   finally { actingId.value = null; actingAction.value = '' }
@@ -1049,7 +1267,6 @@ async function doCancel() {
 
 // ─── Wizard — Yeni Randevu ───────────────────────────────────────────────────
 
-const DAYS_AHEAD = 60
 const wizardTitles = ['Çalışan & Hizmet', 'Tarih Seç', 'Saat Seç', 'Müşteri Bilgileri']
 const wizardStepLabels = ['Çalışan', 'Tarih', 'Saat', 'Müşteri']
 
@@ -1069,6 +1286,90 @@ const wizardErrors = ref<Record<string, string>>({})
 const createSubmitError = ref('')
 const createSaving = ref(false)
 
+// ─── Müşteri seçimi (adım 4) ─────────────────────────────────────────────────
+
+const customerMode = ref<'existing' | 'new'>('existing')
+const customerSearch = ref('')
+const selectedExistingCustomer = ref<CustomerResponse | null>(null)
+
+const filteredCustomersForWizard = computed(() => {
+  const q = customerSearch.value.trim().toLowerCase()
+  if (!q) return customers.value.slice(0, 20)
+  return customers.value
+    .filter(c => c.name.toLowerCase().includes(q) || c.phoneNumber.includes(q))
+    .slice(0, 20)
+})
+
+// ─── Paket seans seçimi (adım 4) ─────────────────────────────────────────────
+
+const customerPackagesForWizard = ref<PackageResponse[]>([])
+const customerPackageSessions = ref<Record<number, PackageSessionResponse[]>>({})
+const packagesLoadingForWizard = ref(false)
+const selectedSessionId = ref<number | null>(null)
+
+const eligiblePackages = computed(() =>
+  customerPackagesForWizard.value.filter(p =>
+    p.active &&
+    !p.expired &&
+    p.remainingSessions > 0 &&
+    p.serviceId === wizardForm.serviceId
+  )
+)
+
+const pendingSessionsForWizard = computed(() => {
+  const result: Array<{ pkg: PackageResponse; session: PackageSessionResponse }> = []
+  for (const pkg of eligiblePackages.value) {
+    const sessions = customerPackageSessions.value[pkg.id] ?? []
+    for (const s of sessions) {
+      if (s.status === 'PENDING') {
+        result.push({ pkg, session: s })
+      }
+    }
+  }
+  return result
+})
+
+async function loadPackagesForSelectedCustomer(customerId: number) {
+  packagesLoadingForWizard.value = true
+  selectedSessionId.value = null
+  customerPackagesForWizard.value = []
+  customerPackageSessions.value = {}
+  try {
+    const { data } = await packageApi.listByCustomer(customerId)
+    if (data.success && data.data) {
+      customerPackagesForWizard.value = data.data
+      const eligible = data.data.filter(p =>
+        p.active && !p.expired && p.remainingSessions > 0 && p.serviceId === wizardForm.serviceId
+      )
+      await Promise.all(
+        eligible.map(async (p) => {
+          try {
+            const r = await packageSessionApi.listByPackage(p.id)
+            if (r.data.success && r.data.data) {
+              customerPackageSessions.value = { ...customerPackageSessions.value, [p.id]: r.data.data }
+            }
+          } catch { /* silent */ }
+        })
+      )
+    }
+  } catch { /* silent */ } finally {
+    packagesLoadingForWizard.value = false
+  }
+}
+
+function selectExistingCustomer(c: CustomerResponse) {
+  selectedExistingCustomer.value = c
+  selectedSessionId.value = null
+  loadPackagesForSelectedCustomer(c.id)
+}
+
+function clearExistingCustomer() {
+  selectedExistingCustomer.value = null
+  selectedSessionId.value = null
+  customerPackagesForWizard.value = []
+  customerPackageSessions.value = {}
+}
+
 const wizardEmpCapabilities = ref<EmployeeCapabilityResponse[]>([])
 const capabilitiesLoading = ref(false)
 
@@ -1085,29 +1386,67 @@ const datesLoading = ref(false)
 const availableSlots = ref<AvailableSlotResponse[]>([])
 const slotsLoading = ref(false)
 
+const calMonthIndex = ref(0)
+
+const availableMonths = computed(() => {
+  const seen = new Set<string>()
+  const months: string[] = []
+  for (const d of availableDates.value) {
+    const m = d.slice(0, 7)
+    if (!seen.has(m)) { seen.add(m); months.push(m) }
+  }
+  return months
+})
+
+const currentCalMonthLabel = computed(() => {
+  const m = availableMonths.value[calMonthIndex.value]
+  if (!m) return ''
+  const [y, mo] = m.split('-').map(Number)
+  return new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric' }).format(new Date(y, mo - 1))
+})
+
 const calendarCells = computed(() => {
-  if (!availableDates.value.length) return []
+  const month = availableMonths.value[calMonthIndex.value]
+  if (!month) return []
   const availableSet = new Set(availableDates.value)
-  const first = new Date(availableDates.value[0] + 'T00:00:00')
-  const last = new Date(availableDates.value[availableDates.value.length - 1] + 'T00:00:00')
-  const monthStart = new Date(first.getFullYear(), first.getMonth(), 1)
+  const [y, mo] = month.split('-').map(Number)
+  const monthStart = new Date(y, mo - 1, 1)
+  const monthEnd = new Date(y, mo, 0)
   let dow = monthStart.getDay()
-  dow = dow === 0 ? 6 : dow - 1 // Mon=0 … Sun=6
+  dow = dow === 0 ? 6 : dow - 1
   const cells: { iso: string | null; day: number; available: boolean; index: number }[] = []
   let idx = 0
   for (let i = 0; i < dow; i++) cells.push({ iso: null, day: 0, available: false, index: idx++ })
   const cur = new Date(monthStart)
-  while (cur <= last) {
-    const iso = cur.toISOString().slice(0, 10)
+  while (cur <= monthEnd) {
+    const iso = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`
     cells.push({ iso, day: cur.getDate(), available: availableSet.has(iso), index: idx++ })
     cur.setDate(cur.getDate() + 1)
   }
   return cells
 })
 
-function empInitials(name: string): string {
+const slotGroups = computed(() => {
+  const morning: AvailableSlotResponse[] = []
+  const afternoon: AvailableSlotResponse[] = []
+  const evening: AvailableSlotResponse[] = []
+  for (const slot of availableSlots.value) {
+    const hour = Number(slot.startTime.slice(11, 13))
+    if (hour < 12) morning.push(slot)
+    else if (hour < 17) afternoon.push(slot)
+    else evening.push(slot)
+  }
+  return [
+    { label: 'Sabah', slots: morning },
+    { label: 'Öğleden Sonra', slots: afternoon },
+    { label: 'Akşam', slots: evening },
+  ].filter((g) => g.slots.length > 0)
+})
+
+function empInitials(name: string | null | undefined): string {
+  if (!name?.trim()) return '?'
   return name
-    .split(' ')
+    .split(/\s+/)
     .map((p) => p[0] ?? '')
     .slice(0, 2)
     .join('')
@@ -1141,12 +1480,18 @@ async function loadAvailableDates() {
   datesLoading.value = true
   availableDates.value = []
   wizardForm.date = ''
+  calMonthIndex.value = 0
   try {
+    const slug = businessSlug.value
+    if (!slug) return
+    const daysAhead = maxAdvanceBookingDays.value
+    const empId =
+      wizardForm.employeeId === '' ? undefined : Number(wizardForm.employeeId)
     const res = await publicApi.getAvailableDates(
-      businessId.value,
+      slug,
       Number(wizardForm.serviceId),
-      DAYS_AHEAD,
-      Number(wizardForm.employeeId),
+      daysAhead,
+      empId && !Number.isNaN(empId) ? empId : undefined,
     )
     if (res.data.success && res.data.data) availableDates.value = res.data.data
   } catch { /* silent */ } finally {
@@ -1160,11 +1505,15 @@ async function loadAvailableSlots() {
   availableSlots.value = []
   wizardForm.time = ''
   try {
+    const slug = businessSlug.value
+    if (!slug) return
+    const empId =
+      wizardForm.employeeId === '' ? undefined : Number(wizardForm.employeeId)
     const res = await publicApi.getAvailableSlots(
-      businessId.value,
+      slug,
       Number(wizardForm.serviceId),
       wizardForm.date,
-      Number(wizardForm.employeeId),
+      empId && !Number.isNaN(empId) ? empId : undefined,
     )
     if (res.data.success && res.data.data) availableSlots.value = res.data.data
   } catch { /* silent */ } finally {
@@ -1212,6 +1561,13 @@ function openCreate() {
   wizardEmpCapabilities.value = []
   availableDates.value = []
   availableSlots.value = []
+  calMonthIndex.value = 0
+  customerMode.value = 'existing'
+  customerSearch.value = ''
+  selectedExistingCustomer.value = null
+  selectedSessionId.value = null
+  customerPackagesForWizard.value = []
+  customerPackageSessions.value = {}
   showCreateModal.value = true
   if (!employees.value.length || !services.value.length) loadEmployeesAndServices()
 }
@@ -1226,23 +1582,60 @@ function toLocalDateTimeApiString(date: string, time: string): string {
 async function submitCreate() {
   if (!businessId.value) return
   wizardErrors.value = {}
-  if (!wizardForm.customerName.trim()) { wizardErrors.value.customerName = 'Müşteri adı girin'; return }
-  if (!wizardForm.phoneNumber.trim()) { wizardErrors.value.phoneNumber = 'Telefon girin'; return }
-  if (wizardForm.phoneNumber.replaceAll(/\D/g, '').length < 10) { wizardErrors.value.phoneNumber = 'Geçerli telefon girin'; return }
-  createSaving.value = true
   createSubmitError.value = ''
+
+  if (customerMode.value === 'existing') {
+    if (!selectedExistingCustomer.value) {
+      wizardErrors.value.customer = 'Müşteri seçin veya yeni müşteri moduna geçin'
+      return
+    }
+  } else {
+    if (!wizardForm.customerName.trim()) { wizardErrors.value.customerName = 'Müşteri adı girin'; return }
+    if (!wizardForm.phoneNumber.trim()) { wizardErrors.value.phoneNumber = 'Telefon girin'; return }
+    if (wizardForm.phoneNumber.replaceAll(/\D/g, '').length < 10) { wizardErrors.value.phoneNumber = 'Geçerli telefon girin'; return }
+  }
+
+  createSaving.value = true
   try {
-    await appointmentApi.createStaff({
-      businessId: businessId.value,
-      employeeId: Number(wizardForm.employeeId),
-      serviceId: Number(wizardForm.serviceId),
-      scheduledAt: toLocalDateTimeApiString(wizardForm.date, wizardForm.time),
-      customerName: wizardForm.customerName.trim(),
-      phoneNumber: wizardForm.phoneNumber.trim(),
-      phoneCountryCode: '+90',
-      notes: wizardForm.notes.trim() || undefined,
-      source: wizardForm.source,
-    })
+    let createdAppointment: AppointmentResponse
+
+    if (customerMode.value === 'existing' && selectedExistingCustomer.value) {
+      const { data } = await appointmentApi.create({
+        customerId: selectedExistingCustomer.value.id,
+        employeeId: Number(wizardForm.employeeId),
+        serviceId: Number(wizardForm.serviceId),
+        scheduledAt: wizardForm.time.slice(0, 19),
+        notes: wizardForm.notes.trim() || undefined,
+        source: wizardForm.source,
+      })
+      if (!data.success || !data.data) throw new Error(data.error?.message ?? 'Randevu oluşturulamadı.')
+      createdAppointment = data.data
+    } else {
+      const { data } = await appointmentApi.createStaff({
+        employeeId: Number(wizardForm.employeeId),
+        serviceId: Number(wizardForm.serviceId),
+        scheduledAt: wizardForm.time.slice(0, 19),
+        customerName: wizardForm.customerName.trim(),
+        phoneNumber: wizardForm.phoneNumber.trim(),
+        phoneCountryCode: '+90',
+        notes: wizardForm.notes.trim() || undefined,
+        source: wizardForm.source,
+      })
+      if (!data.success || !data.data) throw new Error(data.error?.message ?? 'Randevu oluşturulamadı.')
+      createdAppointment = data.data
+    }
+
+    if (selectedSessionId.value !== null) {
+      const pkg = eligiblePackages.value.find(p =>
+        (customerPackageSessions.value[p.id] ?? []).some(s => s.id === selectedSessionId.value)
+      )
+      if (pkg) {
+        try {
+          await packageSessionApi.assign(pkg.id, selectedSessionId.value, { appointmentId: createdAppointment.id })
+        } catch { /* seans ataması başarısız olsa bile randevu oluşturuldu */ }
+      }
+    }
+
     showCreateModal.value = false
     if (view.value === 'list') {
       await reloadList()
@@ -1252,7 +1645,7 @@ async function submitCreate() {
     }
   } catch (e: unknown) {
     const data = (e as { response?: { data?: ApiResponse<unknown> } }).response?.data
-    createSubmitError.value = data?.error?.message ?? 'Randevu oluşturulamadı.'
+    createSubmitError.value = data?.error?.message ?? (e instanceof Error ? e.message : 'Randevu oluşturulamadı.')
   } finally {
     createSaving.value = false
   }

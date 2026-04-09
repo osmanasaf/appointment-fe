@@ -25,14 +25,12 @@
       <!-- Action selection -->
       <div class="space-y-2">
         <p class="text-sm font-medium text-slate-700">{{ t('leaveConflict.chooseAction') }}</p>
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input v-model="action" type="radio" value="CANCEL_ALL" class="text-indigo-500" />
-          <span class="text-sm text-slate-700">{{ t('employees.cancelAll') }}</span>
-        </label>
-        <label class="flex cursor-pointer items-center gap-2.5">
-          <input v-model="action" type="radio" value="REASSIGN_ALL" class="text-indigo-500" />
-          <span class="text-sm text-slate-700">{{ t('employees.reassignAll') }}</span>
-        </label>
+        <AppRadioRow v-model="action" name="leave-conflict-action" option-value="CANCEL_ALL">
+          {{ t('employees.cancelAll') }}
+        </AppRadioRow>
+        <AppRadioRow v-model="action" name="leave-conflict-action" option-value="REASSIGN_ALL">
+          {{ t('employees.reassignAll') }}
+        </AppRadioRow>
       </div>
 
       <!-- Reassign target -->
@@ -54,7 +52,7 @@
       <AppButton
         variant="primary"
         :disabled="action === 'REASSIGN_ALL' && !newEmployeeId"
-        :loading="resolving"
+        :loading="resolveLoading"
         @click="resolve"
       >
         {{ t('leaveConflict.confirm') }}
@@ -64,10 +62,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppModal from '../ui/AppModal.vue'
 import AppButton from '../ui/AppButton.vue'
+import AppRadioRow from '../ui/AppRadioRow.vue'
 import type { ConflictingAppointment, EmployeeResponse, LeaveConflictAction, LeaveConflictPreviewResponse } from '../../api/employee'
 
 const { t } = useI18n()
@@ -76,6 +75,7 @@ const props = defineProps<{
   visible: boolean
   preview: LeaveConflictPreviewResponse | null
   otherEmployees: EmployeeResponse[]
+  resolveLoading?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -85,8 +85,9 @@ const emit = defineEmits<{
 
 const action = ref<LeaveConflictAction>('CANCEL_ALL')
 const newEmployeeId = ref(0)
-const resolving = ref(false)
 const error = ref<string | null>(null)
+
+const resolveLoading = computed(() => props.resolveLoading ?? false)
 
 function resolve() {
   if (action.value === 'REASSIGN_ALL' && !newEmployeeId.value) return

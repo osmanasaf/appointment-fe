@@ -220,6 +220,7 @@
     "email": "Email",
     "titleLabel": "Title",
     "bio": "Bio",
+    "profileImageUrl": "Profile image URL",
     "experienceYears": "Experience (years)",
     "acceptsOnlineBooking": "Accepts online booking",
     "ownerCheck": "Business owner",

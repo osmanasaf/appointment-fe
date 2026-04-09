@@ -11,7 +11,6 @@ export interface PackageTemplateResponse {
 }
 
 export interface CreatePackageTemplateRequest {
-  businessId: number
   serviceId: number
   name: string
   totalSessions: number
@@ -25,10 +24,9 @@ export interface UpdatePackageTemplateRequest {
 }
 
 export const packageTemplateApi = {
-  listByBusiness(businessId: number) {
-    return api.get<ApiResponse<PackageTemplateResponse[]>>('/package-templates', {
-      params: { businessId },
-    })
+  /** Backend işletmeye ait tüm şablonları düz dizi döndürür (sayfalama yok). */
+  list() {
+    return api.get<ApiResponse<PackageTemplateResponse[]>>('/package-templates')
   },
   getById(id: number) {
     return api.get<ApiResponse<PackageTemplateResponse>>(`/package-templates/${id}`)

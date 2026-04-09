@@ -19,6 +19,10 @@ app.use(PrimeVue, {
     preset: appThemePreset,
     options: {
       darkModeSelector: false,
+      cssLayer: {
+        name: 'primevue',
+        order: 'base, primevue, utilities',
+      },
     },
   },
 })

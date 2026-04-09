@@ -25,6 +25,7 @@ const router = createRouter({
         { path: 'onboarding', name: 'AdminOnboarding', component: () => import('@/views/admin/BusinessOnboardingView.vue') },
         { path: 'services', name: 'AdminServices', component: () => import('@/views/admin/ServicesView.vue') },
         { path: 'packages', name: 'AdminPackages', component: () => import('@/views/admin/PackagesView.vue') },
+        { path: 'packages/:id', name: 'AdminPackageDetail', component: () => import('@/views/admin/PackageDetailView.vue') },
         { path: 'customers', name: 'AdminCustomers', component: () => import('@/views/admin/CustomersView.vue') },
         { path: 'employees', name: 'AdminEmployees', component: () => import('@/views/admin/EmployeesView.vue') },
         { path: 'appointments', name: 'AdminAppointments', component: () => import('@/views/admin/AppointmentsView.vue') },

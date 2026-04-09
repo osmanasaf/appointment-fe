@@ -376,6 +376,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { fetchAllPageContent } from '@/api/client'
 import { serviceApi, type ServiceResponse, type CreateServiceRequest, type UpdateServiceRequest } from '@/api/service'
 import { employeeApi, type EmployeeResponse, type SkillLevel } from '@/api/employee'
 import AppButton from '@/components/ui/AppButton.vue'
@@ -543,8 +544,9 @@ async function loadCapableEmployees() {
 async function loadAllEmployees() {
   if (!businessId.value) return
   try {
-    const { data } = await employeeApi.list(businessId.value)
-    if (data.success && data.data) allEmployees.value = data.data
+    allEmployees.value = await fetchAllPageContent((page, size) =>
+      employeeApi.list({ page, size }),
+    )
   } catch { /* silent */ }
 }
 
@@ -566,8 +568,8 @@ async function loadList() {
   loading.value = true
   listError.value = ''
   try {
-    const { data } = await serviceApi.list(businessId.value)
-    if (data.success && data.data) services.value = data.data
+    const { data } = await serviceApi.list()
+    services.value = data.success && data.data ? data.data : []
     await loadCapableEmployees()
   } catch {
     listError.value = 'Liste yüklenemedi.'
@@ -599,7 +601,6 @@ async function submitService() {
       await serviceApi.update(editingId.value, body)
     } else {
       const body: CreateServiceRequest = {
-        businessId: businessId.value,
         name: form.name.trim(),
         description: form.description.trim() || undefined,
         durationMinutes: form.durationMinutes,

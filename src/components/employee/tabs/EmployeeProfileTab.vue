@@ -46,14 +46,8 @@
     </div>
 
     <div class="flex flex-col gap-3 pt-1">
-      <label class="flex cursor-pointer items-center gap-3">
-        <input v-model="form.acceptsOnlineBooking" type="checkbox" class="size-4 rounded border-slate-300 text-indigo-600" />
-        <span class="text-sm text-slate-700">{{ t('employees.acceptsOnlineBooking') }}</span>
-      </label>
-      <label v-if="isCreate" class="flex cursor-pointer items-center gap-3">
-        <input v-model="form.owner" type="checkbox" class="size-4 rounded border-slate-300 text-indigo-600" />
-        <span class="text-sm text-slate-700">{{ t('employees.ownerCheck') }}</span>
-      </label>
+      <AppCheckbox v-model="form.acceptsOnlineBooking" :label="t('employees.acceptsOnlineBooking')" />
+      <AppCheckbox v-if="isCreate" v-model="form.owner" :label="t('employees.ownerCheck')" />
     </div>
 
     <p v-if="error" class="text-sm text-red-500" role="alert">{{ error }}</p>
@@ -70,6 +64,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppButton from '../../ui/AppButton.vue'
+import AppCheckbox from '../../ui/AppCheckbox.vue'
 import { employeeApi, type EmployeeResponse } from '../../../api/employee'
 
 const { t } = useI18n()
@@ -121,7 +116,6 @@ async function submit() {
     let result: EmployeeResponse
     if (props.isCreate) {
       const res = await employeeApi.create({
-        businessId: props.businessId,
         name: form.name,
         title: form.title || undefined,
         phoneNumber: form.phoneNumber || undefined,

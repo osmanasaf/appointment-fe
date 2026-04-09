@@ -1,4 +1,4 @@
-import { api, type ApiResponse } from './client'
+import { api, type ApiResponse, type PageResponse } from './client'
 
 export type AppointmentStatus =
   | 'PENDING'
@@ -11,7 +11,6 @@ export type AppointmentStatus =
 export type AppointmentSource = 'ONLINE' | 'PHONE' | 'WALK_IN' | 'MANUAL'
 
 export interface StaffAppointmentRequest {
-  businessId: number
   employeeId: number
   serviceId: number
   scheduledAt: string
@@ -20,6 +19,16 @@ export interface StaffAppointmentRequest {
   phoneCountryCode?: string
   notes?: string
   source: 'PHONE' | 'WALK_IN'
+}
+
+export interface CreateAppointmentRequest {
+  customerId: number
+  employeeId: number
+  serviceId: number
+  scheduledAt: string
+  notes?: string
+  customerNotes?: string
+  source?: string
 }
 
 export interface AppointmentResponse {
@@ -44,15 +53,18 @@ export interface AppointmentResponse {
 }
 
 export const appointmentApi = {
-  list(businessId: number, startDate?: string, endDate?: string) {
-    return api.get<ApiResponse<AppointmentResponse[]>>('/appointments', {
-      params: { businessId, startDate, endDate },
+  list(params?: { startDate?: string; endDate?: string; page?: number; size?: number }) {
+    return api.get<ApiResponse<PageResponse<AppointmentResponse>>>('/appointments', {
+      params: { page: 0, size: 20, ...params },
     })
   },
-  getRisky(businessId: number) {
-    return api.get<ApiResponse<AppointmentResponse[]>>('/appointments/risky', {
-      params: { businessId },
+  listByCustomer(customerId: number) {
+    return api.get<ApiResponse<AppointmentResponse[]>>('/appointments', {
+      params: { customerId },
     })
+  },
+  getRisky() {
+    return api.get<ApiResponse<AppointmentResponse[]>>('/appointments/risky')
   },
   getById(id: number) {
     return api.get<ApiResponse<AppointmentResponse>>(`/appointments/${id}`)
@@ -76,5 +88,8 @@ export const appointmentApi = {
   },
   createStaff(request: StaffAppointmentRequest) {
     return api.post<ApiResponse<AppointmentResponse>>('/appointments/staff', request)
+  },
+  create(request: CreateAppointmentRequest) {
+    return api.post<ApiResponse<AppointmentResponse>>('/appointments', request)
   },
 }

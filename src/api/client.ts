@@ -25,6 +25,41 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface PageResponse<T> {
+  content: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasNext: boolean
+  hasPrevious: boolean
+}
+
+/** Sayfalı API cevabından dizi al (eski `data` doğrudan dizi iken kırılan yerler için). */
+export function pageContent<T>(data: PageResponse<T> | undefined | null): T[] {
+  return data?.content ?? []
+}
+
+/**
+ * hasNext olduğu sürece sayfaları çeker (admin tam liste; max sayfa güvenlik sınırı).
+ */
+export async function fetchAllPageContent<T>(
+  fetchPage: (page: number, size: number) => Promise<{ data: ApiResponse<PageResponse<T>> }>,
+  options?: { maxPages?: number; pageSize?: number },
+): Promise<T[]> {
+  const maxPages = options?.maxPages ?? 30
+  const pageSize = options?.pageSize ?? 100
+  const all: T[] = []
+  for (let page = 0; page < maxPages; page++) {
+    const res = await fetchPage(page, pageSize)
+    const body = res.data
+    if (!body?.success || !body.data) break
+    all.push(...pageContent(body.data))
+    if (!body.data.hasNext) break
+  }
+  return all
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken')
   if (token) {

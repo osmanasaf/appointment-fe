@@ -132,14 +132,12 @@
             </ul>
             <div v-if="affectedAppointments.length" class="space-y-2">
               <p class="text-sm font-medium text-slate-700">{{ t('employees.offboardAction') }}</p>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input v-model="offboardAction" type="radio" value="CANCEL_ALL" />
-                <span class="text-sm">{{ t('employees.cancelAll') }}</span>
-              </label>
-              <label class="flex cursor-pointer items-center gap-2">
-                <input v-model="offboardAction" type="radio" value="REASSIGN_ALL" />
-                <span class="text-sm">{{ t('employees.reassignAll') }}</span>
-              </label>
+              <AppRadioRow v-model="offboardAction" name="offboard-action" option-value="CANCEL_ALL">
+                {{ t('employees.cancelAll') }}
+              </AppRadioRow>
+              <AppRadioRow v-model="offboardAction" name="offboard-action" option-value="REASSIGN_ALL">
+                {{ t('employees.reassignAll') }}
+              </AppRadioRow>
               <div v-if="offboardAction === 'REASSIGN_ALL'" class="space-y-1">
                 <label class="block text-sm font-medium text-slate-700">{{ t('employees.selectEmployee') }}</label>
                 <select v-model.number="offboardNewEmployeeId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
@@ -179,9 +177,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { fetchAllPageContent } from '@/api/client'
 import { employeeApi, type AffectedAppointmentResponse, type EmployeeCapabilityResponse, type EmployeeResponse } from '@/api/employee'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import AppRadioRow from '@/components/ui/AppRadioRow.vue'
 import EmployeeCard from '@/components/employee/EmployeeCard.vue'
 import EmployeeFormModal from '@/components/employee/EmployeeFormModal.vue'
 
@@ -222,8 +222,9 @@ async function loadList() {
   loading.value = true
   listError.value = ''
   try {
-    const res = await employeeApi.list(businessId.value)
-    employees.value = res.data.data ?? []
+    employees.value = await fetchAllPageContent((page, size) =>
+      employeeApi.list({ page, size }),
+    )
     await loadAllCapabilities()
   } catch {
     listError.value = t('employees.loadError')

@@ -138,6 +138,16 @@
             </p>
           </div>
 
+          <!-- Forgot password link -->
+          <div class="flex justify-end">
+            <RouterLink
+              to="/forgot-password"
+              class="text-sm font-medium text-teal-600 hover:text-teal-700"
+            >
+              {{ t('auth.forgotPassword') }}
+            </RouterLink>
+          </div>
+
           <!-- Submit error banner -->
           <div
             v-if="submitError"

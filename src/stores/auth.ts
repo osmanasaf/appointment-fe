@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { authApi, type UserInfo, type LoginRequest, type RegisterRequest } from '@/api/auth'
+import { authApi, type UserInfo, type LoginRequest, type RegisterRequest, type AuthResponseData } from '@/api/auth'
 
 const TOKEN_KEY = 'accessToken'
 const USER_KEY = 'user'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(TOKEN_KEY))
+  
   function getStoredUser(): UserInfo | null {
     const raw = localStorage.getItem(USER_KEY)
     if (!raw) return null
@@ -19,15 +20,39 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserInfo | null>(getStoredUser())
 
   const isAuthenticated = computed(() => !!token.value)
+  const isEmployee = computed(() => user.value?.role === 'EMPLOYEE')
+  const isBusinessOwner = computed(() => user.value?.role === 'BUSINESS_OWNER')
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const currentEmployeeId = computed(() => user.value?.employeeId ?? null)
 
-  function setAuth(accessToken: string, userData: UserInfo) {
-    token.value = accessToken
-    user.value = userData
-    localStorage.setItem(TOKEN_KEY, accessToken)
-    localStorage.setItem(USER_KEY, JSON.stringify(userData))
+  // Token yenileme durumu (race condition önleme)
+  let refreshPromise: Promise<boolean> | null = null
+
+  function setAuth(authData: AuthResponseData): void
+  function setAuth(accessToken: string, userData: UserInfo): void
+  function setAuth(authDataOrToken: AuthResponseData | string, userData?: UserInfo) {
+    if (typeof authDataOrToken === 'string') {
+      token.value = authDataOrToken
+      user.value = userData!
+      localStorage.setItem(TOKEN_KEY, authDataOrToken)
+      localStorage.setItem(USER_KEY, JSON.stringify(userData))
+    } else {
+      token.value = authDataOrToken.accessToken
+      user.value = authDataOrToken.user
+      localStorage.setItem(TOKEN_KEY, authDataOrToken.accessToken)
+      localStorage.setItem(USER_KEY, JSON.stringify(authDataOrToken.user))
+      // Refresh token artık httpOnly cookie'de, localStorage'a kaydetmiyoruz
+    }
   }
 
-  function logout() {
+  async function logout() {
+    // Backend'e logout bildir (cookie'deki refresh token revoke edilecek)
+    try {
+      await authApi.logout()
+    } catch {
+      // Hata olsa bile local temizliği yap
+    }
+    
     token.value = null
     user.value = null
     localStorage.removeItem(TOKEN_KEY)
@@ -37,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credentials: LoginRequest) {
     const { data } = await authApi.login(credentials)
     if (data.success && data.data) {
-      setAuth(data.data.accessToken, data.data.user)
+      setAuth(data.data)
       return data
     }
     throw new Error(data.error?.message ?? 'Giriş başarısız')
@@ -51,5 +76,50 @@ export const useAuthStore = defineStore('auth', () => {
     throw new Error(data.error?.message ?? 'Kayıt başarısız')
   }
 
-  return { token, user, isAuthenticated, login, register, logout, setAuth }
+  /**
+   * Access token'ı refresh token kullanarak yeniler.
+   * Refresh token httpOnly cookie'de, otomatik gönderilir.
+   */
+  async function refreshAccessToken(): Promise<boolean> {
+    // Zaten bir refresh işlemi varsa, onu bekle
+    if (refreshPromise) {
+      return refreshPromise
+    }
+
+    refreshPromise = (async () => {
+      try {
+        const { data } = await authApi.refreshToken()
+        if (data.success && data.data) {
+          setAuth(data.data)
+          return true
+        }
+        // Refresh başarısız - logout yap
+        await logout()
+        return false
+      } catch {
+        // Refresh başarısız - logout yap
+        await logout()
+        return false
+      } finally {
+        refreshPromise = null
+      }
+    })()
+
+    return refreshPromise
+  }
+
+  return { 
+    token, 
+    user, 
+    isAuthenticated, 
+    isEmployee, 
+    isBusinessOwner, 
+    isAdmin, 
+    currentEmployeeId,
+    login, 
+    register, 
+    logout, 
+    setAuth,
+    refreshAccessToken
+  }
 })

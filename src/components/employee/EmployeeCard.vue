@@ -59,6 +59,9 @@
       <AppButton variant="secondary" size="sm" @click="$emit('edit', employee)">
         {{ t('employees.edit') }}
       </AppButton>
+      <AppButton variant="secondary" size="sm" @click="$emit('send-invite', employee)">
+        {{ t('employees.sendInvite') }}
+      </AppButton>
       <AppButton variant="secondary" size="sm" @click="$emit('add-leave', employee)">
         {{ t('employees.addLeave') }}
       </AppButton>
@@ -119,6 +122,7 @@ const props = withDefaults(
 
 defineEmits<{
   edit: [employee: EmployeeResponse]
+  'send-invite': [employee: EmployeeResponse]
   'add-leave': [employee: EmployeeResponse]
   activate: [id: number]
   deactivate: [id: number]

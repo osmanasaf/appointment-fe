@@ -7,6 +7,7 @@ const router = createRouter({
     { path: '/', name: 'Landing', component: () => import('@/views/LandingView.vue'), meta: { public: true } },
     { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
     { path: '/register', name: 'Register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
+    { path: '/register-employee', name: 'RegisterEmployee', component: () => import('@/views/RegisterEmployeeView.vue'), meta: { public: true } },
     {
       path: '/auth/pending-verification',
       name: 'EmailVerificationPending',
@@ -23,6 +24,12 @@ const router = createRouter({
       path: '/auth/verified',
       name: 'EmailVerifiedStatic',
       component: () => import('@/views/EmailVerifiedView.vue'),
+      meta: { public: true },
+    },
+    {
+      path: '/forgot-password',
+      name: 'ForgotPassword',
+      component: () => import('@/views/ForgotPasswordView.vue'),
       meta: { public: true },
     },
     {
@@ -53,6 +60,14 @@ const router = createRouter({
         { path: 'appointments', name: 'AdminAppointments', component: () => import('@/views/admin/AppointmentsView.vue') },
       ],
     },
+    {
+      path: '/staff',
+      component: () => import('@/views/staff/StaffLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', name: 'StaffDashboard', component: () => import('@/views/staff/StaffAppointmentsView.vue') },
+      ],
+    },
     { path: '/b/:slug', name: 'PublicBook', component: () => import('@/views/public/BookAppointmentView.vue'), meta: { public: true } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
@@ -60,11 +75,28 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
+  
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
   } else if (auth.isAuthenticated && (to.name === 'Login' || to.name === 'Register' || to.name === 'EmailVerificationPending')) {
-    next({ name: 'AdminDashboard' })
+    // Rol bazlı yönlendirme
+    if (auth.isEmployee) {
+      next({ name: 'StaffDashboard' })
+    } else {
+      next({ name: 'AdminDashboard' })
+    }
   } else if (auth.isAuthenticated && to.name === 'Landing') {
+    // Rol bazlı yönlendirme
+    if (auth.isEmployee) {
+      next({ name: 'StaffDashboard' })
+    } else {
+      next({ name: 'AdminDashboard' })
+    }
+  } else if (auth.isAuthenticated && auth.isEmployee && to.path.startsWith('/admin')) {
+    // Çalışanlar admin paneline erişemez
+    next({ name: 'StaffDashboard' })
+  } else if (auth.isAuthenticated && !auth.isEmployee && to.path.startsWith('/staff')) {
+    // Admin/owner staff paneline erişemez (isteğe bağlı)
     next({ name: 'AdminDashboard' })
   } else {
     next()

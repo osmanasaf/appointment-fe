@@ -12,6 +12,7 @@ export interface PlanResponse {
   maxServices: number
   maxBranches: number
   features: string[]
+  featureNames: Record<string, string>
   monthlyPrice: number | string
   yearlyPrice: number | string
 }

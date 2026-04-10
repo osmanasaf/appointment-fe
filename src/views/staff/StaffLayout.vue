@@ -1,0 +1,109 @@
+<template>
+  <div class="staff-layout">
+    <header class="staff-header">
+      <div class="header-container">
+        <div class="brand">
+          <h1>{{ t('staff.title') }}</h1>
+        </div>
+        <div class="user-menu">
+          <span class="user-name">{{ auth.user?.name }}</span>
+          <button @click="handleLogout" class="btn-logout">
+            {{ t('common.logout') }}
+          </button>
+        </div>
+      </div>
+    </header>
+    
+    <main class="staff-main">
+      <div class="container">
+        <RouterView />
+      </div>
+    </main>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const auth = useAuthStore()
+const router = useRouter()
+const { t } = useI18n()
+
+function handleLogout() {
+  auth.logout()
+  router.push({ name: 'Login' })
+}
+</script>
+
+<style scoped>
+.staff-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+
+.staff-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.btn-logout {
+  padding: 0.5rem 1rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background: #dc2626;
+}
+
+.staff-main {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+</style>

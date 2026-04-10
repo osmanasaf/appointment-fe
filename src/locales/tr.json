@@ -4,6 +4,9 @@
     "loginSubtitle": "Randevu panelinize giriş yapın",
     "registerTitle": "Kayıt",
     "registerSubtitle": "Yeni işletme hesabı oluşturun",
+    "registerEmployeeTitle": "Çalışan Kaydı",
+    "registerEmployeeSubtitle": "Davet ile işletmeye katılın",
+    "inviteTokenMissing": "Geçersiz davet linki",
     "email": "E-posta",
     "password": "Şifre",
     "name": "Ad soyad",
@@ -47,7 +50,8 @@
     "verifyErrorGeneric": "Bağlantı geçersiz veya süresi dolmuş olabilir.",
     "verifyMissingToken": "Geçerli bir doğrulama bağlantısı bulunamadı.",
     "emailNotVerifiedMessage": "E-posta adresiniz henüz doğrulanmamış.",
-    "resendVerificationLink": "Doğrulama e-postasını tekrar gönder"
+    "resendVerificationLink": "Doğrulama e-postasını tekrar gönder",
+    "forgotPassword": "Şifremi unuttum"
   },
   "landing": {
     "documentTitle": "Ayarla — Randevunu ayarla. Online randevu ve müşteri yönetimi.",
@@ -202,16 +206,21 @@
   "common": {
     "loading": "Yükleniyor…",
     "error": "Bir hata oluştu",
+    "errorOccurred": "Bir hata oluştu",
     "retry": "Yeniden dene",
     "save": "Kaydet",
     "cancel": "İptal",
+    "cancelling": "İptal ediliyor...",
     "delete": "Sil",
     "edit": "Düzenle",
     "close": "Kapat",
     "all": "Tümü",
     "preview": "Önizle",
     "copyLink": "Linki kopyala",
-    "copied": "Kopyalandı ✓"
+    "copied": "Kopyalandı ✓",
+    "logout": "Çıkış",
+    "previous": "Önceki",
+    "next": "Sonraki"
   },
   "admin": {
     "brand": "Ayarla",
@@ -395,6 +404,7 @@
     "subtitle": "Mevcut limitleriniz ve paket karşılaştırması.",
     "currentUsage": "Bu dönem kullanım",
     "usageAppointments": "{n} / {max} randevu",
+    "unlimited": "Sınırsız",
     "trialUntil": "Deneme bitişi: {date}",
     "loadError": "Plan bilgisi alınamadı.",
     "month": "ay",
@@ -404,7 +414,11 @@
     "features": "Özellikler",
     "matrixTitle": "Özellik matrisi",
     "featureCol": "Özellik",
-    "matrixHint": "Hücreler planda ilgili özelliğin listelenip listelenmediğini gösterir."
+    "matrixHint": "Hücreler planda ilgili özelliğin listelenip listelenmediğini gösterir.",
+    "upgrade": "Yükselt",
+    "currentPlan": "Mevcut plan",
+    "contactUs": "Bizimle iletişime geçin",
+    "upgradeMessage": "Paket yükseltmek için lütfen bizimle iletişime geçin."
   },
   "onboarding": {
     "title": "İşletme kurulum sihirbazı",
@@ -432,6 +446,26 @@
   "employees": {
     "lead": "Randevu alabilecek ekip üyelerinizi tanımlayın.",
     "add": "Yeni çalışan",
+    "sendInvite": "Davet gönder",
+    "sendInviteTitle": "Çalışan daveti gönder",
+    "sendingInvite": "Gönderiliyor...",
+    "inviteSent": "Davet başarıyla gönderildi",
+    "employeeName": "Çalışan adı",
+    "viewInvites": "Davetleri görüntüle",
+    "inviteListTitle": "Çalışan davetleri",
+    "noInvites": "Henüz davet gönderilmemiş",
+    "createdAt": "Oluşturulma",
+    "expiresAt": "Son kullanma",
+    "usedAt": "Kullanıldı",
+    "copyInviteLink": "Davet linkini kopyala",
+    "linkCopied": "Link kopyalandı",
+    "linkCopyFailed": "Link kopyalanamadı",
+    "cancelInviteConfirm": "{email} için daveti iptal etmek istediğinize emin misiniz?",
+    "inviteStatus": {
+      "PENDING": "Beklemede",
+      "USED": "Kullanıldı",
+      "CANCELLED": "İptal edildi"
+    },
     "noBusiness": "İşletme bilgisi bulunamadı.",
     "loadError": "Liste yüklenemedi.",
     "emptyTitle": "Henüz çalışan yok",
@@ -559,5 +593,25 @@
     "title": "İzin çakışması — {count} randevu",
     "chooseAction": "İşlem seçin",
     "confirm": "Onayla"
+  },
+  "staff": {
+    "title": "Çalışan Paneli",
+    "myAppointments": "Randevularım",
+    "myAppointmentsDesc": "Sadece size atanmış randevuları görüntüleyebilir ve yönetebilirsiniz."
+  },
+  "appointments": {
+    "noAppointments": "Henüz randevunuz yok.",
+    "customer": "Müşteri",
+    "service": "Hizmet",
+    "notes": "Notlar",
+    "startDate": "Başlangıç tarihi",
+    "endDate": "Bitiş tarihi",
+    "confirm": "Onayla",
+    "complete": "Tamamla",
+    "cancel": "İptal et",
+    "confirmSuccess": "Randevu onaylandı",
+    "completeSuccess": "Randevu tamamlandı",
+    "cancelSuccess": "Randevu iptal edildi",
+    "cancelConfirm": "Bu randevuyu iptal etmek istediğinize emin misiniz?"
   }
 }

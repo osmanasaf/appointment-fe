@@ -6,13 +6,22 @@
         <h1 class="text-2xl font-bold text-slate-900">{{ t('pageTitles.employees') }}</h1>
         <p class="mt-1 text-sm text-slate-500">{{ t('employees.lead') }}</p>
       </div>
-      <AppButton
-        v-if="businessId && !loading && !listError"
-        variant="primary"
-        @click="openCreate"
-      >
-        + {{ t('employees.add') }}
-      </AppButton>
+      <div class="flex gap-2">
+        <AppButton
+          v-if="businessId && !loading && !listError"
+          variant="secondary"
+          @click="inviteListModalVisible = true"
+        >
+          {{ t('employees.viewInvites') }}
+        </AppButton>
+        <AppButton
+          v-if="businessId && !loading && !listError"
+          variant="primary"
+          @click="openCreate"
+        >
+          + {{ t('employees.add') }}
+        </AppButton>
+      </div>
     </div>
 
     <div v-if="!businessId" class="rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
@@ -80,6 +89,7 @@
           :capabilities="capabilitiesMap.get(emp.id) ?? []"
           :status-loading="statusLoadingId === emp.id"
           @edit="openEdit"
+          @send-invite="openSendInvite"
           @add-leave="openLeaveTab"
           @activate="activate"
           @deactivate="deactivate"
@@ -97,6 +107,18 @@
       :all-employees="employees"
       :initial-tab="formModalInitialTab"
       @saved="onEmployeeSaved"
+    />
+
+    <!-- Send Invite Modal -->
+    <SendInviteModal
+      v-model:visible="inviteModalVisible"
+      :employee="inviteEmployee"
+      @invited="onInviteSent"
+    />
+
+    <!-- Invite List Modal -->
+    <InviteListModal
+      v-model:visible="inviteListModalVisible"
     />
 
     <!-- Delete confirm -->
@@ -184,6 +206,8 @@ import AppModal from '@/components/ui/AppModal.vue'
 import AppRadioRow from '@/components/ui/AppRadioRow.vue'
 import EmployeeCard from '@/components/employee/EmployeeCard.vue'
 import EmployeeFormModal from '@/components/employee/EmployeeFormModal.vue'
+import SendInviteModal from '@/components/employee/SendInviteModal.vue'
+import InviteListModal from '@/components/employee/InviteListModal.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -271,6 +295,21 @@ function onEmployeeSaved(emp: EmployeeResponse) {
   const idx = employees.value.findIndex((e) => e.id === emp.id)
   if (idx !== -1) employees.value[idx] = emp
   else employees.value.unshift(emp)
+}
+
+// ── Send Invite ───────────────────────────────────────────────────────────────
+const inviteModalVisible = ref(false)
+const inviteEmployee = ref<EmployeeResponse | null>(null)
+const inviteListModalVisible = ref(false)
+
+function openSendInvite(emp: EmployeeResponse) {
+  inviteEmployee.value = emp
+  inviteModalVisible.value = true
+}
+
+function onInviteSent() {
+  // Başarılı davet gönderimi
+  inviteModalVisible.value = false
 }
 
 // ── Activate / Deactivate ────────────────────────────────────────────────────

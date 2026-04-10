@@ -5,6 +5,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL ?? ''
 export const api = axios.create({
   baseURL: baseURL || '/api/v1',
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // httpOnly cookie desteği için
 })
 
 /** Sunucu MethodArgumentNotValidException / validation cevaplarındaki alan hataları */
@@ -68,14 +69,94 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Token yenileme için flag (race condition önleme)
+let isRefreshing = false
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void
+  reject: (reason?: unknown) => void
+}> = []
+
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error)
+    } else {
+      prom.resolve()
+    }
+  })
+  failedQueue = []
+}
+
 api.interceptors.response.use(
   (res) => res,
-  (err: AxiosError<ApiResponse<unknown>>) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+  async (err: AxiosError<ApiResponse<unknown>>) => {
+    const originalRequest = err.config
+    
+    // 401 hatası varsa refresh dene
+    if (err.response?.status === 401 && originalRequest && !originalRequest.headers['X-Retry']) {
+      // Refresh endpoint'ine istek yapılıyorsa logout
+      if (originalRequest.url?.includes('/auth/refresh')) {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        return Promise.reject(err)
+      }
+
+      // Zaten refresh yapılıyorsa kuyruğa ekle
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then(() => {
+          return api(originalRequest)
+        }).catch((error) => {
+          return Promise.reject(error)
+        })
+      }
+
+      isRefreshing = true
+
+      try {
+        // Token yenileme isteği - httpOnly cookie otomatik gönderilir
+        const response = await axios.post<ApiResponse<{
+          accessToken: string
+          refreshToken: string
+          user: unknown
+        }>>(
+          `${api.defaults.baseURL}/auth/refresh`,
+          {}, // Body boş, refresh token cookie'den gelecek
+          { 
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true 
+          }
+        )
+
+        if (response.data.success && response.data.data) {
+          const { accessToken, user } = response.data.data
+          
+          localStorage.setItem('accessToken', accessToken)
+          localStorage.setItem('user', JSON.stringify(user))
+          
+          // Bekleyen istekleri işle
+          processQueue()
+          
+          // Orijinal isteği yeni token ile tekrarla
+          originalRequest.headers['X-Retry'] = 'true'
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`
+          return api(originalRequest)
+        } else {
+          throw new Error('Refresh failed')
+        }
+      } catch (refreshError) {
+        processQueue(refreshError)
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
+      }
     }
+
     return Promise.reject(err)
   }
 )

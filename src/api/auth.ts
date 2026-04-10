@@ -33,11 +33,21 @@ export interface RegisterRequest {
   businessCategory: string
 }
 
+export interface ResendVerificationRequest {
+  email: string
+}
+
 export const authApi = {
   login(body: LoginRequest) {
     return api.post<ApiResponse<AuthResponseData>>('/auth/login', body)
   },
   register(body: RegisterRequest) {
-    return api.post<ApiResponse<AuthResponseData>>('/auth/register', body)
+    return api.post<ApiResponse<void>>('/auth/register', body)
+  },
+  verifyEmail(token: string) {
+    return api.get<ApiResponse<void>>('/auth/verify-email', { params: { token } })
+  },
+  resendVerification(body: ResendVerificationRequest) {
+    return api.post<ApiResponse<void>>('/auth/resend-verification', body)
   },
 }

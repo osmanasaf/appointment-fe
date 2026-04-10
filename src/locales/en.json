@@ -33,7 +33,171 @@
     "stepAccount": "Account",
     "stepBusiness": "Business",
     "next": "Next",
-    "back": "Back"
+    "back": "Back",
+    "verifyPendingTitle": "Check your email",
+    "verifyPendingBody": "We sent a verification link. Open it to activate your account.",
+    "resendVerification": "Resend verification email",
+    "resendVerificationSuccess": "A new verification email has been sent.",
+    "resendVerificationFailed": "Could not send the email. Please try again later.",
+    "backToLogin": "Back to sign in",
+    "verifyEmailWorking": "Verifying your email…",
+    "verifySuccessTitle": "Email verified",
+    "verifySuccessBody": "You can now sign in and use your dashboard.",
+    "verifyErrorTitle": "Verification failed",
+    "verifyErrorGeneric": "The link may be invalid or expired.",
+    "verifyMissingToken": "No valid verification link was found.",
+    "emailNotVerifiedMessage": "Your email is not verified yet.",
+    "resendVerificationLink": "Resend verification email"
+  },
+  "landing": {
+    "documentTitle": "Ayarla — Set your appointments. Online booking & customer management.",
+    "heroEyebrow": "From salon to dietitian, one panel",
+    "heroTitle": "Set your appointments, focus on your craft",
+    "heroSubtitle": "Online booking, WhatsApp reminders, and customer tracking — designed for beauty, health, and consulting businesses.",
+    "ctaTrial": "Start free",
+    "ctaDemo": "How it works",
+    "ctaLogin": "Sign in",
+    "navNiches": "Industries",
+    "navFeatures": "Features",
+    "navFaq": "FAQ",
+    "trustedTitle": "Trusted by businesses across the country",
+    "trustedStats": {
+      "businesses": "500+",
+      "businessesLabel": "Active businesses",
+      "appointments": "50,000+",
+      "appointmentsLabel": "Monthly appointments",
+      "noShowReduction": "40%",
+      "noShowReductionLabel": "No-show reduction"
+    },
+    "nicheTitle": "Solutions for every industry",
+    "nicheSubtitle": "Ready templates and flows for hair salons, beauty centers, nail studios, tattoo artists, therapists, and dietitians.",
+    "nicheMore": "More industries",
+    "niche": {
+      "hair": {
+        "title": "Hair & Barber",
+        "desc": "Cuts, color, treatments. Staff-based availability and a shareable booking link."
+      },
+      "beauty": {
+        "title": "Beauty Center",
+        "desc": "Facials, waxing, makeup. Package sessions and buffer to avoid overlapping slots."
+      },
+      "nail": {
+        "title": "Nail Studio",
+        "desc": "Manicure, pedicure, nail extensions. Easy service duration and pricing setup."
+      },
+      "tattoo": {
+        "title": "Tattoo & Piercing",
+        "desc": "Session planning, deposit tracking. Client portfolio and approval flow."
+      },
+      "psych": {
+        "title": "Therapy & Counseling",
+        "desc": "Session lengths, recurring visits. Privacy-focused, simple client flow."
+      },
+      "diet": {
+        "title": "Nutrition & Dietitian",
+        "desc": "Initial consults and follow-ups. Package and session tracking for regular care."
+      }
+    },
+    "featuresTitle": "Features that simplify your work",
+    "featuresSubtitle": "Manage appointments, customers, and team from one panel.",
+    "features": {
+      "booking": {
+        "title": "24/7 Online Booking",
+        "desc": "Clients can book anytime. Your calendar fills while you sleep."
+      },
+      "whatsapp": {
+        "title": "WhatsApp Reminders",
+        "desc": "Automatic reminders and confirmations. Reduce no-shows by up to 40%."
+      },
+      "customers": {
+        "title": "Customer Management",
+        "desc": "Client history, notes, and preferences. Know every customer."
+      },
+      "calendar": {
+        "title": "Smart Calendar",
+        "desc": "Staff-based availability, leave tracking, and conflict prevention."
+      },
+      "packages": {
+        "title": "Packages & Sessions",
+        "desc": "Sell session packages, track usage. Build loyal customers."
+      },
+      "reports": {
+        "title": "Reports",
+        "desc": "Appointment, revenue, and no-show statistics. Make data-driven decisions."
+      }
+    },
+    "howItWorksTitle": "Get started in three steps",
+    "howItWorksSubtitle": "Start accepting online bookings in minutes.",
+    "step1Title": "Define services",
+    "step1Body": "Set duration, pricing, and staff availability. Start faster with industry templates.",
+    "step2Title": "Share your link",
+    "step2Body": "Add one link to your site, Instagram, or WhatsApp for 24/7 booking.",
+    "step3Title": "Automate reminders",
+    "step3Body": "WhatsApp reminders keep clients engaged and reduce no-shows.",
+    "testimonialsTitle": "What our users say",
+    "testimonials": {
+      "t1": {
+        "quote": "Thanks to Ayarla, our no-show rate dropped by half. WhatsApp reminders really work.",
+        "name": "Elif K.",
+        "role": "Beauty Center Owner"
+      },
+      "t2": {
+        "quote": "Now I can focus on my work instead of answering booking calls. Clients love the link.",
+        "name": "Ahmet Y.",
+        "role": "Barber"
+      },
+      "t3": {
+        "quote": "Tracking session packages is so easy. My clients can see their remaining sessions.",
+        "name": "Zeynep D.",
+        "role": "Therapist"
+      }
+    },
+    "ctaBannerTitle": "Take your business digital",
+    "ctaBannerSubtitle": "Try free for 14 days. No credit card required.",
+    "ctaBannerButton": "Get started",
+    "faqTitle": "Frequently asked questions",
+    "faq": {
+      "q0": {
+        "q": "What happens after the 14-day trial?",
+        "a": "You can use core features during the trial. Before it ends we’ll outline paid plans; your data stays with you."
+      },
+      "q1": {
+        "q": "How do clients book?",
+        "a": "You get a dedicated booking page and URL. Clients pick service, staff, and an available time slot."
+      },
+      "q2": {
+        "q": "Is WhatsApp required?",
+        "a": "No, but WhatsApp reminders and confirmations typically reduce no-shows significantly."
+      },
+      "q3": {
+        "q": "Is my data secure?",
+        "a": "Business and customer data is protected with modern security practices. You provide required privacy notices under your local law."
+      },
+      "q4": {
+        "q": "Which industries do you serve?",
+        "a": "Hair salons, beauty centers, nail studios, tattoo studios, therapists, dietitians, and all appointment-based businesses."
+      },
+      "q5": {
+        "q": "Is there a mobile app?",
+        "a": "The web panel is mobile-friendly. You can manage everything from your phone. A mobile app is on our roadmap."
+      }
+    },
+    "footerTagline": "Set your appointments",
+    "footerProduct": "Product",
+    "footerCompany": "Company",
+    "footerLegal": "Legal",
+    "footerRegister": "Register",
+    "footerLogin": "Sign in",
+    "footerFeatures": "Features",
+    "footerPricing": "Pricing",
+    "footerFaq": "FAQ",
+    "footerAbout": "About",
+    "footerContact": "Contact",
+    "footerBlog": "Blog",
+    "footerPrivacy": "Privacy",
+    "footerTerms": "Terms",
+    "footerKvkk": "GDPR",
+    "footerCopyright": "© {year} Ayarla. All rights reserved."
   },
   "common": {
     "loading": "Loading…",
@@ -50,7 +214,7 @@
     "copied": "Copied ✓"
   },
   "admin": {
-    "brand": "Booking Panel",
+    "brand": "Ayarla",
     "logout": "Log out",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",

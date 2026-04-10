@@ -2,7 +2,7 @@
   <AppModal
     :visible="visible"
     :title="modalTitle"
-    :style="{ width: 'min(40rem, 95vw)' }"
+    :dialog-style="{ width: 'min(40rem, 95vw)' }"
     @update:visible="$emit('update:visible', $event)"
   >
     <!-- Tab navigation -->

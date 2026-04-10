@@ -8,7 +8,7 @@
           {{ filteredTotal }} randevu<span v-if="view === 'list' && periodLabel"> · {{ periodLabel }}</span>
         </p>
       </div>
-      <div class="flex shrink-0 flex-wrap items-center gap-2">
+      <div class="flex shrink-0 items-center gap-2">
         <div
           class="flex items-center gap-0.5 rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
           role="tablist"
@@ -19,17 +19,18 @@
             :key="v.value"
             role="tab"
             :aria-selected="view === v.value"
-            class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-            :class="view === v.value ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'"
+            class="flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:gap-1.5 sm:px-3"
+            :class="view === v.value ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'"
             @click="switchView(v.value)"
           >
             <component :is="v.icon" class="size-4" aria-hidden="true" />
-            {{ v.label }}
+            <span class="hidden xs:inline sm:inline">{{ v.label }}</span>
           </button>
         </div>
         <AppButton variant="primary" @click="openCreate">
           <Plus class="size-4" aria-hidden="true" />
-          Yeni randevu
+          <span class="hidden sm:inline">Yeni randevu</span>
+          <span class="sm:hidden">Yeni</span>
         </AppButton>
       </div>
     </header>
@@ -57,88 +58,94 @@
       <!-- ══════════════════════════════════════════════════════════════ -->
       <div v-if="view === 'calendar'" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 
-        <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-2 border-b border-slate-100 px-3 py-2.5">
-          <!-- Navigasyon -->
-          <div class="flex items-center gap-1">
-            <button
-              aria-label="Önceki"
-              class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
-              @click="calPrev"
-            >
-              <ChevronLeft class="size-4" aria-hidden="true" />
-            </button>
-            <button
-              class="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-              @click="calToday"
-            >
-              Bugün
-            </button>
-            <button
-              aria-label="Sonraki"
-              class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
-              @click="calNext"
-            >
-              <ChevronRight class="size-4" aria-hidden="true" />
-            </button>
+        <!-- Toolbar - Mobil için yeniden düzenlendi -->
+        <div class="flex flex-col gap-2 border-b border-slate-100 px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+          <!-- Üst satır: Navigasyon + Başlık -->
+          <div class="flex items-center gap-2">
+            <!-- Navigasyon -->
+            <div class="flex shrink-0 items-center gap-0.5">
+              <button
+                aria-label="Önceki"
+                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
+                @click="calPrev"
+              >
+                <ChevronLeft class="size-4" aria-hidden="true" />
+              </button>
+              <button
+                class="rounded-lg border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                @click="calToday"
+              >
+                Bugün
+              </button>
+              <button
+                aria-label="Sonraki"
+                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
+                @click="calNext"
+              >
+                <ChevronRight class="size-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <!-- Başlık -->
+            <span class="min-w-0 flex-1 truncate text-sm font-semibold capitalize text-slate-800 sm:text-center">
+              {{ calendarTitle }}
+            </span>
           </div>
 
-          <!-- Başlık -->
-          <span class="min-w-0 flex-1 truncate text-center text-sm font-semibold capitalize text-slate-800">
-            {{ calendarTitle }}
-          </span>
-
-          <!-- Durum filtresi -->
-          <select
-            v-model="filterStatus"
-            class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-          >
-            <option value="">Tüm durumlar</option>
-            <option value="PENDING">Beklemede</option>
-            <option value="CONFIRMED">Onaylı</option>
-            <option value="RISKY">Riskli</option>
-            <option value="COMPLETED">Tamamlandı</option>
-            <option value="CANCELLED">İptal</option>
-            <option value="NO_SHOW">Gelmedi</option>
-          </select>
-
-          <!-- Ay / Hafta / Gün -->
-          <div
-            class="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5"
-            role="tablist"
-          >
-            <button
-              v-for="cv in CALENDAR_VIEWS"
-              :key="cv.value"
-              role="tab"
-              :aria-selected="calendarView === cv.value"
-              class="rounded-md px-2.5 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-              :class="calendarView === cv.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'"
-              @click="setCalView(cv.value)"
+          <!-- Alt satır: Filtreler -->
+          <div class="flex items-center gap-2 sm:ml-auto">
+            <!-- Durum filtresi -->
+            <select
+              v-model="filterStatus"
+              class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400 sm:flex-none"
             >
-              {{ cv.label }}
-            </button>
+              <option value="">Tüm durumlar</option>
+              <option value="PENDING">Beklemede</option>
+              <option value="CONFIRMED">Onaylı</option>
+              <option value="RISKY">Riskli</option>
+              <option value="COMPLETED">Tamamlandı</option>
+              <option value="CANCELLED">İptal</option>
+              <option value="NO_SHOW">Gelmedi</option>
+            </select>
+
+            <!-- Ay / Hafta / Gün -->
+            <div
+              class="flex shrink-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5"
+              role="tablist"
+            >
+              <button
+                v-for="cv in CALENDAR_VIEWS"
+                :key="cv.value"
+                role="tab"
+                :aria-selected="calendarView === cv.value"
+                class="rounded-md px-2 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 sm:px-2.5"
+                :class="calendarView === cv.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'"
+                @click="setCalView(cv.value)"
+              >
+                {{ cv.label }}
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Çalışan satırı -->
+        <!-- Çalışan satırı - Mobil scroll iyileştirmesi -->
         <div
           v-if="employees.length"
-          class="flex items-center gap-1.5 overflow-x-auto border-b border-slate-100 px-3 py-2 scrollbar-none"
+          class="-mx-3 flex items-center gap-1.5 overflow-x-auto border-b border-slate-100 px-3 py-2 scrollbar-thin sm:mx-0"
           role="group"
           aria-label="Çalışana göre filtrele"
         >
           <!-- Tümü -->
           <button
-            class="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition"
-            :class="filterEmployee === '' ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
+            class="flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold transition sm:gap-1.5 sm:px-2.5"
+            :class="filterEmployee === '' ? 'border-teal-400 bg-teal-50 text-teal-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
             @click="filterEmployee = ''"
           >
             <Users class="size-3.5" aria-hidden="true" />
-            Tümü
+            <span class="hidden sm:inline">Tümü</span>
             <span
               class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-bold tabular-nums"
-              :class="filterEmployee === '' ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'"
+              :class="filterEmployee === '' ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-500'"
             >{{ appointments.length }}</span>
           </button>
 
@@ -146,7 +153,7 @@
           <button
             v-for="emp in employees"
             :key="emp.id"
-            class="flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold transition"
+            class="flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold transition sm:gap-1.5 sm:px-2.5"
             :class="filterEmployee === emp.id ? 'border-transparent' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
             :style="filterEmployee === emp.id ? { backgroundColor: employeeColor(emp.id) + '18', borderColor: employeeColor(emp.id), color: employeeColor(emp.id) } : {}"
             @click="filterEmployee = filterEmployee === emp.id ? '' : emp.id"
@@ -156,7 +163,7 @@
               :style="{ backgroundColor: employeeColor(emp.id) }"
               aria-hidden="true"
             >{{ emp.name.charAt(0) }}</span>
-            {{ emp.name.split(' ')[0] }}
+            <span class="max-w-[4rem] truncate sm:max-w-none">{{ emp.name.split(' ')[0] }}</span>
             <span
               class="rounded-full px-1 text-[0.6rem] font-bold tabular-nums"
               :style="filterEmployee === emp.id ? { backgroundColor: employeeColor(emp.id) + '30', color: employeeColor(emp.id) } : { backgroundColor: '#f1f5f9', color: '#94a3b8' }"
@@ -176,13 +183,18 @@
             v-if="calendarLoading"
             class="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden rounded-full bg-slate-100"
           >
-            <div class="h-full w-1/2 animate-[slide_1.2s_ease-in-out_infinite] bg-indigo-400" />
+            <div class="h-full w-1/2 animate-[slide_1.2s_ease-in-out_infinite] bg-teal-400" />
           </div>
-          <FullCalendar
-            ref="calendarRef"
-            class="calendar-shell px-2 pb-2 pt-1"
-            :options="calendarOptions"
-          />
+          <!-- Mobilde yatay scroll için wrapper -->
+          <div class="overflow-x-auto">
+            <div class="min-w-[600px] sm:min-w-0">
+              <FullCalendar
+                ref="calendarRef"
+                class="calendar-shell px-2 pb-2 pt-1"
+                :options="calendarOptions"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -937,7 +949,8 @@ const EMPLOYEE_COLORS = [
 const view = ref<'list' | 'calendar'>('calendar')
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
 const calendarTitle = ref('')
-const calendarView = ref('timeGridWeek')
+const isMobile = ref(window.innerWidth < 640)
+const calendarView = ref(isMobile.value ? 'timeGridDay' : 'timeGridWeek')
 const calendarLoadedKey = ref('')
 
 // Ayrı loading state'leri — örtüşme olmasın
@@ -1040,7 +1053,7 @@ const calendarEvents = computed(() =>
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   locale: trLocale,
-  initialView: 'timeGridWeek',
+  initialView: isMobile.value ? 'timeGridDay' : 'timeGridWeek',
   headerToolbar: false as const,
   slotMinTime: '07:00:00',
   slotMaxTime: '22:00:00',
@@ -1668,11 +1681,26 @@ onMounted(() => {
 <style scoped>
 .calendar-shell :deep(.fc) {
   --fc-border-color: #f1f5f9;
-  --fc-today-bg-color: #eef2ff;
+  --fc-today-bg-color: #f0fdfa;
   --fc-now-indicator-color: #f43f5e;
   --fc-page-bg-color: transparent;
   font-size: 0.8125rem;
 }
+
+/* Mobil için daha küçük font */
+@media (max-width: 640px) {
+  .calendar-shell :deep(.fc) {
+    font-size: 0.7rem;
+  }
+  .calendar-shell :deep(.fc-timegrid-slot-label) {
+    font-size: 0.65rem;
+  }
+  .calendar-shell :deep(.fc-col-header-cell-cushion) {
+    font-size: 0.7rem;
+    padding: 4px 2px;
+  }
+}
+
 .calendar-shell :deep(.fc-col-header-cell-cushion),
 .calendar-shell :deep(.fc-daygrid-day-number) {
   color: #475569;
@@ -1687,6 +1715,15 @@ onMounted(() => {
   cursor: pointer;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
 }
+
+@media (max-width: 640px) {
+  .calendar-shell :deep(.fc-event) {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+}
+
 .calendar-shell :deep(.fc-event:hover) {
   filter: brightness(1.08);
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
@@ -1694,8 +1731,21 @@ onMounted(() => {
 .calendar-shell :deep(.fc-timegrid-now-indicator-line) { border-color: #f43f5e; }
 .calendar-shell :deep(.fc-timegrid-now-indicator-arrow) { border-color: #f43f5e; }
 
-.scrollbar-none { scrollbar-width: none; }
-.scrollbar-none::-webkit-scrollbar { display: none; }
+/* Scrollbar stilleri */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 2px;
+}
 
 @keyframes slide {
   0%   { transform: translateX(-100%); }

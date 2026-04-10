@@ -18,7 +18,7 @@
       pcCloseButton: {
         root: {
           class:
-            '!size-9 !rounded-lg !border-0 !bg-transparent !text-slate-600 hover:!bg-slate-100 hover:!text-slate-900 focus-visible:!outline focus-visible:!outline-2 focus-visible:!outline-offset-2 focus-visible:!outline-indigo-500',
+            '!size-9 !rounded-lg !border-0 !bg-transparent !text-slate-600 hover:!bg-slate-100 hover:!text-slate-900 focus-visible:!outline focus-visible:!outline-2 focus-visible:!outline-offset-2 focus-visible:!outline-teal-500',
         },
       },
       content: { class: 'pt-4 text-slate-700' },

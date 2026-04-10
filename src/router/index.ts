@@ -4,8 +4,27 @@ import { useAuthStore } from '@/stores/auth'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/', name: 'Landing', component: () => import('@/views/LandingView.vue'), meta: { public: true } },
     { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
     { path: '/register', name: 'Register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
+    {
+      path: '/auth/pending-verification',
+      name: 'EmailVerificationPending',
+      component: () => import('@/views/EmailVerificationPendingView.vue'),
+      meta: { public: true },
+    },
+    {
+      path: '/auth/verify-email',
+      name: 'EmailVerify',
+      component: () => import('@/views/EmailVerifiedView.vue'),
+      meta: { public: true },
+    },
+    {
+      path: '/auth/verified',
+      name: 'EmailVerifiedStatic',
+      component: () => import('@/views/EmailVerifiedView.vue'),
+      meta: { public: true },
+    },
     {
       path: '/admin',
       component: () => import('@/views/admin/AdminLayout.vue'),
@@ -18,7 +37,10 @@ const router = createRouter({
           component: () => import('@/views/admin/SettingsLayout.vue'),
           children: [
             { path: '', name: 'AdminSettings', component: () => import('@/views/admin/BusinessView.vue') },
+            { path: 'notifications', name: 'AdminNotifications', component: () => import('@/views/admin/settings/NotificationsView.vue') },
+            { path: 'message-templates', name: 'AdminMessageTemplates', component: () => import('@/views/admin/settings/MessageTemplatesView.vue') },
             { path: 'plan', name: 'AdminPlan', component: () => import('@/views/admin/PlanSettingsView.vue') },
+            { path: 'security', name: 'AdminSecurity', component: () => import('@/views/admin/settings/SecurityView.vue') },
           ],
         },
         { path: 'business', redirect: '/admin/settings' },
@@ -32,8 +54,7 @@ const router = createRouter({
       ],
     },
     { path: '/b/:slug', name: 'PublicBook', component: () => import('@/views/public/BookAppointmentView.vue'), meta: { public: true } },
-    { path: '/', redirect: '/admin' },
-    { path: '/:pathMatch(.*)*', redirect: '/admin' },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
 
@@ -41,7 +62,9 @@ router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     next({ name: 'Login', query: { redirect: to.fullPath } })
-  } else if ((to.name === 'Login' || to.name === 'Register') && auth.isAuthenticated) {
+  } else if (auth.isAuthenticated && (to.name === 'Login' || to.name === 'Register' || to.name === 'EmailVerificationPending')) {
+    next({ name: 'AdminDashboard' })
+  } else if (auth.isAuthenticated && to.name === 'Landing') {
     next({ name: 'AdminDashboard' })
   } else {
     next()

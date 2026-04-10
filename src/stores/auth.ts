@@ -45,8 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function register(payload: RegisterRequest) {
     const { data } = await authApi.register(payload)
-    if (data.success && data.data) {
-      setAuth(data.data.accessToken, data.data.user)
+    if (data.success) {
       return data
     }
     throw new Error(data.error?.message ?? 'Kayıt başarısız')

@@ -4,54 +4,101 @@
 /* Tailwind v4 tema — utility üretimi (bg-brand-primary, font-sans, …) */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-  --color-brand-primary: #6366f1;
-  --color-brand-success: #22c55e;
-  --color-brand-warning: #f59e0b;
-  --color-brand-danger: #ef4444;
+  /* Ayarla Brand Colors - Teal/Cyan primary */
+  --color-brand-primary: #0891B2;
+  --color-brand-primary-light: #CCFBF1;
+  --color-brand-primary-dark: #0E7490;
+  --color-brand-secondary: #6366F1;
+  --color-brand-success: #10B981;
+  --color-brand-warning: #F59E0B;
+  --color-brand-danger: #EF4444;
 
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
+  /* Teal scale for landing */
+  --color-teal-50: #F0FDFA;
+  --color-teal-100: #CCFBF1;
+  --color-teal-200: #99F6E4;
+  --color-teal-300: #5EEAD4;
+  --color-teal-400: #2DD4BF;
+  --color-teal-500: #14B8A6;
+  --color-teal-600: #0891B2;
+  --color-teal-700: #0E7490;
+  --color-teal-800: #155E75;
+  --color-teal-900: #164E63;
+
+  /* Cyan scale */
+  --color-cyan-50: #ECFEFF;
+  --color-cyan-100: #CFFAFE;
+  --color-cyan-200: #A5F3FC;
+  --color-cyan-300: #67E8F9;
+  --color-cyan-400: #22D3EE;
+  --color-cyan-500: #06B6D4;
+  --color-cyan-600: #0891B2;
+  --color-cyan-700: #0E7490;
+  --color-cyan-800: #155E75;
+  --color-cyan-900: #164E63;
+
+  /* Niche accent colors */
+  --color-niche-hair: #0891B2;
+  --color-niche-beauty: #EC4899;
+  --color-niche-nail: #F43F5E;
+  --color-niche-tattoo: #8B5CF6;
+  --color-niche-psych: #3B82F6;
+  --color-niche-diet: #22C55E;
+
+  --color-neutral-50: #F8FAFC;
+  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0;
+  --color-neutral-300: #CBD5E1;
+  --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B;
   --color-neutral-600: #475569;
   --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  --color-neutral-800: #1E293B;
+  --color-neutral-900: #0F172A;
 }
 
 /* Design tokens — scoped Vue stilleri ve auth sayfaları için (:root) */
 :root {
-  --color-background: #f8fafc;
-  --color-background-alt: #f1f5f9;
+  --color-background: #F8FAFC;
+  --color-background-alt: #F1F5F9;
   --color-surface: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
+  --color-border: #E2E8F0;
+  --color-border-light: #F1F5F9;
 
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #e0e7ff;
+  /* Ayarla primary - Teal */
+  --color-primary: #0891B2;
+  --color-primary-hover: #0E7490;
+  --color-primary-light: #CCFBF1;
 
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
+  /* Secondary - Indigo (for accents) */
+  --color-secondary: #6366F1;
+  --color-secondary-hover: #4F46E5;
+  --color-secondary-light: #E0E7FF;
+
+  --color-text: #0F172A;
+  --color-text-muted: #64748B;
+  --color-text-subtle: #94A3B8;
   --color-text-secondary: #475569;
 
-  --color-danger: #dc2626;
-  --color-danger-bg: #fef2f2;
-  --color-success: #16a34a;
-  --color-success-bg: #dcfce7;
-  --color-warning: #d97706;
-  --color-warning-bg: #fef3c7;
+  --color-danger: #EF4444;
+  --color-danger-bg: #FEE2E2;
+  --color-success: #10B981;
+  --color-success-bg: #D1FAE5;
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
 
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
 
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.05);
   --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.06);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.05);
 }
 
 html {
@@ -66,6 +113,19 @@ body {
   font-size: 16px;
   color: var(--color-text);
   background: var(--color-background);
+}
+
+/* Display font for headings */
+.font-display {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+}
+
+/* Landing page specific heading styles */
+.landing-heading {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
 }
 
 /* Admin shell — layout içeriği */

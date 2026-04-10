@@ -33,7 +33,171 @@
     "stepAccount": "Hesap",
     "stepBusiness": "İşletme",
     "next": "İleri",
-    "back": "Geri"
+    "back": "Geri",
+    "verifyPendingTitle": "E-postanızı kontrol edin",
+    "verifyPendingBody": "Kaydınız alındı. Hesabınızı etkinleştirmek için gelen kutunuza gönderdiğimiz doğrulama bağlantısına tıklayın.",
+    "resendVerification": "Doğrulama e-postasını tekrar gönder",
+    "resendVerificationSuccess": "Yeni doğrulama e-postası gönderildi.",
+    "resendVerificationFailed": "E-posta gönderilemedi. Bir süre sonra tekrar deneyin.",
+    "backToLogin": "Giriş sayfasına dön",
+    "verifyEmailWorking": "E-posta adresiniz doğrulanıyor…",
+    "verifySuccessTitle": "E-posta doğrulandı",
+    "verifySuccessBody": "Artık giriş yaparak panelinizi kullanabilirsiniz.",
+    "verifyErrorTitle": "Doğrulama başarısız",
+    "verifyErrorGeneric": "Bağlantı geçersiz veya süresi dolmuş olabilir.",
+    "verifyMissingToken": "Geçerli bir doğrulama bağlantısı bulunamadı.",
+    "emailNotVerifiedMessage": "E-posta adresiniz henüz doğrulanmamış.",
+    "resendVerificationLink": "Doğrulama e-postasını tekrar gönder"
+  },
+  "landing": {
+    "documentTitle": "Ayarla — Randevunu ayarla. Online randevu ve müşteri yönetimi.",
+    "heroEyebrow": "Kuaförden diyetisyene, tek panel",
+    "heroTitle": "Randevunu ayarla,\nişine odaklan",
+    "heroSubtitle": "Online rezervasyon, WhatsApp hatırlatmaları ve müşteri takibi — güzellik, sağlık ve danışmanlık işletmeleri için tasarlandı.",
+    "ctaTrial": "Ücretsiz başla",
+    "ctaDemo": "Nasıl çalışır?",
+    "ctaLogin": "Giriş yap",
+    "navNiches": "Sektörler",
+    "navFeatures": "Özellikler",
+    "navFaq": "SSS",
+    "trustedTitle": "Türkiye'nin dört bir yanından işletmeler güveniyor",
+    "trustedStats": {
+      "businesses": "500+",
+      "businessesLabel": "Aktif işletme",
+      "appointments": "50.000+",
+      "appointmentsLabel": "Aylık randevu",
+      "noShowReduction": "%40",
+      "noShowReductionLabel": "No-show azalması"
+    },
+    "nicheTitle": "Her sektöre uygun çözüm",
+    "nicheSubtitle": "Kuaför, güzellik merkezi, tırnak salonu, dövmeci, psikolog ve diyetisyen için hazır şablonlar ve akışlar.",
+    "niche": {
+      "hair": {
+        "title": "Kuaför & Berber",
+        "desc": "Kesim, boya, bakım seansları. Çalışan bazlı müsaitlik ve hızlı paylaşılabilir rezervasyon linki."
+      },
+      "beauty": {
+        "title": "Güzellik Merkezi",
+        "desc": "Cilt bakımı, epilasyon, makyaj. Paket seansları ve buffer ile çakışmasız slot yönetimi."
+      },
+      "nail": {
+        "title": "Tırnak Salonu",
+        "desc": "Manikür, pedikür, protez tırnak. Hizmet süresi ve fiyatlandırma kolaylığı."
+      },
+      "tattoo": {
+        "title": "Dövme & Piercing",
+        "desc": "Seans planlaması, depozito takibi. Müşteri portfolyosu ve onay akışı."
+      },
+      "psych": {
+        "title": "Psikolog & Danışman",
+        "desc": "Seans süreleri, tekrarlayan görüşmeler. Gizlilik odaklı sade müşteri akışı."
+      },
+      "diet": {
+        "title": "Diyetisyen & Beslenme",
+        "desc": "İlk görüşme ve kontrol randevuları. Paket ve seans takibi ile düzenli takip."
+      }
+    },
+    "nicheMore": "Daha fazla sektör",
+    "featuresTitle": "İşinizi kolaylaştıran özellikler",
+    "featuresSubtitle": "Tek panelden randevu, müşteri ve ekip yönetimi.",
+    "features": {
+      "booking": {
+        "title": "7/24 Online Randevu",
+        "desc": "Müşterileriniz gece gündüz randevu alabilir. Siz uyurken bile takvim dolar."
+      },
+      "whatsapp": {
+        "title": "WhatsApp Hatırlatma",
+        "desc": "Otomatik hatırlatma ve onay mesajları. No-show oranını %40'a kadar düşürün."
+      },
+      "customers": {
+        "title": "Müşteri Yönetimi",
+        "desc": "Müşteri geçmişi, notlar ve tercihler. Her müşteriyi tanıyın."
+      },
+      "calendar": {
+        "title": "Akıllı Takvim",
+        "desc": "Çalışan bazlı müsaitlik, izin takibi ve çakışma önleme."
+      },
+      "packages": {
+        "title": "Paket & Seans",
+        "desc": "Seans paketleri satın, kullanımı takip edin. Sadık müşteri oluşturun."
+      },
+      "reports": {
+        "title": "Raporlar",
+        "desc": "Randevu, gelir ve no-show istatistikleri. Veriye dayalı kararlar alın."
+      }
+    },
+    "howItWorksTitle": "Üç adımda başlayın",
+    "howItWorksSubtitle": "Dakikalar içinde online randevu almaya başlayın.",
+    "step1Title": "Hizmetleri tanımlayın",
+    "step1Body": "Süre, fiyat ve çalışan uygunluklarını ayarlayın. Sektörünüze özel şablonlarla hızlı başlayın.",
+    "step2Title": "Linki paylaşın",
+    "step2Body": "Web siteniz, Instagram bio veya WhatsApp'tan tek link ile 7/24 randevu alın.",
+    "step3Title": "Otomatik hatırlat",
+    "step3Body": "WhatsApp hatırlatmaları müşteriyi sürece bağlar, gelmeyen randevu riskini düşürür.",
+    "testimonialsTitle": "Kullanıcılarımız ne diyor?",
+    "testimonials": {
+      "t1": {
+        "quote": "Ayarla sayesinde no-show oranımız yarıya düştü. WhatsApp hatırlatmaları gerçekten işe yarıyor.",
+        "name": "Elif K.",
+        "role": "Güzellik Merkezi Sahibi"
+      },
+      "t2": {
+        "quote": "Artık telefonda randevu almak yerine işime odaklanabiliyorum. Müşteriler linki çok seviyor.",
+        "name": "Ahmet Y.",
+        "role": "Kuaför"
+      },
+      "t3": {
+        "quote": "Seans paketlerini takip etmek çok kolay. Müşterilerim kalan seanslarını görebiliyor.",
+        "name": "Zeynep D.",
+        "role": "Psikolog"
+      }
+    },
+    "ctaBannerTitle": "İşletmenizi dijitale taşıyın",
+    "ctaBannerSubtitle": "14 gün ücretsiz deneyin. Kredi kartı gerekmez.",
+    "ctaBannerButton": "Hemen başla",
+    "faqTitle": "Sık sorulan sorular",
+    "faq": {
+      "q0": {
+        "q": "14 gün ücretsiz deneme sonrası ne olur?",
+        "a": "Deneme süresinde tüm temel özellikleri kullanabilirsiniz. Süre bitiminde ücretli plana geçiş için sizinle iletişime geçilecek; verileriniz korunur."
+      },
+      "q1": {
+        "q": "Müşterilerim randevuyu nasıl alır?",
+        "a": "Size özel bir rezervasyon sayfası ve link alırsınız. Müşteri hizmet, çalışan ve uygun saati seçerek randevu oluşturur."
+      },
+      "q2": {
+        "q": "WhatsApp entegrasyonu zorunlu mu?",
+        "a": "Hayır, ancak hatırlatma ve onay için WhatsApp kullanımı no-show oranını ciddi şekilde düşürmeye yardımcı olur."
+      },
+      "q3": {
+        "q": "Verilerim güvende mi?",
+        "a": "İşletme ve müşteri verileri modern güvenlik uygulamalarıyla korunur. KVKK kapsamında gerekli aydınlatma metinlerini işletmeniz sağlar."
+      },
+      "q4": {
+        "q": "Hangi sektörlere hizmet veriyorsunuz?",
+        "a": "Kuaför, güzellik merkezi, tırnak salonu, dövme stüdyosu, psikolog, diyetisyen ve randevu temelli tüm işletmeler için uygundur."
+      },
+      "q5": {
+        "q": "Mobil uygulama var mı?",
+        "a": "Web paneli mobil uyumludur. Telefonunuzdan kolayca yönetebilirsiniz. Mobil uygulama yol haritamızda."
+      }
+    },
+    "footerTagline": "Randevunu ayarla",
+    "footerProduct": "Ürün",
+    "footerCompany": "Şirket",
+    "footerLegal": "Yasal",
+    "footerRegister": "Kayıt ol",
+    "footerLogin": "Giriş",
+    "footerFeatures": "Özellikler",
+    "footerPricing": "Fiyatlandırma",
+    "footerFaq": "SSS",
+    "footerAbout": "Hakkımızda",
+    "footerContact": "İletişim",
+    "footerBlog": "Blog",
+    "footerPrivacy": "Gizlilik",
+    "footerTerms": "Kullanım Koşulları",
+    "footerKvkk": "KVKK",
+    "footerCopyright": "© {year} Ayarla. Tüm hakları saklıdır."
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -50,7 +214,7 @@
     "copied": "Kopyalandı ✓"
   },
   "admin": {
-    "brand": "Randevu Panel",
+    "brand": "Ayarla",
     "logout": "Çıkış",
     "menuOpen": "Menüyü aç",
     "menuClose": "Menüyü kapat",
@@ -155,7 +319,75 @@
   "settings": {
     "tabs": {
       "business": "İşletme",
-      "plan": "Plan ve kullanım"
+      "notifications": "Bildirimler",
+      "messageTemplates": "Mesaj Şablonları",
+      "plan": "Plan ve Kullanım",
+      "security": "Güvenlik"
+    },
+    "messageTemplates": {
+      "title": "Mesaj Şablonları",
+      "subtitle": "WhatsApp üzerinden gönderilen mesajların içeriğini özelleştirin.",
+      "templateTypes": {
+        "APPOINTMENT_REMINDER": "Randevu Hatırlatma",
+        "APPOINTMENT_CONFIRMATION": "Randevu Onayı",
+        "APPOINTMENT_CANCELLED": "Randevu İptali",
+        "RESCHEDULE_REQUEST_RECEIVED": "Erteleme Talebi Alındı"
+      },
+      "fields": {
+        "name": "Şablon Adı",
+        "header": "Başlık",
+        "body": "Mesaj İçeriği",
+        "footer": "Alt Bilgi",
+        "buttons": "Butonlar",
+        "confirmButton": "Onay Butonu",
+        "cancelButton": "İptal Butonu",
+        "rescheduleButton": "Ertele Butonu",
+        "showButton": "Göster"
+      },
+      "variables": {
+        "title": "Kullanılabilir Değişkenler",
+        "customer_name": "Müşteri adı",
+        "business_name": "İşletme adı",
+        "service_name": "Hizmet adı",
+        "date": "Tarih",
+        "time": "Saat",
+        "price": "Fiyat"
+      },
+      "actions": {
+        "save": "Kaydet",
+        "reset": "Varsayılana Dön",
+        "preview": "Önizleme"
+      },
+      "messages": {
+        "saveSuccess": "Şablon kaydedildi",
+        "saveError": "Şablon kaydedilemedi",
+        "resetSuccess": "Şablon varsayılana döndürüldü",
+        "resetConfirm": "Bu şablonu varsayılan haline döndürmek istediğinize emin misiniz?"
+      }
+    },
+    "notifications": {
+      "title": "Bildirim Ayarları",
+      "subtitle": "Randevu bildirimleri ve hatırlatma tercihlerinizi yönetin.",
+      "whatsapp": {
+        "title": "WhatsApp Bildirimleri",
+        "enabled": "WhatsApp bildirimleri aktif",
+        "sendReminders": "Randevu hatırlatması gönder",
+        "reminderHours": "Hatırlatma zamanı (saat önce)",
+        "sendConfirmations": "Onay mesajı gönder",
+        "sendCancellations": "İptal mesajı gönder"
+      },
+      "sms": {
+        "title": "SMS Bildirimleri",
+        "enabled": "SMS bildirimleri aktif (WhatsApp başarısız olursa)",
+        "fallback": "WhatsApp başarısız olursa SMS gönder"
+      }
+    },
+    "security": {
+      "title": "Güvenlik Ayarları",
+      "subtitle": "Hesap güvenliği ve erişim ayarlarınızı yönetin.",
+      "changePassword": "Şifre Değiştir",
+      "twoFactor": "İki Faktörlü Doğrulama",
+      "sessions": "Aktif Oturumlar"
     }
   },
   "plan": {

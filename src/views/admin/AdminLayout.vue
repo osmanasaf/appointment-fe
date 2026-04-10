@@ -13,8 +13,8 @@
       :aria-label="t('admin.breadcrumb')"
     >
       <div class="flex items-center gap-2 border-b border-slate-800 px-4 py-4">
-        <div class="flex size-9 items-center justify-center rounded-lg bg-indigo-500 text-sm font-bold text-white">
-          R
+        <div class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
+          <CalendarDays class="size-4" />
         </div>
         <span class="flex-1 truncate font-semibold tracking-tight text-white">{{ t('admin.brand') }}</span>
         <button
@@ -104,6 +104,7 @@ import { useI18n } from 'vue-i18n'
 import {
   LayoutDashboard,
   CalendarCheck,
+  CalendarDays,
   Users,
   UserCircle,
   List,

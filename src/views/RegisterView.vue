@@ -2,11 +2,11 @@
   <div class="flex min-h-screen">
     <!-- Left: Brand Panel -->
     <div
-      class="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 p-12 text-white lg:flex lg:w-[46%]"
+      class="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-800 p-12 text-white lg:flex lg:w-[46%]"
     >
       <div class="absolute inset-0 pointer-events-none">
         <div class="absolute -left-24 -top-24 size-[28rem] rounded-full bg-white/5 blur-3xl" />
-        <div class="absolute -bottom-24 -right-24 size-[28rem] rounded-full bg-violet-400/10 blur-3xl" />
+        <div class="absolute -bottom-24 -right-24 size-[28rem] rounded-full bg-cyan-400/10 blur-3xl" />
       </div>
 
       <div class="relative z-10 flex items-center gap-3">
@@ -18,19 +18,19 @@
 
       <div class="relative z-10">
         <h2 class="mb-4 text-4xl font-bold leading-tight tracking-tight">
-          Dakikalar içinde<br />işletmenizi<br />kaydedin
+          Randevunu ayarla,<br />işine odaklan
         </h2>
-        <p class="mb-10 text-base leading-relaxed text-indigo-200">
+        <p class="mb-10 text-base leading-relaxed text-teal-100">
           İki adımda hesabınızı oluşturun, hemen randevu almaya başlayın.
         </p>
         <ul class="space-y-3.5">
-          <li v-for="step in REGISTER_STEPS_INFO" :key="step.label" class="flex items-center gap-3">
+          <li v-for="item in REGISTER_STEPS_INFO" :key="item.label" class="flex items-center gap-3">
             <span
               class="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold"
             >
-              {{ step.num }}
+              {{ item.num }}
             </span>
-            <span class="text-sm text-indigo-100">{{ step.label }}</span>
+            <span class="text-sm text-teal-100">{{ item.label }}</span>
           </li>
         </ul>
       </div>
@@ -42,7 +42,7 @@
           class="rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
         >
           <p class="text-2xl font-bold">{{ stat.value }}</p>
-          <p class="mt-0.5 text-xs text-indigo-200">{{ stat.label }}</p>
+          <p class="mt-0.5 text-xs text-teal-200">{{ stat.label }}</p>
         </div>
       </div>
     </div>
@@ -51,7 +51,7 @@
     <div class="flex flex-1 flex-col items-center justify-center bg-white px-6 py-16 sm:px-10">
       <!-- Mobile logo -->
       <div class="mb-10 flex items-center gap-2.5 lg:hidden">
-        <div class="flex size-9 items-center justify-center rounded-xl bg-indigo-600">
+        <div class="flex size-9 items-center justify-center rounded-xl bg-teal-600">
           <CalendarDays class="size-4 text-white" />
         </div>
         <span class="text-lg font-bold text-slate-900">{{ t('admin.brand') }}</span>
@@ -73,21 +73,21 @@
               class="flex size-8 items-center justify-center rounded-full text-sm font-bold transition-all"
               :class="
                 step === 1
-                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-300'
-                  : 'bg-indigo-600 text-white'
+                  ? 'bg-teal-600 text-white shadow-sm shadow-teal-300'
+                  : 'bg-teal-600 text-white'
               "
             >
               <Check v-if="step === 2" class="size-4" />
               <span v-else>1</span>
             </div>
-            <span class="mt-1.5 text-xs font-medium" :class="step === 1 ? 'text-indigo-600' : 'text-slate-400'">
+            <span class="mt-1.5 text-xs font-medium" :class="step === 1 ? 'text-teal-600' : 'text-slate-400'">
               {{ t('auth.stepAccount') }}
             </span>
           </div>
 
           <div
             class="mb-4 h-px flex-1 transition-all"
-            :class="step === 2 ? 'bg-indigo-600' : 'bg-slate-200'"
+            :class="step === 2 ? 'bg-teal-600' : 'bg-slate-200'"
           />
 
           <div class="flex flex-col items-center">
@@ -95,7 +95,7 @@
               class="flex size-8 items-center justify-center rounded-full text-sm font-bold transition-all"
               :class="
                 step === 2
-                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-300'
+                  ? 'bg-teal-600 text-white shadow-sm shadow-teal-300'
                   : 'border-2 border-slate-200 bg-white text-slate-400'
               "
             >
@@ -103,7 +103,7 @@
             </div>
             <span
               class="mt-1.5 text-xs font-medium"
-              :class="step === 2 ? 'text-indigo-600' : 'text-slate-400'"
+              :class="step === 2 ? 'text-teal-600' : 'text-slate-400'"
             >
               {{ t('auth.stepBusiness') }}
             </span>
@@ -128,7 +128,7 @@
                   type="email"
                   autocomplete="email"
                   placeholder="ornek@sirket.com"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   :class="{
                     'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
                       !!errors.email,
@@ -160,7 +160,7 @@
                   :type="showPassword ? 'text' : 'password'"
                   autocomplete="new-password"
                   placeholder="••••••••"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   :class="{
                     'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
                       !!errors.password,
@@ -203,7 +203,7 @@
 
             <button
               type="submit"
-              class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 active:scale-[0.98]"
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40 active:scale-[0.98]"
             >
               {{ t('auth.next') }}
               <ArrowRight class="size-4" />
@@ -227,7 +227,7 @@
                   type="text"
                   autocomplete="name"
                   placeholder="Adınız Soyadınız"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   :class="{
                     'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
                       !!errors.name,
@@ -259,7 +259,7 @@
                   type="tel"
                   autocomplete="tel"
                   placeholder="+90 5xx xxx xx xx"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
@@ -276,7 +276,7 @@
                   id="reg-category"
                   v-model="businessCategory"
                   v-bind="businessCategoryAttrs"
-                  class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-8 text-sm text-slate-900 transition focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  class="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-8 text-sm text-slate-900 transition focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                   :class="{
                     'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
                       !!errors.businessCategory,
@@ -338,7 +338,7 @@
                   type="text"
                   autocomplete="organization"
                   placeholder="İşletmenizin adı"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                   :class="{
                     'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
                       !!errors.businessName,
@@ -378,7 +378,7 @@
               <button
                 type="submit"
                 :disabled="loading || categoriesLoading || !categories.length"
-                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span
                   v-if="loading"
@@ -394,7 +394,7 @@
           {{ t('auth.hasAccount') }}
           <RouterLink
             to="/login"
-            class="font-semibold text-indigo-600 transition hover:text-indigo-700"
+            class="font-semibold text-teal-600 transition hover:text-teal-700"
           >
             {{ t('auth.loginLink') }}
           </RouterLink>
@@ -437,10 +437,10 @@ const REGISTER_STEPS_INFO = [
 ]
 
 const BRAND_STATS = [
-  { value: '10.000+', label: 'Aktif işletme' },
-  { value: '2 dk', label: 'Ortalama kurulum' },
-  { value: '%99.9', label: 'Çalışma süresi' },
+  { value: '%40', label: 'No-show azalması' },
   { value: '7/24', label: 'Online randevu' },
+  { value: '6', label: 'Desteklenen sektör' },
+  { value: '14 gün', label: 'Ücretsiz deneme' },
 ]
 
 const { t } = useI18n()
@@ -569,7 +569,10 @@ const runRegister = handleSubmit(async values => {
       businessName: values.businessName.trim(),
       businessCategory: values.businessCategory,
     })
-    await router.push('/admin')
+    await router.push({
+      path: '/auth/pending-verification',
+      query: { email: values.email.trim() },
+    })
   } catch (e: unknown) {
     submitError.value = e instanceof Error ? e.message : t('auth.registerFailed')
   } finally {

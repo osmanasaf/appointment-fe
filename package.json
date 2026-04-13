@@ -12,6 +12,8 @@
     "preview": "vite preview",
     "preview:landing": "vite preview --outDir dist-landing",
     "preview:app": "vite preview --outDir dist",
+    "deploy:landing": "wrangler deploy",
+    "deploy:app": "wrangler deploy --config wrangler.app.toml",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

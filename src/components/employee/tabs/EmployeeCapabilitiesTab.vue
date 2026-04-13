@@ -21,6 +21,7 @@
           <div class="space-y-1">
             <label class="block text-sm font-medium text-slate-700">{{ t('employees.skillLevel') }}</label>
             <select v-model="assignForm.skillLevel" class="app-select w-full">
+              <option value="">{{ t('employees.selectSkillLevel') }}</option>
               <option v-for="sl in skillLevels" :key="sl" :value="sl">{{ t(`employees.skillLevels.${sl}`) }}</option>
             </select>
           </div>
@@ -29,7 +30,7 @@
           <AppButton
             variant="primary"
             size="sm"
-            :disabled="!assignForm.serviceId"
+            :disabled="!assignForm.serviceId || !assignForm.skillLevel"
             :loading="assigning"
             @click="assign"
           >
@@ -88,7 +89,7 @@ const assigning = ref(false)
 const removingId = ref<number | null>(null)
 const opError = ref<string | null>(null)
 
-const assignForm = reactive({ serviceId: 0, skillLevel: 'INTERMEDIATE' as SkillLevel })
+const assignForm = reactive({ serviceId: 0, skillLevel: '' as SkillLevel | '' })
 
 const assignedServiceIds = computed(() => new Set(capabilities.value.map((c) => c.serviceId)))
 const availableServices = computed(() =>
@@ -120,16 +121,17 @@ async function loadServices() {
 }
 
 async function assign() {
-  if (!assignForm.serviceId) return
+  if (!assignForm.serviceId || !assignForm.skillLevel) return
   assigning.value = true
   opError.value = null
   try {
     await employeeApi.assignCapability(props.employeeId, {
       serviceId: assignForm.serviceId,
-      skillLevel: assignForm.skillLevel,
+      skillLevel: assignForm.skillLevel as SkillLevel,
     })
     await loadCaps()
     assignForm.serviceId = 0
+    assignForm.skillLevel = ''
   } catch {
     opError.value = t('common.error')
   } finally {

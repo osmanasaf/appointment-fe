@@ -7,22 +7,34 @@
   <!-- Ana sayfalar -->
   <url>
     <loc>https://ayarla.com/</loc>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ayarla.com/register</loc>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ayarla.com/login</loc>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
-  <!-- Public booking sayfaları backend'den dinamik olarak üretilebilir.
-       Örnek: her aktif işletme için /b/{slug} URL'i eklenir.
-       Bu dosya şimdilik statik başlangıç noktasıdır. -->
+  <!--
+    Public booking sayfaları (/b/{slug}): Her aktif işletme için dinamik URL oluşturulmalıdır.
+    Üretim ortamında backend'deki aktif işletme slug'larını bu dosyaya ekleyin veya
+    /api/v1/sitemap.xml endpoint'i ile dinamik olarak sunun.
+
+    Örnek:
+    <url>
+      <loc>https://ayarla.com/b/guzellik-merkezi-istanbul</loc>
+      <changefreq>weekly</changefreq>
+      <priority>0.7</priority>
+    </url>
+  -->
 
 </urlset>

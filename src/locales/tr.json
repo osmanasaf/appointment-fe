@@ -566,6 +566,7 @@
     "assignService": "Hizmet ata",
     "service": "Hizmet",
     "selectService": "Hizmet seçin",
+    "selectSkillLevel": "Seviye seçin",
     "assign": "Ata"
   },
   "leave": {

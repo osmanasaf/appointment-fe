@@ -31,26 +31,37 @@
       </div>
     </div>
 
-    <!-- Mobil sticky CTA — saat seçilince scroll yerine hızlı gönderim -->
+    <!-- Mobil sticky CTA — adım 2'den itibaren aktif, adıma göre içerik değişir -->
     <Teleport to="body">
       <div
-        v-if="selectedSlot && !success"
+        v-if="selectedService && !success"
         class="mobile-sticky-cta"
         aria-hidden="true"
       >
         <div class="mobile-sticky-inner">
           <div class="mobile-sticky-summary">
-            <p v-if="selectedService" class="mobile-sticky-service">{{ selectedService.name }}</p>
+            <p class="mobile-sticky-service">{{ selectedService.name }}</p>
             <p v-if="selectedDate && selectedSlotInfo" class="mobile-sticky-time">
               {{ formatDateLong(selectedDate) }}, {{ formatSlotTime(selectedSlotInfo.startTime) }}
             </p>
+            <p v-else-if="selectedDate" class="mobile-sticky-time">
+              {{ formatDateLong(selectedDate) }} — saat seçin
+            </p>
+            <p v-else class="mobile-sticky-time">Tarih seçin</p>
           </div>
           <button
+            v-if="selectedSlot"
             type="button"
             class="mobile-sticky-btn"
             :disabled="submitting"
             @click="() => { document.getElementById('step4-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }"
           >Randevu Al</button>
+          <button
+            v-else
+            type="button"
+            class="mobile-sticky-btn mobile-sticky-btn--secondary"
+            @click="() => { scrollToStep(currentStep) }"
+          >Devam Et</button>
         </div>
       </div>
     </Teleport>
@@ -754,6 +765,11 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
   box-shadow: 0 2px 8px rgba(79,70,229,0.4);
 }
 .mobile-sticky-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+.mobile-sticky-btn--secondary {
+  background: #e0e7ff;
+  color: #4f46e5;
+  box-shadow: none;
+}
 
 /* ── Base layout ──────────────────────────────────────────── */
 .public-page {

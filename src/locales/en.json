@@ -54,7 +54,8 @@
     "verifyErrorGeneric": "The link may be invalid or expired.",
     "verifyMissingToken": "No valid verification link was found.",
     "emailNotVerifiedMessage": "Your email is not verified yet.",
-    "resendVerificationLink": "Resend verification email"
+    "resendVerificationLink": "Resend verification email",
+    "forgotPassword": "Forgot password"
   },
   "landing": {
     "documentTitle": "Ayarla — Set your appointments. Online booking & customer management.",
@@ -209,16 +210,21 @@
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong",
+    "errorOccurred": "An error occurred",
     "retry": "Retry",
     "save": "Save",
     "cancel": "Cancel",
+    "cancelling": "Cancelling...",
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close",
     "all": "All",
     "preview": "Preview",
     "copyLink": "Copy link",
-    "copied": "Copied ✓"
+    "copied": "Copied ✓",
+    "logout": "Log out",
+    "previous": "Previous",
+    "next": "Next"
   },
   "admin": {
     "brand": "Ayarla",
@@ -326,7 +332,75 @@
   "settings": {
     "tabs": {
       "business": "Business",
-      "plan": "Plan & usage"
+      "notifications": "Notifications",
+      "messageTemplates": "Message Templates",
+      "plan": "Plan & usage",
+      "security": "Security"
+    },
+    "messageTemplates": {
+      "title": "Message Templates",
+      "subtitle": "Customize the content of messages sent via WhatsApp.",
+      "templateTypes": {
+        "APPOINTMENT_REMINDER": "Appointment Reminder",
+        "APPOINTMENT_CONFIRMATION": "Appointment Confirmation",
+        "APPOINTMENT_CANCELLED": "Appointment Cancellation",
+        "RESCHEDULE_REQUEST_RECEIVED": "Reschedule Request Received"
+      },
+      "fields": {
+        "name": "Template Name",
+        "header": "Header",
+        "body": "Message Body",
+        "footer": "Footer",
+        "buttons": "Buttons",
+        "confirmButton": "Confirm Button",
+        "cancelButton": "Cancel Button",
+        "rescheduleButton": "Reschedule Button",
+        "showButton": "Show"
+      },
+      "variables": {
+        "title": "Available Variables",
+        "customer_name": "Customer name",
+        "business_name": "Business name",
+        "service_name": "Service name",
+        "date": "Date",
+        "time": "Time",
+        "price": "Price"
+      },
+      "actions": {
+        "save": "Save",
+        "reset": "Reset to Default",
+        "preview": "Preview"
+      },
+      "messages": {
+        "saveSuccess": "Template saved",
+        "saveError": "Could not save template",
+        "resetSuccess": "Template reset to default",
+        "resetConfirm": "Are you sure you want to reset this template to its default?"
+      }
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "subtitle": "Manage your appointment notification and reminder preferences.",
+      "whatsapp": {
+        "title": "WhatsApp Notifications",
+        "enabled": "WhatsApp notifications enabled",
+        "sendReminders": "Send appointment reminders",
+        "reminderHours": "Reminder time (hours before)",
+        "sendConfirmations": "Send confirmation messages",
+        "sendCancellations": "Send cancellation messages"
+      },
+      "sms": {
+        "title": "SMS Notifications",
+        "enabled": "SMS notifications enabled (fallback when WhatsApp fails)",
+        "fallback": "Send SMS if WhatsApp fails"
+      }
+    },
+    "security": {
+      "title": "Security Settings",
+      "subtitle": "Manage your account security and access settings.",
+      "changePassword": "Change Password",
+      "twoFactor": "Two-Factor Authentication",
+      "sessions": "Active Sessions"
     }
   },
   "plan": {
@@ -334,6 +408,7 @@
     "subtitle": "Your limits and plan comparison.",
     "currentUsage": "Current period usage",
     "usageAppointments": "{n} / {max} appointments",
+    "unlimited": "Unlimited",
     "trialUntil": "Trial ends: {date}",
     "loadError": "Could not load plan information.",
     "month": "mo",
@@ -343,7 +418,11 @@
     "features": "Features",
     "matrixTitle": "Feature matrix",
     "featureCol": "Feature",
-    "matrixHint": "Cells show whether each plan lists the feature."
+    "matrixHint": "Cells show whether each plan lists the feature.",
+    "upgrade": "Upgrade",
+    "currentPlan": "Current plan",
+    "contactUs": "Contact us",
+    "upgradeMessage": "Please contact us to upgrade your plan."
   },
   "onboarding": {
     "title": "Business setup wizard",
@@ -371,6 +450,26 @@
   "employees": {
     "lead": "Define team members who can take bookings.",
     "add": "New employee",
+    "sendInvite": "Send invite",
+    "sendInviteTitle": "Send employee invite",
+    "sendingInvite": "Sending...",
+    "inviteSent": "Invite sent successfully",
+    "employeeName": "Employee name",
+    "viewInvites": "View invites",
+    "inviteListTitle": "Employee invites",
+    "noInvites": "No invites sent yet",
+    "createdAt": "Created",
+    "expiresAt": "Expires",
+    "usedAt": "Used",
+    "copyInviteLink": "Copy invite link",
+    "linkCopied": "Link copied",
+    "linkCopyFailed": "Could not copy link",
+    "cancelInviteConfirm": "Are you sure you want to cancel the invite for {email}?",
+    "inviteStatus": {
+      "PENDING": "Pending",
+      "USED": "Used",
+      "CANCELLED": "Cancelled"
+    },
     "noBusiness": "Business information not found.",
     "loadError": "Could not load the list.",
     "emptyTitle": "No employees yet",
@@ -467,6 +566,7 @@
     "assignService": "Assign service",
     "service": "Service",
     "selectService": "Select service",
+    "selectSkillLevel": "Select level",
     "assign": "Assign"
   },
   "leave": {
@@ -498,5 +598,25 @@
     "title": "Leave conflict — {count} appointments",
     "chooseAction": "Choose action",
     "confirm": "Confirm"
+  },
+  "staff": {
+    "title": "Staff Panel",
+    "myAppointments": "My Appointments",
+    "myAppointmentsDesc": "You can view and manage only appointments assigned to you."
+  },
+  "appointments": {
+    "noAppointments": "No appointments yet.",
+    "customer": "Customer",
+    "service": "Service",
+    "notes": "Notes",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "confirm": "Confirm",
+    "complete": "Complete",
+    "cancel": "Cancel",
+    "confirmSuccess": "Appointment confirmed",
+    "completeSuccess": "Appointment completed",
+    "cancelSuccess": "Appointment cancelled",
+    "cancelConfirm": "Are you sure you want to cancel this appointment?"
   }
 }

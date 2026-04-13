@@ -61,7 +61,57 @@ export async function fetchAllPageContent<T>(
   return all
 }
 
+function shouldSkipBearerAuth(url: string | undefined): boolean {
+  if (!url) return false
+  if (url.includes('/public/')) return true
+  const noBearerPaths = [
+    '/auth/refresh',
+    '/auth/login',
+    '/auth/register',
+    '/auth/register-employee',
+    '/auth/forgot-password',
+    '/auth/verify-reset-otp',
+    '/auth/reset-password',
+    '/auth/verify-registration-otp',
+    '/auth/resend-registration-otp',
+    '/auth/resend-verification',
+    '/auth/verify-email',
+    '/auth/logout',
+  ]
+  return noBearerPaths.some((p) => url.includes(p))
+}
+
+function mergeStoredUserWithRefresh(prevJson: string | null, incoming: Record<string, unknown>) {
+  let prev: Record<string, unknown> = {}
+  if (prevJson) {
+    try {
+      prev = JSON.parse(prevJson) as Record<string, unknown>
+    } catch {
+      /* ignore */
+    }
+  }
+  const inc = incoming as { businessSlug?: string | null }
+  return {
+    ...prev,
+    ...incoming,
+    businessSlug: inc.businessSlug ?? (prev.businessSlug as string | null | undefined) ?? null,
+  }
+}
+
+async function persistSessionAfterRefresh(accessToken: string, user: Record<string, unknown>) {
+  const prev = localStorage.getItem('user')
+  const merged = mergeStoredUserWithRefresh(prev, user)
+  localStorage.setItem('accessToken', accessToken)
+  localStorage.setItem('user', JSON.stringify(merged))
+  const { useAuthStore } = await import('@/stores/auth')
+  useAuthStore().setAuth(accessToken, merged as never)
+}
+
 api.interceptors.request.use((config) => {
+  const url = config.url ?? ''
+  if (shouldSkipBearerAuth(url)) {
+    return config
+  }
   const token = localStorage.getItem('accessToken')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -132,10 +182,8 @@ api.interceptors.response.use(
 
         if (response.data.success && response.data.data) {
           const { accessToken, user } = response.data.data
-          
-          localStorage.setItem('accessToken', accessToken)
-          localStorage.setItem('user', JSON.stringify(user))
-          
+          await persistSessionAfterRefresh(accessToken, user as Record<string, unknown>)
+
           // Bekleyen istekleri işle
           processQueue()
           

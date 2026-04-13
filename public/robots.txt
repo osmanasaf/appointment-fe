@@ -8,4 +8,8 @@ Disallow: /staff
 Disallow: /api/
 Disallow: /auth/
 
+# Auth akış sayfaları — indexlenmesine gerek yok
+Disallow: /forgot-password
+Disallow: /register-employee
+
 Sitemap: https://ayarla.com/sitemap.xml

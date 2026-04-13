@@ -6,19 +6,19 @@
 
   <!-- Ana sayfalar -->
   <url>
-    <loc>https://ayarla.com/</loc>
+    <loc>https://randevum.tr/</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ayarla.com/register</loc>
+    <loc>https://randevum.tr/register</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ayarla.com/login</loc>
+    <loc>https://randevum.tr/login</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -31,7 +31,7 @@
 
     Örnek:
     <url>
-      <loc>https://ayarla.com/b/guzellik-merkezi-istanbul</loc>
+      <loc>https://randevum.tr/b/guzellik-merkezi-istanbul</loc>
       <changefreq>weekly</changefreq>
       <priority>0.7</priority>
     </url>

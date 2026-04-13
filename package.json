@@ -1,8 +1,9 @@
 {
-  "name": "frontend",
+  "name": "randevum-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Randevum - İşletmeler için akıllı randevu yönetim sistemi",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

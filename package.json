@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:landing": "vite build --mode production --envFile .env.production.landing",
-    "build:app": "vite build --mode production --envFile .env.production.app",
+    "build:landing": "vite build --mode landing",
+    "build:app": "vite build --mode app",
     "preview": "vite preview",
     "preview:landing": "vite preview --outDir dist-landing",
     "preview:app": "vite preview --outDir dist",

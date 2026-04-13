@@ -1,0 +1,8 @@
+# Loaded by: vite build --mode app
+# Public URLs only (safe to commit). Override per env in CI if needed.
+
+VITE_API_BASE_URL=https://api.randevum.tr
+VITE_APP_BASE_URL=https://app.randevum.tr
+VITE_LANDING_URL=https://randevum.tr
+VITE_PUBLIC_BOOKING_URL=https://randevum.tr/b
+VITE_BUILD_MODE=app

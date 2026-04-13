@@ -5,8 +5,8 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const buildMode = env.VITE_BUILD_MODE || 'app'
-  const isLanding = buildMode === 'landing'
+  const isLanding = mode === 'landing'
+  const buildMode = isLanding ? 'landing' : mode === 'app' ? 'app' : 'app'
 
   return {
     // tailwindcss() must run before vue() so @import "tailwindcss" is expanded

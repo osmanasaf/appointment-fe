@@ -13,8 +13,8 @@
       :aria-label="t('admin.breadcrumb')"
     >
       <div class="flex items-center gap-2 border-b border-slate-800 px-4 py-4">
-        <a 
-          :href="auth.isAuthenticated ? '/admin' : (import.meta.env.VITE_LANDING_URL || '/')"
+        <a
+          :href="brandHomeHref"
           class="flex items-center gap-2 transition hover:opacity-80"
         >
           <div class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
@@ -126,6 +126,12 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const sidebarOpen = ref(false)
+
+const landingUrl = import.meta.env.VITE_LANDING_URL || ''
+
+const brandHomeHref = computed(() =>
+  auth.isAuthenticated ? '/admin' : landingUrl || '/',
+)
 
 const publicBookUrl = computed(() => {
   const base = globalThis.window?.location.origin ?? ''

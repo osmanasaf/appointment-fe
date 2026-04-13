@@ -3,10 +3,7 @@
     <header class="staff-header">
       <div class="header-container">
         <div class="brand">
-          <a 
-            :href="auth.isAuthenticated ? '/staff' : (import.meta.env.VITE_LANDING_URL || '/')"
-            class="brand-link"
-          >
+          <a :href="brandHomeHref" class="brand-link">
             <h1>{{ t('staff.title') }}</h1>
           </a>
         </div>
@@ -28,11 +25,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const auth = useAuthStore()
+const landingUrl = import.meta.env.VITE_LANDING_URL || ''
+const brandHomeHref = computed(() =>
+  auth.isAuthenticated ? '/staff' : landingUrl || '/',
+)
 const router = useRouter()
 const { t } = useI18n()
 

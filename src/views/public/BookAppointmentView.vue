@@ -512,7 +512,7 @@ async function loadAvailableDates() {
   availableDates.value = []
   try {
     const { data } = await publicApi.getAvailableDates(
-      business.value.id,
+      business.value.slug,
       Number(selectedServiceId.value),
       business.value.maxAdvanceBookingDays ?? 30,
       Number(selectedEmployeeId.value),
@@ -533,7 +533,7 @@ async function loadSlots(date: string) {
   slots.value = []
   try {
     const { data } = await publicApi.getAvailableSlots(
-      business.value.id,
+      business.value.slug,
       Number(selectedServiceId.value),
       date,
       Number(selectedEmployeeId.value),

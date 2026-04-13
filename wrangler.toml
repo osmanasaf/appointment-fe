@@ -1,0 +1,7 @@
+# Landing deploy (randevum.tr) — build:landing → dist-landing
+name = "appointment-fe-landing"
+compatibility_date = "2025-04-01"
+
+[assets]
+directory = "dist-landing"
+not_found_handling = "single-page-application"

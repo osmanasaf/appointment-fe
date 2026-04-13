@@ -1,5 +1,5 @@
 /**
- * Ayarla Brand Color Palette
+ * Randevum Brand Color Palette
  * Güven veren mavi/teal tonları
  */
 

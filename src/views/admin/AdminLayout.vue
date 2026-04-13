@@ -13,10 +13,15 @@
       :aria-label="t('admin.breadcrumb')"
     >
       <div class="flex items-center gap-2 border-b border-slate-800 px-4 py-4">
-        <div class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
-          <CalendarDays class="size-4" />
-        </div>
-        <span class="flex-1 truncate font-semibold tracking-tight text-white">{{ t('admin.brand') }}</span>
+        <a 
+          :href="auth.isAuthenticated ? '/admin' : (import.meta.env.VITE_LANDING_URL || '/')"
+          class="flex items-center gap-2 transition hover:opacity-80"
+        >
+          <div class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
+            <CalendarDays class="size-4" />
+          </div>
+          <span class="flex-1 truncate font-semibold tracking-tight text-white">{{ t('admin.brand') }}</span>
+        </a>
         <button
           type="button"
           class="flex size-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"

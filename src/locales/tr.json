@@ -55,10 +55,15 @@
     "verifyMissingToken": "Geçerli bir doğrulama bağlantısı bulunamadı.",
     "emailNotVerifiedMessage": "E-posta adresiniz henüz doğrulanmamış.",
     "resendVerificationLink": "Doğrulama e-postasını tekrar gönder",
-    "forgotPassword": "Şifremi unuttum"
+    "forgotPassword": "Şifremi unuttum",
+    "termsAgreement": "Kullanım Koşulları ve Gizlilik Politikası'nı okudum, kabul ediyorum.",
+    "termsRequired": "Devam etmek için koşulları kabul etmelisiniz.",
+    "termsLink": "Kullanım Koşulları",
+    "privacyLink": "Gizlilik Politikası",
+    "kvkkLink": "KVKK Aydınlatma Metni"
   },
   "landing": {
-    "documentTitle": "Ayarla — Randevunu ayarla. Online randevu ve müşteri yönetimi.",
+    "documentTitle": "Randevum — Online randevu ve müşteri yönetimi.",
     "heroEyebrow": "Kuaförden diyetisyene, tek panel",
     "heroTitle": "Randevunu ayarla,\nişine odaklan",
     "heroSubtitle": "Online rezervasyon, WhatsApp hatırlatmaları ve müşteri takibi — güzellik, sağlık ve danışmanlık işletmeleri için tasarlandı.",
@@ -145,7 +150,7 @@
     "testimonialsTitle": "Kullanıcılarımız ne diyor?",
     "testimonials": {
       "t1": {
-        "quote": "Ayarla sayesinde no-show oranımız yarıya düştü. WhatsApp hatırlatmaları gerçekten işe yarıyor.",
+        "quote": "Randevum sayesinde no-show oranımız yarıya düştü. WhatsApp hatırlatmaları gerçekten işe yarıyor.",
         "name": "Elif K.",
         "role": "Güzellik Merkezi Sahibi"
       },
@@ -205,7 +210,7 @@
     "footerPrivacy": "Gizlilik",
     "footerTerms": "Kullanım Koşulları",
     "footerKvkk": "KVKK",
-    "footerCopyright": "© {year} Ayarla. Tüm hakları saklıdır."
+    "footerCopyright": "© {year} Randevum. Tüm hakları saklıdır."
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -227,7 +232,7 @@
     "next": "Sonraki"
   },
   "admin": {
-    "brand": "Ayarla",
+    "brand": "Randevum",
     "logout": "Çıkış",
     "menuOpen": "Menüyü aç",
     "menuClose": "Menüyü kapat",

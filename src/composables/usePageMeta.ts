@@ -1,10 +1,10 @@
 import { onMounted, onUnmounted } from 'vue'
 
-const DEFAULT_TITLE = 'Ayarla'
+const DEFAULT_TITLE = 'Randevum'
 const DEFAULT_DESCRIPTION =
   'Kuaför, güzellik merkezi, psikolog ve diyetisyen için WhatsApp entegreli online randevu ve müşteri yönetimi.'
-const DEFAULT_IMAGE = 'https://ayarla.com/og-image.png'
-const SITE_URL = 'https://ayarla.com'
+const DEFAULT_IMAGE = 'https://randevum.tr/og-image.png'
+const SITE_URL = 'https://randevum.tr'
 
 export interface PageMetaOptions {
   title: string

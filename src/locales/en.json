@@ -55,10 +55,15 @@
     "verifyMissingToken": "No valid verification link was found.",
     "emailNotVerifiedMessage": "Your email is not verified yet.",
     "resendVerificationLink": "Resend verification email",
-    "forgotPassword": "Forgot password"
+    "forgotPassword": "Forgot password",
+    "termsAgreement": "I have read and accept the Terms of Service and Privacy Policy.",
+    "termsRequired": "You must accept the terms to continue.",
+    "termsLink": "Terms of Service",
+    "privacyLink": "Privacy Policy",
+    "kvkkLink": "GDPR Notice"
   },
   "landing": {
-    "documentTitle": "Ayarla — Set your appointments. Online booking & customer management.",
+    "documentTitle": "Randevum — Online booking & customer management.",
     "heroEyebrow": "From salon to dietitian, one panel",
     "heroTitle": "Set your appointments, focus on your craft",
     "heroSubtitle": "Online booking, WhatsApp reminders, and customer tracking — designed for beauty, health, and consulting businesses.",
@@ -145,7 +150,7 @@
     "testimonialsTitle": "What our users say",
     "testimonials": {
       "t1": {
-        "quote": "Thanks to Ayarla, our no-show rate dropped by half. WhatsApp reminders really work.",
+        "quote": "Thanks to Randevum, our no-show rate dropped by half. WhatsApp reminders really work.",
         "name": "Elif K.",
         "role": "Beauty Center Owner"
       },
@@ -205,7 +210,7 @@
     "footerPrivacy": "Privacy",
     "footerTerms": "Terms",
     "footerKvkk": "GDPR",
-    "footerCopyright": "© {year} Ayarla. All rights reserved."
+    "footerCopyright": "© {year} Randevum. All rights reserved."
   },
   "common": {
     "loading": "Loading…",
@@ -227,7 +232,7 @@
     "next": "Next"
   },
   "admin": {
-    "brand": "Ayarla",
+    "brand": "Randevum",
     "logout": "Log out",
     "menuOpen": "Open menu",
     "menuClose": "Close menu",

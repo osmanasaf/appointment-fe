@@ -1,5 +1,12 @@
-# CloudFlare Pages Configuration
-# This file is used to configure CloudFlare Pages build settings
+# CloudFlare Pages Configuration - DEPRECATED
+# Bu dosya artık kullanılmıyor. Subdomain yapısı için aşağıdaki dosyaları kullanın:
+#
+# - cloudflare-pages-landing.toml → randevum.tr (marketing site)
+# - cloudflare-pages-app.toml → app.randevum.tr (dashboard/admin)
+#
+# Subdomain'ler ayrı Cloudflare Pages projesi olarak deploy edilmelidir.
+
+# === LEGACY CONFIG (Referans) ===
 
 # Build settings
 [build]

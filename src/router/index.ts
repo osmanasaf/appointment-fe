@@ -12,6 +12,19 @@ declare module 'vue-router' {
   }
 }
 
+// Environment variables
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://randevum.tr'
+const APP_URL = import.meta.env.VITE_APP_BASE_URL || 'https://app.randevum.tr'
+const IS_DEV = import.meta.env.DEV
+
+// Helper function: subdomain'e yönlendir
+function redirectToSubdomain(path: string, subdomain: 'landing' | 'app') {
+  if (IS_DEV) return // Development'ta redirect yok
+  
+  const targetUrl = subdomain === 'landing' ? LANDING_URL : APP_URL
+  window.location.href = `${targetUrl}${path}`
+}
+
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'Landing', component: () => import('@/views/LandingView.vue'), meta: { public: true } },
   { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
@@ -39,6 +52,24 @@ const routes: RouteRecordRaw[] = [
     path: '/forgot-password',
     name: 'ForgotPassword',
     component: () => import('@/views/ForgotPasswordView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: () => import('@/views/legal/PrivacyView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/terms',
+    name: 'Terms',
+    component: () => import('@/views/legal/TermsView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/kvkk',
+    name: 'Kvkk',
+    component: () => import('@/views/legal/KvkkView.vue'),
     meta: { public: true },
   },
   {
@@ -159,6 +190,25 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
+
+  // Subdomain kontrolü (sadece production'da)
+  if (!IS_DEV) {
+    const currentHost = window.location.hostname
+    const isOnAppDomain = currentHost.includes('app.')
+    const isOnLandingDomain = !isOnAppDomain
+
+    // Landing domain'deyken admin/staff route'larına erişim
+    if (isOnLandingDomain && (to.path.startsWith('/admin') || to.path.startsWith('/staff') || to.name === 'Login' || to.name === 'Register' || to.name === 'RegisterEmployee')) {
+      redirectToSubdomain(to.fullPath, 'app')
+      return
+    }
+
+    // App domain'deyken landing route'larına erişim
+    if (isOnAppDomain && (to.name === 'Landing' || to.path.startsWith('/b/'))) {
+      redirectToSubdomain(to.fullPath, 'landing')
+      return
+    }
+  }
 
   // 1. Auth gerektiren route — giriş yapılmamışsa login'e yönlendir
   if (to.meta.requiresAuth && !auth.isAuthenticated) {

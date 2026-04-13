@@ -74,6 +74,27 @@
 
           <p v-if="submitError" class="submit-error">{{ submitError }}</p>
 
+          <!-- Terms & Privacy Agreement -->
+          <div class="terms-agreement">
+            <input
+              id="employee-terms"
+              v-model="termsAccepted"
+              type="checkbox"
+              class="terms-checkbox"
+            />
+            <label for="employee-terms" class="terms-label">
+              <RouterLink to="/terms" target="_blank" class="terms-link">
+                {{ t('auth.termsLink') }}
+              </RouterLink>
+              ve
+              <RouterLink to="/privacy" target="_blank" class="terms-link">
+                {{ t('auth.privacyLink') }}
+              </RouterLink>
+              'nı okudum, kabul ediyorum.
+            </label>
+          </div>
+          <p v-if="termsError" class="error">{{ termsError }}</p>
+
           <button type="submit" :disabled="loading" class="btn-submit">
             {{ loading ? t('auth.signingUp') : t('auth.signUp') }}
           </button>
@@ -105,6 +126,8 @@ const invitePreviewLoading = ref(false)
 const invitePreviewError = ref<string | null>(null)
 const invitePreviewReady = ref(false)
 const businessName = ref<string | null>(null)
+const termsAccepted = ref(false)
+const termsError = ref<string>('')
 
 const form = ref({
   name: '',
@@ -167,6 +190,13 @@ async function handleSubmit() {
     return
   }
   if (!validateForm()) return
+  
+  termsError.value = ''
+  if (!termsAccepted.value) {
+    termsError.value = t('auth.termsRequired')
+    return
+  }
+  
   if (!inviteToken.value) {
     submitError.value = t('auth.inviteTokenMissing')
     return
@@ -298,6 +328,43 @@ async function handleSubmit() {
   font-size: 0.875rem;
   text-align: center;
   margin: 0;
+}
+
+.terms-agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.terms-checkbox {
+  margin-top: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #0891b2;
+}
+
+.terms-label {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+  cursor: pointer;
+}
+
+.terms-link {
+  color: #0891b2;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.terms-link:hover {
+  color: #0e7490;
+  text-decoration: underline;
 }
 
 .btn-submit {

@@ -70,11 +70,11 @@ usePageMeta({
   structuredData: {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Ayarla',
+    name: 'Randevum',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     description: 'WhatsApp entegreli online randevu ve müşteri yönetimi platformu.',
-    url: 'https://ayarla.com',
+    url: 'https://randevum.tr',
     offers: {
       '@type': 'Offer',
       price: '0',

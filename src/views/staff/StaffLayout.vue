@@ -3,7 +3,12 @@
     <header class="staff-header">
       <div class="header-container">
         <div class="brand">
-          <h1>{{ t('staff.title') }}</h1>
+          <a 
+            :href="auth.isAuthenticated ? '/staff' : (import.meta.env.VITE_LANDING_URL || '/')"
+            class="brand-link"
+          >
+            <h1>{{ t('staff.title') }}</h1>
+          </a>
         </div>
         <div class="user-menu">
           <span class="user-name">{{ auth.user?.name }}</span>
@@ -61,6 +66,21 @@ async function handleLogout() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+.brand-link:hover {
+  opacity: 0.8;
 }
 
 .brand h1 {

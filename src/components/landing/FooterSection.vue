@@ -50,15 +50,15 @@
             {{ t('landing.footerLegal') }}
           </p>
           <nav class="flex flex-col gap-2.5 text-sm">
-            <a href="#" class="text-slate-400 transition hover:text-white">
+            <RouterLink to="/privacy" class="text-slate-400 transition hover:text-white">
               {{ t('landing.footerPrivacy') }}
-            </a>
-            <a href="#" class="text-slate-400 transition hover:text-white">
+            </RouterLink>
+            <RouterLink to="/terms" class="text-slate-400 transition hover:text-white">
               {{ t('landing.footerTerms') }}
-            </a>
-            <a href="#" class="text-slate-400 transition hover:text-white">
+            </RouterLink>
+            <RouterLink to="/kvkk" class="text-slate-400 transition hover:text-white">
               {{ t('landing.footerKvkk') }}
-            </a>
+            </RouterLink>
           </nav>
         </div>
       </div>

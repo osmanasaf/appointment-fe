@@ -1,0 +1,70 @@
+# Cloudflare Pages Configuration - Landing Site (randevum.tr)
+# Marketing site ve public booking pages
+
+[build]
+  command = "npm install && npm run build:landing"
+  publish = "dist-landing"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
+# Redirect /login ve /register to app subdomain
+[[redirects]]
+  from = "/login"
+  to = "https://app.randevum.tr/login"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/register"
+  to = "https://app.randevum.tr/register"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/register-employee"
+  to = "https://app.randevum.tr/register-employee"
+  status = 302
+  force = true
+
+# Admin/staff routes redirect to app
+[[redirects]]
+  from = "/admin/*"
+  to = "https://app.randevum.tr/admin/:splat"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/staff/*"
+  to = "https://app.randevum.tr/staff/:splat"
+  status = 302
+  force = true
+
+# SPA fallback for public booking (/b/:slug)
+[[redirects]]
+  from = "/b/*"
+  to = "/index.html"
+  status = 200
+
+# SPA fallback for other routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

@@ -365,6 +365,44 @@
               {{ submitError }}
             </div>
 
+            <!-- Terms & Privacy Agreement -->
+            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div class="flex items-start gap-2.5">
+                <input
+                  id="terms-agree"
+                  v-model="termsAccepted"
+                  type="checkbox"
+                  class="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-slate-300 text-teal-600 transition focus:ring-2 focus:ring-teal-500/40"
+                />
+                <label for="terms-agree" class="cursor-pointer text-sm leading-relaxed text-slate-700">
+                  <RouterLink
+                    to="/terms"
+                    target="_blank"
+                    class="font-medium text-teal-600 transition hover:text-teal-700 hover:underline"
+                  >
+                    {{ t('auth.termsLink') }}
+                  </RouterLink>
+                  ve
+                  <RouterLink
+                    to="/privacy"
+                    target="_blank"
+                    class="font-medium text-teal-600 transition hover:text-teal-700 hover:underline"
+                  >
+                    {{ t('auth.privacyLink') }}
+                  </RouterLink>
+                  'nı okudum, kabul ediyorum.
+                </label>
+              </div>
+              <p
+                v-if="termsError"
+                class="mt-2 flex items-center gap-1.5 text-xs text-red-600"
+                role="alert"
+              >
+                <AlertCircle class="size-3.5 shrink-0" />
+                {{ termsError }}
+              </p>
+            </div>
+
             <!-- Step 2 actions -->
             <div class="flex gap-2.5">
               <button
@@ -451,6 +489,8 @@ const step = ref<1 | 2>(1)
 const showPassword = ref(false)
 const loading = ref(false)
 const submitError = ref('')
+const termsAccepted = ref(false)
+const termsError = ref('')
 
 const validationSchema = computed(() =>
   toTypedSchema(
@@ -554,6 +594,13 @@ async function onFormSubmit() {
     if (r1.valid && r2.valid) step.value = 2
     return
   }
+  
+  termsError.value = ''
+  if (!termsAccepted.value) {
+    termsError.value = t('auth.termsRequired')
+    return
+  }
+  
   await runRegister()
 }
 

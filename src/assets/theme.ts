@@ -2,7 +2,7 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 
 /**
- * Ayarla PrimeVue Theme
+ * Randevum PrimeVue Theme
  * Primary: Teal (güven veren, profesyonel)
  */
 export const appThemePreset = definePreset(Aura, {

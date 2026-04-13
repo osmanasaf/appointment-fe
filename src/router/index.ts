@@ -13,8 +13,8 @@ declare module 'vue-router' {
 }
 
 // Environment variables
-const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://randevum.tr'
-const APP_URL = import.meta.env.VITE_APP_BASE_URL || 'https://app.randevum.tr'
+const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://randevum.pro'
+const APP_URL = import.meta.env.VITE_APP_BASE_URL || 'https://app.randevum.pro'
 const IS_DEV = import.meta.env.DEV
 
 // Helper function: subdomain'e yönlendir

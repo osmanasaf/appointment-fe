@@ -33,8 +33,8 @@
             </p>
             <div class="mt-4 rounded-lg bg-slate-50 p-4">
               <p class="mb-2 text-slate-700"><strong>İletişim Bilgileri:</strong></p>
-              <p class="text-slate-700">E-posta: <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a></p>
-              <p class="text-slate-700">Web: <a href="https://randevum.tr" class="text-teal-600 hover:underline">https://randevum.tr</a></p>
+              <p class="text-slate-700">E-posta: <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a></p>
+              <p class="text-slate-700">Web: <a href="https://randevum.pro" class="text-teal-600 hover:underline">https://randevum.pro</a></p>
             </div>
           </section>
 
@@ -130,7 +130,7 @@
               Yukarıda belirtilen haklarınızı kullanmak için başvurunuzu aşağıdaki yöntemlerle iletebilirsiniz:
             </p>
             <div class="mb-4 rounded-lg bg-slate-50 p-4">
-              <p class="mb-2 text-slate-700"><strong>E-posta:</strong> <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a></p>
+              <p class="mb-2 text-slate-700"><strong>E-posta:</strong> <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a></p>
               <p class="text-slate-700"><strong>Web sitesi:</strong> Kullanıcı panelinizdeki "Hesap Ayarları" bölümünden</p>
             </div>
             <p class="mb-3 leading-relaxed text-slate-700">
@@ -162,7 +162,7 @@
             </p>
             <div class="rounded-lg bg-slate-50 p-4">
               <p class="text-slate-700">
-                <strong>E-posta:</strong> <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a>
+                <strong>E-posta:</strong> <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a>
               </p>
               <p class="mt-2 text-slate-700">
                 <strong>Kişisel Verileri Koruma Kurumu:</strong> <a href="https://www.kvkk.gov.tr" target="_blank" rel="noopener" class="text-teal-600 hover:underline">www.kvkk.gov.tr</a>

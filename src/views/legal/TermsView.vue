@@ -169,7 +169,7 @@
             </p>
             <div class="rounded-lg bg-slate-50 p-4">
               <p class="text-slate-700">
-                <strong>E-posta:</strong> <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a>
+                <strong>E-posta:</strong> <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a>
               </p>
             </div>
           </section>

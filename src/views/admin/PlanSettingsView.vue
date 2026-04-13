@@ -214,7 +214,7 @@ function openUpgradeModal(plan: PlanResponse) {
 
 function contactForUpgrade() {
   // İletişim için email veya WhatsApp açılabilir
-  const email = 'destek@randevum.tr'
+  const email = 'destek@randevum.pro'
   const subject = `Paket Yükseltme Talebi - ${selectedPlan.value?.code}`
   const body = `Merhaba,\n\n${getPlanName(selectedPlan.value?.code || 'PRO')} paketine geçmek istiyorum.\n\nTeşekkürler.`
   window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)

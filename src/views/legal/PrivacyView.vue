@@ -110,7 +110,7 @@
               <li><strong>Taşınabilirlik:</strong> Verilerinizi yapılandırılmış, yaygın kullanılan formatta alma hakkı</li>
             </ul>
             <p class="leading-relaxed text-slate-700">
-              Bu haklarınızı kullanmak için <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a> adresinden bizimle iletişime geçebilirsiniz.
+              Bu haklarınızı kullanmak için <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a> adresinden bizimle iletişime geçebilirsiniz.
             </p>
           </section>
 
@@ -142,7 +142,7 @@
             </p>
             <div class="rounded-lg bg-slate-50 p-4">
               <p class="text-slate-700">
-                <strong>E-posta:</strong> <a href="mailto:destek@randevum.tr" class="text-teal-600 hover:underline">destek@randevum.tr</a>
+                <strong>E-posta:</strong> <a href="mailto:destek@randevum.pro" class="text-teal-600 hover:underline">destek@randevum.pro</a>
               </p>
             </div>
           </section>

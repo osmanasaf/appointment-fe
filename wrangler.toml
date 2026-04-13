@@ -1,4 +1,4 @@
-# Landing deploy (randevum.tr) — build:landing → dist-landing
+# Landing deploy (randevum.pro) — build:landing → dist-landing
 name = "appointment-fe-landing"
 compatibility_date = "2025-04-01"
 

@@ -645,7 +645,7 @@ watch(business, (biz) => {
       '@type': 'LocalBusiness',
       name: biz.name,
       description: biz.description ?? undefined,
-      url: `https://randevum.tr/b/${slug.value}`,
+      url: `https://randevum.pro/b/${slug.value}`,
     },
   })
 })

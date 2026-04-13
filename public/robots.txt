@@ -12,4 +12,4 @@ Disallow: /auth/
 Disallow: /forgot-password
 Disallow: /register-employee
 
-Sitemap: https://randevum.tr/sitemap.xml
+Sitemap: https://randevum.pro/sitemap.xml

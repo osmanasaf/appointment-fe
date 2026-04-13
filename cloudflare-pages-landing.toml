@@ -1,4 +1,4 @@
-# Cloudflare Pages Configuration - Landing Site (randevum.tr)
+# Cloudflare Pages Configuration - Landing Site (randevum.pro)
 # Marketing site ve public booking pages
 
 [build]
@@ -12,32 +12,32 @@
 # Redirect /login ve /register to app subdomain
 [[redirects]]
   from = "/login"
-  to = "https://app.randevum.tr/login"
+  to = "https://app.randevum.pro/login"
   status = 302
   force = true
 
 [[redirects]]
   from = "/register"
-  to = "https://app.randevum.tr/register"
+  to = "https://app.randevum.pro/register"
   status = 302
   force = true
 
 [[redirects]]
   from = "/register-employee"
-  to = "https://app.randevum.tr/register-employee"
+  to = "https://app.randevum.pro/register-employee"
   status = 302
   force = true
 
 # Admin/staff routes redirect to app
 [[redirects]]
   from = "/admin/*"
-  to = "https://app.randevum.tr/admin/:splat"
+  to = "https://app.randevum.pro/admin/:splat"
   status = 302
   force = true
 
 [[redirects]]
   from = "/staff/*"
-  to = "https://app.randevum.tr/staff/:splat"
+  to = "https://app.randevum.pro/staff/:splat"
   status = 302
   force = true
 

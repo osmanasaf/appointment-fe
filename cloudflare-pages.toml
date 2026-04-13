@@ -1,8 +1,8 @@
 # CloudFlare Pages Configuration - DEPRECATED
 # Bu dosya artık kullanılmıyor. Subdomain yapısı için aşağıdaki dosyaları kullanın:
 #
-# - cloudflare-pages-landing.toml → randevum.tr (marketing site)
-# - cloudflare-pages-app.toml → app.randevum.tr (dashboard/admin)
+# - cloudflare-pages-landing.toml → randevum.pro (marketing site)
+# - cloudflare-pages-app.toml → app.randevum.pro (dashboard/admin)
 #
 # Subdomain'ler ayrı Cloudflare Pages projesi olarak deploy edilmelidir.
 
@@ -20,7 +20,7 @@
 # Redirects (optional)
 [[redirects]]
   from = "/api/*"
-  to = "https://api.randevum.tr/:splat"
+  to = "https://api.randevum.pro/:splat"
   status = 200
   force = true
 

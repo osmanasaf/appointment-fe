@@ -74,7 +74,7 @@ usePageMeta({
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     description: 'WhatsApp entegreli online randevu ve müşteri yönetimi platformu.',
-    url: 'https://randevum.tr',
+    url: 'https://randevum.pro',
     offers: {
       '@type': 'Offer',
       price: '0',

@@ -1,4 +1,4 @@
-# App deploy (app.randevum.tr) — build:app → dist
+# App deploy (app.randevum.pro) — build:app → dist
 # Deploy: npx wrangler deploy --config wrangler.app.toml
 name = "appointment-fe-app"
 compatibility_date = "2025-04-01"

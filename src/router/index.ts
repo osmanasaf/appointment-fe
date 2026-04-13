@@ -1,106 +1,206 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+
+type UserRole = 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    public?: boolean
+    requiresAuth?: boolean
+    /** Bu route'a erişebilecek roller. Tanımsızsa tüm auth'lu kullanıcılar erişebilir. */
+    roles?: UserRole[]
+  }
+}
+
+const routes: RouteRecordRaw[] = [
+  { path: '/', name: 'Landing', component: () => import('@/views/LandingView.vue'), meta: { public: true } },
+  { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
+  { path: '/register', name: 'Register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
+  { path: '/register-employee', name: 'RegisterEmployee', component: () => import('@/views/RegisterEmployeeView.vue'), meta: { public: true } },
+  {
+    path: '/auth/pending-verification',
+    name: 'EmailVerificationPending',
+    component: () => import('@/views/EmailVerificationPendingView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/auth/verify-email',
+    name: 'EmailVerify',
+    component: () => import('@/views/EmailVerifiedView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/auth/verified',
+    name: 'EmailVerifiedStatic',
+    component: () => import('@/views/EmailVerifiedView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPasswordView.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/admin',
+    component: () => import('@/views/admin/AdminLayout.vue'),
+    meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+    children: [
+      {
+        path: '',
+        name: 'AdminDashboard',
+        component: () => import('@/views/admin/DashboardView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      { path: 'calendar', redirect: '/admin/appointments' },
+      {
+        path: 'settings',
+        component: () => import('@/views/admin/SettingsLayout.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+        children: [
+          {
+            path: '',
+            name: 'AdminSettings',
+            component: () => import('@/views/admin/BusinessView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+          {
+            path: 'notifications',
+            name: 'AdminNotifications',
+            component: () => import('@/views/admin/settings/NotificationsView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+          {
+            path: 'message-templates',
+            name: 'AdminMessageTemplates',
+            component: () => import('@/views/admin/settings/MessageTemplatesView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+          {
+            path: 'plan',
+            name: 'AdminPlan',
+            component: () => import('@/views/admin/PlanSettingsView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+          {
+            path: 'security',
+            name: 'AdminSecurity',
+            component: () => import('@/views/admin/settings/SecurityView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+        ],
+      },
+      { path: 'business', redirect: '/admin/settings' },
+      {
+        path: 'onboarding',
+        name: 'AdminOnboarding',
+        component: () => import('@/views/admin/BusinessOnboardingView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'services',
+        name: 'AdminServices',
+        component: () => import('@/views/admin/ServicesView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'packages',
+        name: 'AdminPackages',
+        component: () => import('@/views/admin/PackagesView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'packages/:id',
+        name: 'AdminPackageDetail',
+        component: () => import('@/views/admin/PackageDetailView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'customers',
+        name: 'AdminCustomers',
+        component: () => import('@/views/admin/CustomersView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'employees',
+        name: 'AdminEmployees',
+        component: () => import('@/views/admin/EmployeesView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
+      {
+        path: 'appointments',
+        name: 'AdminAppointments',
+        component: () => import('@/views/admin/AppointmentsView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER', 'EMPLOYEE'] },
+      },
+    ],
+  },
+  {
+    path: '/staff',
+    component: () => import('@/views/staff/StaffLayout.vue'),
+    meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER', 'EMPLOYEE'] },
+    children: [
+      {
+        path: '',
+        name: 'StaffDashboard',
+        component: () => import('@/views/staff/StaffAppointmentsView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER', 'EMPLOYEE'] },
+      },
+    ],
+  },
+  { path: '/b/:slug', name: 'PublicBook', component: () => import('@/views/public/BookAppointmentView.vue'), meta: { public: true } },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: '/', name: 'Landing', component: () => import('@/views/LandingView.vue'), meta: { public: true } },
-    { path: '/login', name: 'Login', component: () => import('@/views/LoginView.vue'), meta: { public: true } },
-    { path: '/register', name: 'Register', component: () => import('@/views/RegisterView.vue'), meta: { public: true } },
-    { path: '/register-employee', name: 'RegisterEmployee', component: () => import('@/views/RegisterEmployeeView.vue'), meta: { public: true } },
-    {
-      path: '/auth/pending-verification',
-      name: 'EmailVerificationPending',
-      component: () => import('@/views/EmailVerificationPendingView.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/auth/verify-email',
-      name: 'EmailVerify',
-      component: () => import('@/views/EmailVerifiedView.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/auth/verified',
-      name: 'EmailVerifiedStatic',
-      component: () => import('@/views/EmailVerifiedView.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/forgot-password',
-      name: 'ForgotPassword',
-      component: () => import('@/views/ForgotPasswordView.vue'),
-      meta: { public: true },
-    },
-    {
-      path: '/admin',
-      component: () => import('@/views/admin/AdminLayout.vue'),
-      meta: { requiresAuth: true },
-      children: [
-        { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/DashboardView.vue') },
-        { path: 'calendar', redirect: '/admin/appointments' },
-        {
-          path: 'settings',
-          component: () => import('@/views/admin/SettingsLayout.vue'),
-          children: [
-            { path: '', name: 'AdminSettings', component: () => import('@/views/admin/BusinessView.vue') },
-            { path: 'notifications', name: 'AdminNotifications', component: () => import('@/views/admin/settings/NotificationsView.vue') },
-            { path: 'message-templates', name: 'AdminMessageTemplates', component: () => import('@/views/admin/settings/MessageTemplatesView.vue') },
-            { path: 'plan', name: 'AdminPlan', component: () => import('@/views/admin/PlanSettingsView.vue') },
-            { path: 'security', name: 'AdminSecurity', component: () => import('@/views/admin/settings/SecurityView.vue') },
-          ],
-        },
-        { path: 'business', redirect: '/admin/settings' },
-        { path: 'onboarding', name: 'AdminOnboarding', component: () => import('@/views/admin/BusinessOnboardingView.vue') },
-        { path: 'services', name: 'AdminServices', component: () => import('@/views/admin/ServicesView.vue') },
-        { path: 'packages', name: 'AdminPackages', component: () => import('@/views/admin/PackagesView.vue') },
-        { path: 'packages/:id', name: 'AdminPackageDetail', component: () => import('@/views/admin/PackageDetailView.vue') },
-        { path: 'customers', name: 'AdminCustomers', component: () => import('@/views/admin/CustomersView.vue') },
-        { path: 'employees', name: 'AdminEmployees', component: () => import('@/views/admin/EmployeesView.vue') },
-        { path: 'appointments', name: 'AdminAppointments', component: () => import('@/views/admin/AppointmentsView.vue') },
-      ],
-    },
-    {
-      path: '/staff',
-      component: () => import('@/views/staff/StaffLayout.vue'),
-      meta: { requiresAuth: true },
-      children: [
-        { path: '', name: 'StaffDashboard', component: () => import('@/views/staff/StaffAppointmentsView.vue') },
-      ],
-    },
-    { path: '/b/:slug', name: 'PublicBook', component: () => import('@/views/public/BookAppointmentView.vue'), meta: { public: true } },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
-  ],
+  routes,
 })
 
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
-  
+
+  // 1. Auth gerektiren route — giriş yapılmamışsa login'e yönlendir
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-  } else if (auth.isAuthenticated && (to.name === 'Login' || to.name === 'Register' || to.name === 'EmailVerificationPending')) {
-    // Rol bazlı yönlendirme
-    if (auth.isEmployee) {
-      next({ name: 'StaffDashboard' })
-    } else {
-      next({ name: 'AdminDashboard' })
-    }
-  } else if (auth.isAuthenticated && to.name === 'Landing') {
-    // Rol bazlı yönlendirme
-    if (auth.isEmployee) {
-      next({ name: 'StaffDashboard' })
-    } else {
-      next({ name: 'AdminDashboard' })
-    }
-  } else if (auth.isAuthenticated && auth.isEmployee && to.path.startsWith('/admin')) {
-    // Çalışanlar admin paneline erişemez
-    next({ name: 'StaffDashboard' })
-  } else if (auth.isAuthenticated && !auth.isEmployee && to.path.startsWith('/staff')) {
-    // Admin/owner staff paneline erişemez (isteğe bağlı)
-    next({ name: 'AdminDashboard' })
-  } else {
-    next()
+    return next({ name: 'Login', query: { redirect: to.fullPath } })
   }
+
+  // 2. Giriş yapılmış kullanıcı public sayfalara gitmeye çalışıyorsa yönlendir
+  const isPublicOnlyRoute =
+    to.name === 'Login' ||
+    to.name === 'Register' ||
+    to.name === 'EmailVerificationPending' ||
+    to.name === 'Landing'
+
+  if (auth.isAuthenticated && isPublicOnlyRoute) {
+    return auth.isEmployee
+      ? next({ name: 'StaffDashboard' })
+      : next({ name: 'AdminDashboard' })
+  }
+
+  // 3. Role bazlı erişim kontrolü
+  const requiredRoles = to.meta.roles
+  if (requiredRoles && auth.user) {
+    const userRole = auth.user.role as UserRole
+    if (!requiredRoles.includes(userRole)) {
+      // Yetkisiz — uygun dashboard'a yönlendir
+      return auth.isEmployee
+        ? next({ name: 'StaffDashboard' })
+        : next({ name: 'AdminDashboard' })
+    }
+  }
+
+  // 4. Çalışanlar /admin'e giremez (ekstra güvenlik)
+  if (auth.isAuthenticated && auth.isEmployee && to.path.startsWith('/admin')) {
+    return next({ name: 'StaffDashboard' })
+  }
+
+  // 5. Admin/owner /staff'e giremez
+  if (auth.isAuthenticated && !auth.isEmployee && to.path.startsWith('/staff')) {
+    return next({ name: 'AdminDashboard' })
+  }
+
+  next()
 })
 
 export default router

@@ -307,14 +307,14 @@
             <div class="grid gap-3 sm:grid-cols-2">
               <div class="space-y-1">
                 <label class="block text-sm font-medium text-slate-700">Çalışan</label>
-                <select v-model.number="assignForm.employeeId" class="form-select">
+                <select v-model.number="assignForm.employeeId" class="app-select w-full">
                   <option :value="0">Seçin</option>
                   <option v-for="emp in unassignedActiveEmployees" :key="emp.id" :value="emp.id">{{ emp.name }}</option>
                 </select>
               </div>
               <div class="space-y-1">
                 <label class="block text-sm font-medium text-slate-700">Yetkinlik seviyesi</label>
-                <select v-model="assignForm.skillLevel" class="form-select">
+                <select v-model="assignForm.skillLevel" class="app-select w-full">
                   <option v-for="sl in SKILL_LEVELS" :key="sl" :value="sl">{{ SKILL_LEVEL_LABELS[sl] }}</option>
                 </select>
               </div>
@@ -713,7 +713,4 @@ onMounted(() => {
 <style scoped>
 @import 'tailwindcss' reference;
 
-.form-select {
-  @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100;
-}
 </style>

@@ -219,12 +219,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { Mail, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CircleCheck } from 'lucide-vue-next'
-import axios from 'axios'
 import { authApi } from '@/api/auth'
-import type { ApiResponse } from '@/api/client'
 import OtpInput from '@/components/auth/OtpInput.vue'
+import { extractApiError } from '@/utils/apiError'
 
 type Step = 'email' | 'otp' | 'password' | 'success'
 
@@ -253,7 +252,7 @@ const showPassword = ref(false)
 const countdown = ref(0)
 let countdownInterval: ReturnType<typeof setInterval> | null = null
 
-const startCountdown = () => {
+function startCountdown() {
   countdown.value = 60
   if (countdownInterval) clearInterval(countdownInterval)
   countdownInterval = setInterval(() => {
@@ -289,19 +288,15 @@ async function onSendOtp() {
   banner.value = ''
   
   try {
-    const { data } = await authApi.forgotPassword({ email: email.value.trim() })
-    if (data.success) {
-      currentStep.value = 'otp'
-      startCountdown()
-    }
-  } catch (e: unknown) {
-    // Güvenlik: Her durumda aynı mesajı göster
+    await authApi.forgotPassword({ email: email.value.trim() })
+  } catch {
+    // Güvenlik: Email var olup olmadığını açığa çıkarmıyoruz
+  } finally {
+    // Her durumda OTP sayfasına geç
+    currentStep.value = 'otp'
+    startCountdown()
+    loading.value = false
   }
-  
-  // Her durumda OTP sayfasına geç (güvenlik için)
-  currentStep.value = 'otp'
-  startCountdown()
-  loading.value = false
 }
 
 async function onResendOtp() {
@@ -332,21 +327,12 @@ async function onVerifyOtp() {
       otp: otpCode.value,
     })
     
-    if (data.success && data.data) {
-      resetToken.value = data.data.resetToken
-      currentStep.value = 'password'
-    } else {
-      otpError.value = data.error?.message || 'Geçersiz kod'
-      otpInputRef.value?.clear()
-    }
+    resetToken.value = data.data!.resetToken
+    currentStep.value = 'password'
   } catch (e: unknown) {
-    if (axios.isAxiosError(e)) {
-      const body = e.response?.data as ApiResponse<unknown> | undefined
-      otpError.value = body?.error?.message || 'Geçersiz kod'
-    } else {
-      otpError.value = 'Bir hata oluştu'
-    }
+    const msg = extractApiError(e, 'Geçersiz veya süresi dolmuş kod')
     otpInputRef.value?.clear()
+    otpError.value = msg
   } finally {
     loading.value = false
   }
@@ -369,25 +355,14 @@ async function onResetPassword() {
   loading.value = true
   
   try {
-    const { data } = await authApi.resetPassword({
+    await authApi.resetPassword({
       resetToken: resetToken.value,
       newPassword: newPassword.value,
     })
-    
-    if (data.success) {
-      currentStep.value = 'success'
-    } else {
-      bannerOk.value = false
-      banner.value = data.error?.message || 'Şifre değiştirilemedi'
-    }
+    currentStep.value = 'success'
   } catch (e: unknown) {
     bannerOk.value = false
-    if (axios.isAxiosError(e)) {
-      const body = e.response?.data as ApiResponse<unknown> | undefined
-      banner.value = body?.error?.message || 'Şifre değiştirilemedi'
-    } else {
-      banner.value = 'Bir hata oluştu'
-    }
+    banner.value = extractApiError(e, 'Şifre değiştirilemedi')
   } finally {
     loading.value = false
   }

@@ -97,7 +97,7 @@
             <!-- Durum filtresi -->
             <select
               v-model="filterStatus"
-              class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-600 focus:border-teal-400 focus:outline-none focus:ring-1 focus:ring-teal-400 sm:flex-none"
+              class="app-select app-select--compact min-w-0 flex-1 text-xs font-medium text-slate-600 sm:max-w-[11rem] sm:flex-none"
             >
               <option value="">Tüm durumlar</option>
               <option value="PENDING">Beklemede</option>
@@ -216,7 +216,7 @@
             <span class="text-xs font-medium text-slate-500">Durum</span>
             <select
               v-model="filterStatus"
-              class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+              class="app-select w-full min-w-[10rem]"
             >
               <option value="">Tüm durumlar</option>
               <option value="PENDING">Beklemede</option>

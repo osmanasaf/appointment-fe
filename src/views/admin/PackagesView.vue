@@ -218,7 +218,7 @@
             v-model.number="templateForm.serviceId"
             required
             :disabled="!!editingTemplate"
-            class="form-select"
+            class="app-select w-full"
           >
             <option value="">Seçin</option>
             <option v-for="s in packageEligibleServices" :key="s.id" :value="s.id">{{ s.name }}</option>
@@ -538,9 +538,6 @@ onMounted(() => {
 @import 'tailwindcss' reference;
 
 .form-input {
-  @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100;
-}
-.form-select {
   @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100;
 }
 </style>

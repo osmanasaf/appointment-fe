@@ -139,7 +139,7 @@
     <AppModal
       v-model:visible="offboardModalVisible"
       :title="t('employees.offboardTitle', { name: offboardEmployee?.name ?? '' })"
-      :style="{ width: 'min(36rem, 95vw)' }"
+      :dialog-style="{ width: 'min(36rem, 95vw)' }"
     >
       <div class="space-y-4">
         <div v-if="offboardLoading" class="py-6 text-center text-sm text-slate-400">{{ t('common.loading') }}</div>
@@ -162,7 +162,7 @@
               </AppRadioRow>
               <div v-if="offboardAction === 'REASSIGN_ALL'" class="space-y-1">
                 <label class="block text-sm font-medium text-slate-700">{{ t('employees.selectEmployee') }}</label>
-                <select v-model.number="offboardNewEmployeeId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                <select v-model.number="offboardNewEmployeeId" class="app-select w-full">
                   <option :value="0">{{ t('employees.selectEmployee') }}</option>
                   <option v-for="o in offboardTargetOptions" :key="o.id" :value="o.id">{{ o.name }}</option>
                 </select>

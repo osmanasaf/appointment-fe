@@ -46,17 +46,16 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    // Backend'e logout bildir (cookie'deki refresh token revoke edilecek)
-    try {
-      await authApi.logout()
-    } catch {
-      // Hata olsa bile local temizliği yap
-    }
-    
+    const accessTokenSnapshot = token.value
     token.value = null
     user.value = null
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
+    try {
+      await authApi.logout(accessTokenSnapshot)
+    } catch {
+      // Sunucu hatası: yerel oturum zaten temizlendi
+    }
   }
 
   async function login(credentials: LoginRequest) {

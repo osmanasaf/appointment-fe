@@ -31,9 +31,9 @@ const auth = useAuthStore()
 const router = useRouter()
 const { t } = useI18n()
 
-function handleLogout() {
-  auth.logout()
-  router.push({ name: 'Login' })
+async function handleLogout() {
+  await auth.logout()
+  await router.replace({ name: 'Login' })
 }
 </script>
 

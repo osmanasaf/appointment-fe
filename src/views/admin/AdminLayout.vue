@@ -161,8 +161,8 @@ const breadcrumbLabel = computed(() => {
   return t('pageTitles.default')
 })
 
-function logout() {
-  auth.logout()
-  router.push('/login')
+async function logout() {
+  await auth.logout()
+  await router.replace({ name: 'Login' })
 }
 </script>

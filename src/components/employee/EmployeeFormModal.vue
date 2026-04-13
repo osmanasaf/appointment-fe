@@ -2,6 +2,7 @@
   <AppModal
     :visible="visible"
     :title="modalTitle"
+    :closable="true"
     :dialog-style="{ width: 'min(40rem, 95vw)' }"
     @update:visible="$emit('update:visible', $event)"
   >
@@ -49,12 +50,18 @@
         :other-employees="otherEmployees"
       />
     </div>
+    <template #footer>
+      <AppButton variant="secondary" @click="$emit('update:visible', false)">
+        {{ t('common.cancel') }}
+      </AppButton>
+    </template>
   </AppModal>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AppButton from '../ui/AppButton.vue'
 import AppModal from '../ui/AppModal.vue'
 import EmployeeProfileTab from './tabs/EmployeeProfileTab.vue'
 import EmployeeScheduleTab from './tabs/EmployeeScheduleTab.vue'

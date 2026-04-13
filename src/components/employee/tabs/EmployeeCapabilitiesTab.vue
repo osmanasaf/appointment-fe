@@ -13,14 +13,14 @@
         <div class="grid gap-3 sm:grid-cols-2">
           <div class="space-y-1">
             <label class="block text-sm font-medium text-slate-700" for="cap-service">{{ t('employees.service') }}</label>
-            <select id="cap-service" v-model.number="assignForm.serviceId" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+            <select id="cap-service" v-model.number="assignForm.serviceId" class="app-select w-full">
               <option :value="0">{{ t('employees.selectService') }}</option>
               <option v-for="s in availableServices" :key="s.id" :value="s.id">{{ s.name }}</option>
             </select>
           </div>
           <div class="space-y-1">
             <label class="block text-sm font-medium text-slate-700">{{ t('employees.skillLevel') }}</label>
-            <select v-model="assignForm.skillLevel" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+            <select v-model="assignForm.skillLevel" class="app-select w-full">
               <option v-for="sl in skillLevels" :key="sl" :value="sl">{{ t(`employees.skillLevels.${sl}`) }}</option>
             </select>
           </div>

@@ -125,6 +125,7 @@
                 <select
                   id="business-category"
                   v-model="form.category"
+                  class="app-select"
                   name="category"
                   required
                   :disabled="categoriesLoading"
@@ -615,7 +616,6 @@ onMounted(() => {
 }
 
 .field input,
-.field select,
 .field textarea {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
@@ -629,7 +629,6 @@ onMounted(() => {
 }
 
 .field input:focus,
-.field select:focus,
 .field textarea:focus {
   outline: none;
   border-color: var(--color-primary);
@@ -637,9 +636,13 @@ onMounted(() => {
 }
 
 .field input[aria-invalid="true"],
-.field select[aria-invalid="true"],
 .field textarea[aria-invalid="true"] {
   border-color: var(--color-danger);
+}
+
+.field select.app-select {
+  width: 100%;
+  font-size: 0.9375rem;
 }
 
 .req { color: var(--color-danger); }

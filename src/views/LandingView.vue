@@ -49,7 +49,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { CalendarDays } from 'lucide-vue-next'
 import HeroSection from '@/components/landing/HeroSection.vue'
@@ -61,10 +60,27 @@ import TestimonialsSection from '@/components/landing/TestimonialsSection.vue'
 import CtaBannerSection from '@/components/landing/CtaBannerSection.vue'
 import FaqSection from '@/components/landing/FaqSection.vue'
 import FooterSection from '@/components/landing/FooterSection.vue'
+import { usePageMeta } from '@/composables/usePageMeta'
 
 const { t } = useI18n()
 
-onMounted(() => {
-  document.title = t('landing.documentTitle')
+usePageMeta({
+  title: t('landing.documentTitle'),
+  description: 'Kuaför, güzellik merkezi, psikolog ve diyetisyen için WhatsApp entegreli online randevu ve müşteri yönetimi. Ücretsiz deneyin.',
+  structuredData: {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Ayarla',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description: 'WhatsApp entegreli online randevu ve müşteri yönetimi platformu.',
+    url: 'https://ayarla.com',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'TRY',
+      description: 'Ücretsiz deneme mevcut',
+    },
+  },
 })
 </script>

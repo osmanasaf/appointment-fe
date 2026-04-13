@@ -224,7 +224,7 @@
                           <div class="session-assign-wrap">
                             <select
                               v-model="assignAppointmentForSession[s.id]"
-                              class="session-assign-select"
+                              class="app-select session-assign-select"
                               aria-label="Randevu seç"
                             >
                               <option value="">Randevu ata…</option>
@@ -480,7 +480,7 @@
           <form v-if="packageCustomer && pkgFormMode === 'template'" @submit.prevent="submitPackageFromTemplate" class="form">
             <div class="field">
               <label for="pkg-template">Paket şablonu <span class="req">*</span></label>
-              <select id="pkg-template" v-model="pkgForm.templateId" required>
+              <select id="pkg-template" v-model="pkgForm.templateId" class="app-select w-full" required>
                 <option value="">Seçin…</option>
                 <option v-for="t in packageTemplates" :key="t.id" :value="t.id">
                   {{ t.name }} ({{ t.totalSessions }} seans)
@@ -505,6 +505,7 @@
               <select
                 id="pkg-service"
                 v-model="pkgForm.serviceId"
+                class="app-select w-full"
                 required
                 :aria-invalid="!!pkgFormErrors.serviceId"
                 @change="onServiceChange"
@@ -1840,7 +1841,13 @@ dialog.modal.modal-lg {
 .session-date { min-width: 8rem; }
 .session-date.muted { color: var(--color-text-muted); }
 .session-assign-wrap { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.session-assign-select { max-width: 12rem; padding: 0.25rem 0.5rem; font-size: 0.8125rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+.session-assign-select {
+  max-width: 12rem;
+  min-height: 2rem;
+  padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-md);
+}
 .session-assign-hint { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--color-text-muted); }
 .session-assign-hint a { color: var(--color-primary); text-decoration: underline; }
 .session-new-appt-btn {

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /b/
+
+# Admin ve API'ye bot erişimi kapalı
+Disallow: /admin
+Disallow: /staff
+Disallow: /api/
+Disallow: /auth/
+
+Sitemap: https://ayarla.com/sitemap.xml

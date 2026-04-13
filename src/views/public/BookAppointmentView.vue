@@ -31,6 +31,30 @@
       </div>
     </div>
 
+    <!-- Mobil sticky CTA — saat seçilince scroll yerine hızlı gönderim -->
+    <Teleport to="body">
+      <div
+        v-if="selectedSlot && !success"
+        class="mobile-sticky-cta"
+        aria-hidden="true"
+      >
+        <div class="mobile-sticky-inner">
+          <div class="mobile-sticky-summary">
+            <p v-if="selectedService" class="mobile-sticky-service">{{ selectedService.name }}</p>
+            <p v-if="selectedDate && selectedSlotInfo" class="mobile-sticky-time">
+              {{ formatDateLong(selectedDate) }}, {{ formatSlotTime(selectedSlotInfo.startTime) }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="mobile-sticky-btn"
+            :disabled="submitting"
+            @click="() => { document.getElementById('step4-heading')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }"
+          >Randevu Al</button>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Scrollable Content -->
     <main id="main-content" class="scroll-area" tabindex="-1">
       <div class="container">
@@ -331,6 +355,8 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { publicApi, type BusinessResponse, type ServiceResponse, type EmployeeResponse } from '@/api/public'
+import { usePageMeta, setPageMeta } from '@/composables/usePageMeta'
+import { publicBookingCustomerSchema } from '@/validation/schemas'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
@@ -512,65 +538,50 @@ async function loadSlots(date: string) {
   }
 }
 
-const MIN_NAME_LENGTH = 2
-const MAX_NAME_LENGTH = 100
-const MIN_PHONE_DIGITS = 10
-const MAX_PHONE_DIGITS = 15
-
 function normalizePhoneDigits(value: string): string {
   return value.replaceAll(/\D/g, '')
 }
 
-function validatePhoneField(): boolean {
-  const phone = form.value.phoneNumber.trim()
-  if (!phone) {
-    errors.value = { ...errors.value, phoneNumber: 'Telefon giriniz' }
-    return false
+/** Türkiye numarasını normalize eder: başında 0 veya +90 varsa temizler. */
+function normalizeToLocalPhone(value: string): string {
+  const digits = normalizePhoneDigits(value)
+  if (digits.startsWith('90') && digits.length === 12) return digits.slice(2)
+  if (digits.startsWith('0') && digits.length === 11) return digits.slice(1)
+  return digits
+}
+
+function validatePhoneField(): void {
+  const phone = normalizeToLocalPhone(form.value.phoneNumber)
+  const result = publicBookingCustomerSchema.shape.customerPhone.safeParse(phone)
+  if (!result.success) {
+    errors.value = { ...errors.value, phoneNumber: result.error.issues[0]?.message ?? 'Geçersiz telefon' }
+  } else {
+    const { phoneNumber: _, ...rest } = errors.value
+    errors.value = rest
   }
-  const digits = normalizePhoneDigits(phone)
-  if (digits.length < MIN_PHONE_DIGITS) {
-    errors.value = { ...errors.value, phoneNumber: 'Geçerli bir telefon numarası girin (en az 10 rakam).' }
-    return false
-  }
-  if (digits.length > MAX_PHONE_DIGITS) {
-    errors.value = { ...errors.value, phoneNumber: 'Telefon numarası çok uzun.' }
-    return false
-  }
-  const { phoneNumber: _, ...rest } = errors.value
-  errors.value = rest
-  return true
 }
 
 function validateForm(): boolean {
   submitError.value = ''
+  const result = publicBookingCustomerSchema.safeParse({
+    customerName: form.value.customerName.trim(),
+    customerPhone: normalizeToLocalPhone(form.value.phoneNumber),
+    customerNotes: form.value.notes.trim() || undefined,
+  })
+  if (!result.success) {
+    const fieldErrors: Record<string, string> = {}
+    for (const issue of result.error.issues) {
+      const schemaField = issue.path[0] as string
+      const formField =
+        schemaField === 'customerPhone' ? 'phoneNumber'
+        : schemaField === 'customerNotes' ? 'notes'
+        : schemaField
+      if (!fieldErrors[formField]) fieldErrors[formField] = issue.message
+    }
+    errors.value = fieldErrors
+    return false
+  }
   errors.value = {}
-  const name = form.value.customerName.trim()
-  if (!name) {
-    errors.value.customerName = 'Ad soyad giriniz'
-    return false
-  }
-  if (name.length < MIN_NAME_LENGTH) {
-    errors.value.customerName = `Ad soyad en az ${MIN_NAME_LENGTH} karakter olmalıdır`
-    return false
-  }
-  if (name.length > MAX_NAME_LENGTH) {
-    errors.value.customerName = `Ad soyad en fazla ${MAX_NAME_LENGTH} karakter olabilir`
-    return false
-  }
-  const phone = form.value.phoneNumber.trim()
-  if (!phone) {
-    errors.value.phoneNumber = 'Telefon giriniz'
-    return false
-  }
-  const digits = normalizePhoneDigits(phone)
-  if (digits.length < MIN_PHONE_DIGITS) {
-    errors.value.phoneNumber = 'Geçerli bir telefon numarası girin (en az 10 rakam).'
-    return false
-  }
-  if (digits.length > MAX_PHONE_DIGITS) {
-    errors.value.phoneNumber = 'Telefon numarası çok uzun.'
-    return false
-  }
   return true
 }
 
@@ -585,7 +596,7 @@ async function submitBooking() {
       serviceId: Number(selectedServiceId.value),
       scheduledAt: selectedSlot.value,
       customerName: form.value.customerName.trim(),
-      phoneNumber: form.value.phoneNumber.trim(),
+      phoneNumber: normalizeToLocalPhone(form.value.phoneNumber),
       phoneCountryCode: '+90',
       notes: form.value.notes.trim() || undefined,
     })
@@ -603,6 +614,30 @@ async function submitBooking() {
     submitting.value = false
   }
 }
+
+// Başlangıç meta — işletme yüklenince watch ile güncellenecek
+usePageMeta({
+  title: 'Online Randevu Al',
+  description: 'Kolayca online randevu alın. Hizmet, tarih ve saat seçerek randevunuzu oluşturun.',
+})
+
+watch(business, (biz) => {
+  if (!biz) return
+  setPageMeta({
+    title: `${biz.name} — Randevu Al`,
+    description: biz.description
+      ? `${biz.description} — Online randevu almak için tıklayın.`
+      : `${biz.name} için online randevu alın.`,
+    slug: slug.value,
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: biz.name,
+      description: biz.description ?? undefined,
+      url: `https://ayarla.com/b/${slug.value}`,
+    },
+  })
+})
 
 onMounted(async () => {
   if (!slug.value) {
@@ -657,6 +692,69 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
 </script>
 
 <style scoped>
+/* ── Mobil sticky CTA ─────────────────────────────────────── */
+.mobile-sticky-cta {
+  display: none;
+}
+@media (max-width: 639px) {
+  .mobile-sticky-cta {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  }
+}
+.mobile-sticky-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 30rem;
+  margin: 0 auto;
+}
+.mobile-sticky-summary {
+  min-width: 0;
+  flex: 1;
+}
+.mobile-sticky-service {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile-sticky-time {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile-sticky-btn {
+  flex-shrink: 0;
+  padding: 0.625rem 1.125rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.4);
+}
+.mobile-sticky-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
 /* ── Base layout ──────────────────────────────────────────── */
 .public-page {
   position: fixed;
@@ -802,6 +900,8 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
   max-width: 30rem;
   margin: 0 auto;
   padding: 1.25rem 1rem 3rem;
+  /* Mobil sticky CTA yüksekliği kadar extra boşluk */
+  padding-bottom: max(3rem, calc(3rem + env(safe-area-inset-bottom)));
   display: flex;
   flex-direction: column;
   gap: 1rem;

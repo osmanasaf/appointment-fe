@@ -14,7 +14,7 @@
         </div>
         <div class="space-y-1 sm:col-span-2">
           <label class="block text-sm font-medium text-slate-700">{{ t('leave.type') }} *</label>
-          <select v-model="form.leaveType" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+          <select v-model="form.leaveType" class="app-select w-full">
             <option v-for="lt in leaveTypes" :key="lt" :value="lt">{{ t(`leaveType.${lt}`) }}</option>
           </select>
         </div>

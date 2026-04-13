@@ -43,6 +43,12 @@ export interface RegisterEmployeeRequest {
   inviteToken: string
 }
 
+export interface EmployeeInvitePreview {
+  email: string
+  employeeName: string
+  businessName: string
+}
+
 export interface ResendVerificationRequest {
   email: string
 }
@@ -74,6 +80,11 @@ export const authApi = {
   },
   registerEmployee(body: RegisterEmployeeRequest) {
     return api.post<ApiResponse<void>>('/auth/register-employee', body)
+  },
+  getEmployeeInvitePreview(token: string) {
+    return api.get<ApiResponse<EmployeeInvitePreview>>('/public/employee-invite/preview', {
+      params: { token },
+    })
   },
   
   // OTP tabanlı kayıt doğrulama
@@ -107,7 +118,11 @@ export const authApi = {
   refreshToken() {
     return api.post<ApiResponse<AuthResponseData>>('/auth/refresh', {})
   },
-  logout() {
-    return api.post<ApiResponse<void>>('/auth/logout', {})
+  logout(accessToken?: string | null) {
+    return api.post<ApiResponse<void>>(
+      '/auth/logout',
+      {},
+      accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : {},
+    )
   },
 }

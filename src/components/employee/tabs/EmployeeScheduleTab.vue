@@ -69,7 +69,7 @@
               <Clock class="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
               <select
                 :value="row.startHour"
-                class="appearance-none bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+                class="app-select app-select--nested text-slate-700"
                 :aria-label="`${DAY_LABELS[i]} başlangıç saati`"
                 @change="row.startHour = ($event.target as HTMLSelectElement).value; markDirty()"
               >
@@ -78,7 +78,7 @@
               <span class="text-slate-400 font-bold">:</span>
               <select
                 :value="row.startMin"
-                class="appearance-none bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+                class="app-select app-select--nested text-slate-700"
                 :aria-label="`${DAY_LABELS[i]} başlangıç dakikası`"
                 @change="row.startMin = ($event.target as HTMLSelectElement).value; markDirty()"
               >
@@ -93,7 +93,7 @@
               <Clock class="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
               <select
                 :value="row.endHour"
-                class="appearance-none bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+                class="app-select app-select--nested text-slate-700"
                 :aria-label="`${DAY_LABELS[i]} bitiş saati`"
                 @change="row.endHour = ($event.target as HTMLSelectElement).value; markDirty()"
               >
@@ -102,7 +102,7 @@
               <span class="text-slate-400 font-bold">:</span>
               <select
                 :value="row.endMin"
-                class="appearance-none bg-transparent text-sm font-medium text-slate-700 focus:outline-none"
+                class="app-select app-select--nested text-slate-700"
                 :aria-label="`${DAY_LABELS[i]} bitiş dakikası`"
                 @change="row.endMin = ($event.target as HTMLSelectElement).value; markDirty()"
               >

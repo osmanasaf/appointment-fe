@@ -124,7 +124,7 @@
               </label>
               <select
                 v-model.number="form.reminderHoursBefore"
-                class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="app-select app-select--compact w-auto min-w-[10rem]"
               >
                 <option :value="1">1 saat</option>
                 <option :value="2">2 saat</option>
@@ -153,7 +153,7 @@
               </label>
               <select
                 v-model.number="form.secondReminderHoursBefore"
-                class="rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="app-select app-select--compact w-auto min-w-[10rem]"
               >
                 <option :value="1">1 saat önce</option>
                 <option :value="2">2 saat önce</option>

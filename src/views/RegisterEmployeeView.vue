@@ -4,8 +4,21 @@
       <div class="register-card">
         <h1 class="title">{{ t('auth.registerEmployeeTitle') }}</h1>
         <p class="subtitle">{{ t('auth.registerEmployeeSubtitle') }}</p>
+        <p v-if="businessName" class="business-hint">
+          {{ t('auth.inviteBusinessLabel', { name: businessName }) }}
+        </p>
 
-        <form @submit.prevent="handleSubmit" class="register-form">
+        <p v-if="inviteToken && invitePreviewLoading" class="preview-status">
+          {{ t('auth.loadingInvite') }}
+        </p>
+        <p v-else-if="inviteToken && invitePreviewError" class="submit-error">{{ invitePreviewError }}</p>
+        <p v-else-if="!inviteToken && submitError" class="submit-error">{{ submitError }}</p>
+
+        <form
+          v-else-if="inviteToken && invitePreviewReady"
+          @submit.prevent="handleSubmit"
+          class="register-form"
+        >
           <div class="form-group">
             <label for="name">{{ t('auth.name') }}</label>
             <input
@@ -13,8 +26,12 @@
               v-model="form.name"
               type="text"
               :placeholder="t('auth.name')"
+              readonly
               required
+              class="input-readonly"
+              autocomplete="name"
             />
+            <p class="field-hint">{{ t('auth.inviteFieldsReadOnly') }}</p>
             <span v-if="errors.name" class="error">{{ errors.name }}</span>
           </div>
 
@@ -25,7 +42,10 @@
               v-model="form.email"
               type="email"
               :placeholder="t('auth.email')"
+              readonly
               required
+              class="input-readonly"
+              autocomplete="email"
             />
             <span v-if="errors.email" class="error">{{ errors.email }}</span>
           </div>
@@ -81,6 +101,10 @@ const route = useRoute()
 const loading = ref(false)
 const submitError = ref<string | null>(null)
 const inviteToken = ref<string>('')
+const invitePreviewLoading = ref(false)
+const invitePreviewError = ref<string | null>(null)
+const invitePreviewReady = ref(false)
+const businessName = ref<string | null>(null)
 
 const form = ref({
   name: '',
@@ -91,10 +115,31 @@ const form = ref({
 
 const errors = ref<Record<string, string>>({})
 
-onMounted(() => {
+onMounted(async () => {
   inviteToken.value = (route.query.token as string) || ''
   if (!inviteToken.value) {
     submitError.value = t('auth.inviteTokenMissing')
+    return
+  }
+  invitePreviewLoading.value = true
+  invitePreviewError.value = null
+  try {
+    const { data } = await authApi.getEmployeeInvitePreview(inviteToken.value)
+    if (data.success && data.data) {
+      form.value.name = data.data.employeeName
+      form.value.email = data.data.email
+      businessName.value = data.data.businessName
+      invitePreviewReady.value = true
+    } else {
+      invitePreviewError.value = t('auth.invitePreviewFailed')
+    }
+  } catch (err: unknown) {
+    const msg =
+      (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error
+        ?.message
+    invitePreviewError.value = msg || t('auth.invitePreviewFailed')
+  } finally {
+    invitePreviewLoading.value = false
   }
 })
 
@@ -117,6 +162,10 @@ function validateForm(): boolean {
 }
 
 async function handleSubmit() {
+  if (!invitePreviewReady.value && inviteToken.value) {
+    submitError.value = t('auth.invitePreviewFailed')
+    return
+  }
   if (!validateForm()) return
   if (!inviteToken.value) {
     submitError.value = t('auth.inviteTokenMissing')
@@ -178,6 +227,33 @@ async function handleSubmit() {
   text-align: center;
   margin: 0 0 2rem 0;
   font-size: 0.875rem;
+}
+
+.business-hint {
+  text-align: center;
+  margin: -1.25rem 0 1.25rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.preview-status {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.input-readonly {
+  background-color: #f3f4f6 !important;
+  color: #374151;
+  cursor: default;
 }
 
 .register-form {

@@ -36,12 +36,12 @@
             {{ t('landing.footerCompany') }}
           </p>
           <nav class="flex flex-col gap-2.5 text-sm">
-            <RouterLink to="/register" class="text-slate-400 transition hover:text-white">
+            <a :href="registerUrl" class="text-slate-400 transition hover:text-white">
               {{ t('landing.footerRegister') }}
-            </RouterLink>
-            <RouterLink to="/login" class="text-slate-400 transition hover:text-white">
+            </a>
+            <a :href="loginUrl" class="text-slate-400 transition hover:text-white">
               {{ t('landing.footerLogin') }}
-            </RouterLink>
+            </a>
           </nav>
         </div>
 
@@ -73,8 +73,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { CalendarDays } from 'lucide-vue-next'
+import { useAppPublicUrl } from '@/composables/useAppPublicUrl'
 
 const { t } = useI18n()
+const { loginUrl, registerUrl } = useAppPublicUrl()
 
 const currentYear = new Date().getFullYear()
 </script>

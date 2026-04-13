@@ -30,13 +30,13 @@
           </p>
 
           <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
-            <RouterLink
-              to="/register"
+            <a
+              :href="registerUrl"
               class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-teal-700 shadow-lg transition hover:bg-teal-50 sm:w-auto"
             >
               {{ t('landing.ctaTrial') }}
               <ArrowRight class="size-4" />
-            </RouterLink>
+            </a>
             <a
               href="#how-it-works"
               class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 sm:w-auto"
@@ -89,8 +89,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ArrowRight, Play, Scissors, Sparkles, Calendar } from 'lucide-vue-next'
+import { useAppPublicUrl } from '@/composables/useAppPublicUrl'
 
 const { t } = useI18n()
+const { registerUrl } = useAppPublicUrl()
 
 const illustrationItems = [
   {

@@ -200,13 +200,12 @@ router.beforeEach((to, _from, next) => {
     // Landing domain'deyken admin/staff route'larına erişim
     if (isOnLandingDomain && (to.path.startsWith('/admin') || to.path.startsWith('/staff') || to.name === 'Login' || to.name === 'Register' || to.name === 'RegisterEmployee')) {
       redirectToSubdomain(to.fullPath, 'app')
-      return
+      return next(false)
     }
 
-    // App domain'deyken landing route'larına erişim
     if (isOnAppDomain && (to.name === 'Landing' || to.path.startsWith('/b/'))) {
       redirectToSubdomain(to.fullPath, 'landing')
-      return
+      return next(false)
     }
   }
 

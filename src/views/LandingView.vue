@@ -20,18 +20,18 @@
           <a href="#faq" class="hidden text-slate-600 transition hover:text-slate-900 md:inline">
             {{ t('landing.navFaq') }}
           </a>
-          <RouterLink
-            to="/login"
+          <a
+            :href="loginUrl"
             class="text-slate-600 transition hover:text-slate-900"
           >
             {{ t('landing.ctaLogin') }}
-          </RouterLink>
-          <RouterLink
-            to="/register"
+          </a>
+          <a
+            :href="registerUrl"
             class="rounded-lg bg-teal-600 px-4 py-2 text-white shadow-sm transition hover:bg-teal-700"
           >
             {{ t('landing.ctaTrial') }}
-          </RouterLink>
+          </a>
         </nav>
       </div>
     </header>
@@ -61,8 +61,10 @@ import CtaBannerSection from '@/components/landing/CtaBannerSection.vue'
 import FaqSection from '@/components/landing/FaqSection.vue'
 import FooterSection from '@/components/landing/FooterSection.vue'
 import { usePageMeta } from '@/composables/usePageMeta'
+import { useAppPublicUrl } from '@/composables/useAppPublicUrl'
 
 const { t } = useI18n()
+const { loginUrl, registerUrl } = useAppPublicUrl()
 
 usePageMeta({
   title: t('landing.documentTitle'),

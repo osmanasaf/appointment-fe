@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from 'axios'
+import { resolveApiBaseUrl } from '@/config/siteOrigins'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ?? ''
+const baseURL = resolveApiBaseUrl()
 
 export const api = axios.create({
   baseURL: baseURL || '/api/v1',

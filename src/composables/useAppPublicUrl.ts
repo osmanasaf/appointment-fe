@@ -1,7 +1,7 @@
 import { computed } from 'vue'
+import { resolveAppOrigin } from '@/config/siteOrigins'
 
-const rawBase = import.meta.env.VITE_APP_BASE_URL || 'https://app.randevum.pro'
-const APP_ORIGIN = rawBase.replace(/\/$/, '')
+const APP_ORIGIN = resolveAppOrigin()
 
 export function appPublicUrl(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`

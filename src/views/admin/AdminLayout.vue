@@ -120,6 +120,7 @@ import {
   ExternalLink,
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import { resolveLandingOrigin } from '@/config/siteOrigins'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -127,7 +128,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const sidebarOpen = ref(false)
 
-const landingUrl = import.meta.env.VITE_LANDING_URL || ''
+const landingUrl = resolveLandingOrigin()
 
 const brandHomeHref = computed(() =>
   auth.isAuthenticated ? '/admin' : landingUrl || '/',

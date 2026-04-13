@@ -29,9 +29,10 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { resolveLandingOrigin } from '@/config/siteOrigins'
 
 const auth = useAuthStore()
-const landingUrl = import.meta.env.VITE_LANDING_URL || ''
+const landingUrl = resolveLandingOrigin()
 const brandHomeHref = computed(() =>
   auth.isAuthenticated ? '/staff' : landingUrl || '/',
 )

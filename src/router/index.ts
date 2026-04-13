@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { resolveAppOrigin, resolveLandingOrigin } from '@/config/siteOrigins'
 
 type UserRole = 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
 
@@ -12,9 +13,8 @@ declare module 'vue-router' {
   }
 }
 
-// Environment variables
-const LANDING_URL = import.meta.env.VITE_LANDING_URL || 'https://randevum.pro'
-const APP_URL = import.meta.env.VITE_APP_BASE_URL || 'https://app.randevum.pro'
+const LANDING_URL = resolveLandingOrigin()
+const APP_URL = resolveAppOrigin()
 const IS_DEV = import.meta.env.DEV
 
 // Helper function: subdomain'e yönlendir

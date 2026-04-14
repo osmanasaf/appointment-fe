@@ -82,6 +82,25 @@ function shouldSkipBearerAuth(url: string | undefined): boolean {
   return noBearerPaths.some((p) => url.includes(p))
 }
 
+/** Bu uçlarda 401, süresi dolmuş oturum değil; refresh denenmemeli (ör. yanlış şifre). */
+function shouldSkipRefreshOn401(url: string | undefined): boolean {
+  if (!url) return false
+  const paths = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/register-employee',
+    '/auth/forgot-password',
+    '/auth/verify-reset-otp',
+    '/auth/reset-password',
+    '/auth/verify-registration-otp',
+    '/auth/resend-registration-otp',
+    '/auth/resend-verification',
+    '/auth/verify-email',
+    '/auth/logout',
+  ]
+  return paths.some((p) => url.includes(p))
+}
+
 function mergeStoredUserWithRefresh(prevJson: string | null, incoming: Record<string, unknown>) {
   let prev: Record<string, unknown> = {}
   if (prevJson) {
@@ -143,8 +162,11 @@ api.interceptors.response.use(
   async (err: AxiosError<ApiResponse<unknown>>) => {
     const originalRequest = err.config
     
-    // 401 hatası varsa refresh dene
+    // 401 hatası varsa refresh dene (giriş/kayıt gibi public auth'ta 401 = hatalı bilgi, refresh yok)
     if (err.response?.status === 401 && originalRequest && !originalRequest.headers['X-Retry']) {
+      if (shouldSkipRefreshOn401(originalRequest.url)) {
+        return Promise.reject(err)
+      }
       // Refresh endpoint'ine istek yapılıyorsa logout
       if (originalRequest.url?.includes('/auth/refresh')) {
         localStorage.removeItem('accessToken')

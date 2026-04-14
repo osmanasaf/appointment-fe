@@ -1,5 +1,7 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import type { ApiResponse } from '@/api/client'
 import { authApi, type UserInfo, type LoginRequest, type RegisterRequest, type AuthResponseData } from '@/api/auth'
 
 const TOKEN_KEY = 'accessToken'
@@ -60,12 +62,25 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(credentials: LoginRequest) {
-    const { data } = await authApi.login(credentials)
-    if (data.success && data.data) {
-      setAuth(data.data)
-      return data
+    try {
+      const { data } = await authApi.login(credentials)
+      if (data.success && data.data) {
+        setAuth(data.data)
+        return data
+      }
+      throw new Error(data.error?.message ?? 'Giriş başarısız')
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        const body = e.response?.data as ApiResponse<unknown> | undefined
+        if (e.response?.status === 403 && body?.error?.code === 'EMAIL_NOT_VERIFIED') {
+          throw e
+        }
+        if (body?.error?.message) {
+          throw new Error(body.error.message)
+        }
+      }
+      throw e
     }
-    throw new Error(data.error?.message ?? 'Giriş başarısız')
   }
 
   async function register(payload: RegisterRequest) {

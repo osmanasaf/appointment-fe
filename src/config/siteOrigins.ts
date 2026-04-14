@@ -1,5 +1,6 @@
 const DEFAULT_LANDING_ORIGIN = 'https://randevum.pro'
 const DEFAULT_APP_ORIGIN = 'https://app.randevum.pro'
+const API_V1_SUFFIX = '/api/v1'
 
 function stripTrailingSlash(url: string): string {
   return url.replace(/\/$/, '')
@@ -28,5 +29,9 @@ export function resolveApiBaseUrl(): string {
   if (!raw) {
     return ''
   }
-  return migrateLegacyRandevumDomain(raw.replace(/\/$/, ''))
+  let base = migrateLegacyRandevumDomain(raw.replace(/\/$/, ''))
+  if (!base.endsWith(API_V1_SUFFIX)) {
+    base = `${base}${API_V1_SUFFIX}`
+  }
+  return base
 }

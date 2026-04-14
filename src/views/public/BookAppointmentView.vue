@@ -132,6 +132,15 @@
 
             <p class="field-label">Hizmet</p>
             <div
+              v-if="services.length === 0"
+              class="empty-employees empty-employees--hint"
+              role="status"
+            >
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+              <p class="empty-employees-hint-text">Bu işletme için şu an listelenecek hizmet yok. İşletme henüz hizmet tanımlamamış olabilir; randevu için doğrudan iletişime geçmeyi deneyebilirsiniz.</p>
+            </div>
+            <div
+              v-else
               class="card-grid"
               role="radiogroup"
               aria-label="Hizmet seçin"
@@ -166,7 +175,8 @@
             <p class="field-label" style="margin-top: 1.25rem;">Çalışan</p>
             <div v-if="!selectedServiceId" class="empty-employees empty-employees--hint" role="status">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <p class="empty-employees-hint-text">Önce yukarıdan bir hizmet seçin; bu hizmeti verebilen çalışanlar burada listelenir.</p>
+              <p v-if="services.length === 0" class="empty-employees-hint-text">Listelenecek hizmet olmadığı için çalışan seçimi yapılamaz. Yukarıdaki bilgi kutusuna bakabilir veya işletmeyle iletişime geçebilirsiniz.</p>
+              <p v-else class="empty-employees-hint-text">Önce yukarıdan bir hizmet seçin; bu hizmeti verebilen çalışanlar burada listelenir.</p>
             </div>
             <div v-else-if="employeesLoading" class="employees-skeleton" aria-busy="true" aria-label="Çalışanlar yükleniyor">
               <div v-for="n in 3" :key="n" class="employee-skeleton-pill" />
@@ -244,6 +254,14 @@
                   <span v-else-if="day.available" class="avail-dot" aria-hidden="true" />
                 </button>
               </div>
+              <div
+                v-if="!hasAnyAvailableDateInRange"
+                class="empty-employees empty-employees--hint section-empty-follow"
+                role="status"
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <p class="empty-employees-hint-text">Görüntülenen dönemde müsait gün bulunmuyor. Başka bir çalışan veya hizmet deneyebilir veya daha sonra tekrar bakabilirsiniz.</p>
+              </div>
             </div>
           </section>
 
@@ -258,9 +276,10 @@
             <div v-if="slotsLoading" class="slots-skeleton" aria-busy="true" aria-label="Saatler yükleniyor">
               <div v-for="n in 6" :key="n" class="slot-skeleton" />
             </div>
-            <div v-else-if="slots.length === 0" class="empty-slots">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <p>Bu gün için müsait saat bulunmuyor.</p>
+            <div v-else-if="slots.length === 0" class="empty-employees" role="status">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <p class="empty-employees-title">Bu gün için müsait saat yok</p>
+              <p class="empty-employees-desc">Takvimde başka bir gün seçebilir veya işletmeyle doğrudan iletişime geçebilirsiniz.</p>
             </div>
             <div v-else class="slot-groups">
               <div v-for="group in slotGroups" :key="group.label" class="slot-group">
@@ -588,6 +607,8 @@ const twoWeeks = computed(() => {
   }
   return result
 })
+
+const hasAnyAvailableDateInRange = computed(() => twoWeeks.value.some(d => d.available))
 
 function columnIndexMondayFirst(y: number, monthIndex: number, day: number): number {
   const d = new Date(y, monthIndex, day)
@@ -1531,15 +1552,8 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
   background: #f1f5f9;
   animation: pulse 1.4s ease-in-out infinite;
 }
-.empty-slots {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  color: #94a3b8;
-  font-size: 0.875rem;
-  text-align: center;
+.section-empty-follow {
+  margin-top: 1rem;
 }
 
 .empty-employees {

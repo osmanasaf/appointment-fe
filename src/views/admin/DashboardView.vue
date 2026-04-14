@@ -470,6 +470,7 @@ import {
   type PackageUsageResponse,
 } from '@/api/dashboard'
 import { fetchAllPageContent } from '@/api/client'
+import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSkeleton from '@/components/ui/AppSkeleton.vue'
@@ -487,7 +488,7 @@ const PERIODS: { value: DashboardPeriod; labelKey: string }[] = [
 ]
 
 const period = ref<DashboardPeriod>('DAILY')
-const businessSlug = ref<string | null>(null)
+const businessSlug = ref<string | null>(auth.user?.businessSlug ?? null)
 const baseStats = ref({ services: 0, customers: 0, employees: 0 })
 const baseLoading = ref(true)
 const statsLoading = ref(true)
@@ -521,8 +522,8 @@ const periodStats = ref<DashboardStatsResponse>({ ...EMPTY_STATS })
 const activeServices = computed(() => allServices.value.filter((s) => s.active))
 
 const publicUrl = computed(() => {
-  if (typeof globalThis.window === 'undefined' || !businessSlug.value) return ''
-  return `${globalThis.window.location.origin}/b/${businessSlug.value}`
+  if (!businessSlug.value) return ''
+  return buildPublicBookingUrl(businessSlug.value)
 })
 
 const copyLabel = computed(() => (copyDone.value ? t('common.copied') : t('common.copyLink')))

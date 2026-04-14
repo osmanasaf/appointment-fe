@@ -121,6 +121,7 @@ import {
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { resolveLandingOrigin } from '@/config/siteOrigins'
+import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -137,7 +138,7 @@ const brandHomeHref = computed(() =>
 const publicBookUrl = computed(() => {
   const slug = auth.user?.businessSlug
   if (!slug) return landingUrl || '/'
-  return `${landingUrl}/b/${slug}`
+  return buildPublicBookingUrl(slug)
 })
 
 const navItems = computed(() => [

@@ -332,6 +332,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
+import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 import AppButton from '@/components/ui/AppButton.vue'
 
 const auth = useAuthStore()
@@ -374,9 +375,9 @@ const categoryOptions = computed(() => {
 })
 
 const publicUrl = computed(() => {
-  const origin = globalThis.window?.location.origin ?? ''
-  if (!origin || !business.value?.slug) return ''
-  return `${origin}/b/${business.value.slug}`
+  const slug = business.value?.slug?.trim()
+  if (!slug) return ''
+  return buildPublicBookingUrl(slug)
 })
 
 const errors = reactive<Record<string, string>>({})

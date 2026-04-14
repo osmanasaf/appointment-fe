@@ -105,7 +105,7 @@
                 class="select-card"
                 :class="{ selected: selectedServiceId === s.id }"
                 :aria-pressed="selectedServiceId === s.id"
-                @click="selectedServiceId = s.id; onServiceOrEmployeeChange()"
+                @click="selectService(s.id)"
               >
                 <div class="card-check" aria-hidden="true">
                   <svg v-if="selectedServiceId === s.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -125,7 +125,20 @@
             <p v-if="errors.serviceId" class="error-msg" role="alert">{{ errors.serviceId }}</p>
 
             <p class="field-label" style="margin-top: 1.25rem;">Çalışan</p>
+            <div v-if="!selectedServiceId" class="empty-employees empty-employees--hint" role="status">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <p class="empty-employees-hint-text">Önce yukarıdan bir hizmet seçin; bu hizmeti verebilen çalışanlar burada listelenir.</p>
+            </div>
+            <div v-else-if="employeesLoading" class="employees-skeleton" aria-busy="true" aria-label="Çalışanlar yükleniyor">
+              <div v-for="n in 3" :key="n" class="employee-skeleton-pill" />
+            </div>
+            <div v-else-if="employees.length === 0" class="empty-employees" role="status">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <p class="empty-employees-title">Bu hizmet için şu an seçilebilir çalışan yok</p>
+              <p class="empty-employees-desc">İşletme bu hizmete henüz çalışan tanımlamamış olabilir. Randevu için işletmeyle doğrudan iletişime geçmeyi deneyebilirsiniz.</p>
+            </div>
             <div
+              v-else
               class="card-grid"
               role="radiogroup"
               aria-label="Çalışan seçin"
@@ -375,6 +388,8 @@ const slug = computed(() => route.params.slug as string)
 const business = ref<BusinessResponse | null>(null)
 const services = ref<ServiceResponse[]>([])
 const employees = ref<EmployeeResponse[]>([])
+const employeesLoading = ref(false)
+const employeesFetchId = ref(0)
 const loading = ref(true)
 const error = ref('')
 
@@ -491,6 +506,12 @@ function onServiceOrEmployeeChange() {
   slots.value = []
   resetFormAndErrors()
   if (selectedServiceId.value && selectedEmployeeId.value) loadAvailableDates()
+}
+
+function selectService(id: number) {
+  if (selectedServiceId.value !== id) selectedEmployeeId.value = ''
+  selectedServiceId.value = id
+  onServiceOrEmployeeChange()
 }
 
 function selectDate(date: string) {
@@ -650,21 +671,41 @@ watch(business, (biz) => {
   })
 })
 
+watch(selectedServiceId, async (sid) => {
+  employees.value = []
+  if (!slug.value || sid === '') {
+    employeesLoading.value = false
+    return
+  }
+  const myId = employeesFetchId.value + 1
+  employeesFetchId.value = myId
+  employeesLoading.value = true
+  try {
+    const { data } = await publicApi.getEmployeesForService(slug.value, Number(sid))
+    if (myId !== employeesFetchId.value) return
+    if (data.success && data.data) employees.value = data.data
+    else employees.value = []
+  } catch {
+    if (myId !== employeesFetchId.value) return
+    employees.value = []
+  } finally {
+    if (myId === employeesFetchId.value) employeesLoading.value = false
+  }
+})
+
 onMounted(async () => {
   if (!slug.value) {
     loading.value = false
     return
   }
   try {
-    const [bRes, sRes, eRes] = await Promise.all([
+    const [bRes, sRes] = await Promise.all([
       publicApi.getBusiness(slug.value),
       publicApi.getServices(slug.value),
-      publicApi.getEmployees(slug.value),
     ])
     if (bRes.data.success && bRes.data.data) business.value = bRes.data.data
     else error.value = 'İşletme bulunamadı.'
     if (sRes.data.success && sRes.data.data) services.value = sRes.data.data
-    if (eRes.data.success && eRes.data.data) employees.value = eRes.data.data
   } catch {
     error.value = 'Sayfa yüklenemedi.'
   } finally {
@@ -1246,6 +1287,57 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
   font-size: 0.875rem;
   text-align: center;
 }
+
+.empty-employees {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 1.25rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  color: #94a3b8;
+  text-align: center;
+}
+.empty-employees svg { flex-shrink: 0; opacity: 0.85; }
+.empty-employees--hint {
+  border-style: dashed;
+  background: #fafafa;
+}
+.empty-employees-hint-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #64748b;
+  max-width: 22rem;
+}
+.empty-employees-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+.empty-employees-desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #94a3b8;
+  max-width: 22rem;
+}
+.employees-skeleton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.employee-skeleton-pill {
+  width: 7.5rem;
+  height: 3.25rem;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
 .slot-groups { display: flex; flex-direction: column; gap: 1rem; }
 .group-label {
   margin: 0 0 0.5rem;

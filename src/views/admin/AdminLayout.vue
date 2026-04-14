@@ -135,9 +135,9 @@ const brandHomeHref = computed(() =>
 )
 
 const publicBookUrl = computed(() => {
-  const base = globalThis.window?.location.origin ?? ''
-  const slug = auth.user?.businessSlug ?? 'test-kuafor'
-  return `${base}/b/${slug}`
+  const slug = auth.user?.businessSlug
+  if (!slug) return landingUrl || '/'
+  return `${landingUrl}/b/${slug}`
 })
 
 const navItems = computed(() => [

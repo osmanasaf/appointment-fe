@@ -67,6 +67,28 @@
     "heroEyebrow": "Kuaförden diyetisyene, tek panel",
     "heroTitle": "Randevunu ayarla,\nişine odaklan",
     "heroSubtitle": "Online rezervasyon, WhatsApp hatırlatmaları ve müşteri takibi — güzellik, sağlık ve danışmanlık işletmeleri için tasarlandı.",
+    "heroPreview": {
+      "psych": {
+        "title": "Bireysel terapi seansı",
+        "subtitle": "Perşembe 15:00 · 50 dk",
+        "badge": "Onaylı"
+      },
+      "diet": {
+        "title": "Kontrol görüşmesi",
+        "subtitle": "Salı 11:00 · Online",
+        "badge": "Hatırlatıldı"
+      },
+      "beauty": {
+        "title": "Cilt bakımı",
+        "subtitle": "Cumartesi 10:30",
+        "badge": "Yeni"
+      },
+      "nail": {
+        "title": "Protez tırnak & manikür",
+        "subtitle": "Cuma 16:15",
+        "badge": "Bekliyor"
+      }
+    },
     "ctaTrial": "Ücretsiz başla",
     "ctaDemo": "Nasıl çalışır?",
     "ctaLogin": "Giriş yap",

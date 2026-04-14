@@ -45,11 +45,11 @@ import { Scissors, Sparkles, Hand, PenTool, Brain, Apple } from 'lucide-vue-next
 const { t } = useI18n()
 
 const cards = [
-  { key: 'hair', icon: Scissors, color: '#0891B2', bgLight: '#F0FDFA' },
-  { key: 'beauty', icon: Sparkles, color: '#EC4899', bgLight: '#FDF2F8' },
-  { key: 'nail', icon: Hand, color: '#F43F5E', bgLight: '#FFF1F2' },
-  { key: 'tattoo', icon: PenTool, color: '#8B5CF6', bgLight: '#F5F3FF' },
-  { key: 'psych', icon: Brain, color: '#3B82F6', bgLight: '#EFF6FF' },
-  { key: 'diet', icon: Apple, color: '#22C55E', bgLight: '#F0FDF4' },
+  { key: 'psych' as const, icon: Brain, color: '#3B82F6', bgLight: '#EFF6FF' },
+  { key: 'diet' as const, icon: Apple, color: '#22C55E', bgLight: '#F0FDF4' },
+  { key: 'beauty' as const, icon: Sparkles, color: '#EC4899', bgLight: '#FDF2F8' },
+  { key: 'nail' as const, icon: Hand, color: '#F43F5E', bgLight: '#FFF1F2' },
+  { key: 'hair' as const, icon: Scissors, color: '#0891B2', bgLight: '#F0FDFA' },
+  { key: 'tattoo' as const, icon: PenTool, color: '#8B5CF6', bgLight: '#F5F3FF' },
 ] as const
 </script>

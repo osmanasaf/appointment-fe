@@ -67,6 +67,28 @@
     "heroEyebrow": "From salon to dietitian, one panel",
     "heroTitle": "Set your appointments, focus on your craft",
     "heroSubtitle": "Online booking, WhatsApp reminders, and customer tracking — designed for beauty, health, and consulting businesses.",
+    "heroPreview": {
+      "psych": {
+        "title": "Individual therapy session",
+        "subtitle": "Thu 3:00 PM · 50 min",
+        "badge": "Confirmed"
+      },
+      "diet": {
+        "title": "Follow-up consult",
+        "subtitle": "Tue 11:00 AM · Video",
+        "badge": "Reminded"
+      },
+      "beauty": {
+        "title": "Facial treatment",
+        "subtitle": "Sat 10:30 AM",
+        "badge": "New"
+      },
+      "nail": {
+        "title": "Gel extensions & manicure",
+        "subtitle": "Fri 4:15 PM",
+        "badge": "Pending"
+      }
+    },
     "ctaTrial": "Start free",
     "ctaDemo": "How it works",
     "ctaLogin": "Sign in",

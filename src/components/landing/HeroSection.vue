@@ -58,7 +58,12 @@
                   v-for="(item, i) in illustrationItems"
                   :key="i"
                   class="flex items-center gap-4 rounded-xl bg-white/90 p-4 shadow-sm"
-                  :class="{ 'animate-float': i === 0, 'animate-float-delayed': i === 1, 'animate-float-slow': i === 2 }"
+                  :class="{
+                    'animate-float': i === 0,
+                    'animate-float-delayed': i === 1,
+                    'animate-float-slow': i === 2,
+                    'animate-float-slower': i === 3,
+                  }"
                 >
                   <div
                     class="flex size-12 shrink-0 items-center justify-center rounded-xl"
@@ -87,42 +92,52 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ArrowRight, Play, Scissors, Sparkles, Calendar } from 'lucide-vue-next'
+import { ArrowRight, Play, Brain, Apple, Sparkles, Hand } from 'lucide-vue-next'
 import { useAppPublicUrl } from '@/composables/useAppPublicUrl'
 
 const { t } = useI18n()
 const { registerUrl } = useAppPublicUrl()
 
-const illustrationItems = [
+const illustrationItems = computed(() => [
   {
-    icon: Scissors,
-    bgClass: 'bg-teal-100',
-    iconClass: 'text-teal-600',
-    title: 'Saç Kesimi',
-    subtitle: 'Bugün 14:30',
-    badge: 'Onaylı',
-    badgeClass: 'bg-emerald-100 text-emerald-700',
+    icon: Brain,
+    bgClass: 'bg-violet-100',
+    iconClass: 'text-violet-600',
+    title: t('landing.heroPreview.psych.title'),
+    subtitle: t('landing.heroPreview.psych.subtitle'),
+    badge: t('landing.heroPreview.psych.badge'),
+    badgeClass: 'bg-violet-100 text-violet-800',
+  },
+  {
+    icon: Apple,
+    bgClass: 'bg-emerald-100',
+    iconClass: 'text-emerald-600',
+    title: t('landing.heroPreview.diet.title'),
+    subtitle: t('landing.heroPreview.diet.subtitle'),
+    badge: t('landing.heroPreview.diet.badge'),
+    badgeClass: 'bg-emerald-100 text-emerald-800',
   },
   {
     icon: Sparkles,
     bgClass: 'bg-pink-100',
     iconClass: 'text-pink-600',
-    title: 'Cilt Bakımı',
-    subtitle: 'Yarın 10:00',
-    badge: 'Bekliyor',
-    badgeClass: 'bg-amber-100 text-amber-700',
+    title: t('landing.heroPreview.beauty.title'),
+    subtitle: t('landing.heroPreview.beauty.subtitle'),
+    badge: t('landing.heroPreview.beauty.badge'),
+    badgeClass: 'bg-pink-100 text-pink-800',
   },
   {
-    icon: Calendar,
-    bgClass: 'bg-blue-100',
-    iconClass: 'text-blue-600',
-    title: 'Danışmanlık',
-    subtitle: 'Cuma 16:00',
-    badge: 'Yeni',
-    badgeClass: 'bg-teal-100 text-teal-700',
+    icon: Hand,
+    bgClass: 'bg-rose-100',
+    iconClass: 'text-rose-600',
+    title: t('landing.heroPreview.nail.title'),
+    subtitle: t('landing.heroPreview.nail.subtitle'),
+    badge: t('landing.heroPreview.nail.badge'),
+    badgeClass: 'bg-rose-100 text-rose-800',
   },
-]
+])
 </script>
 
 <style scoped>
@@ -153,5 +168,10 @@ const illustrationItems = [
 .animate-float-slow {
   animation: float-slow 5s ease-in-out infinite;
   animation-delay: 1s;
+}
+
+.animate-float-slower {
+  animation: float-slow 5.5s ease-in-out infinite;
+  animation-delay: 1.25s;
 }
 </style>

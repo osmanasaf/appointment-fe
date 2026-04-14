@@ -23,6 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isEmployee = computed(() => user.value?.role === 'EMPLOYEE')
   const isBusinessOwner = computed(() => user.value?.role === 'BUSINESS_OWNER')
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isSuperAdmin = computed(() => user.value?.role === 'SUPER_ADMIN')
   const currentEmployeeId = computed(() => user.value?.employeeId ?? null)
 
   // Token yenileme durumu (race condition önleme)
@@ -114,6 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
     isEmployee, 
     isBusinessOwner, 
     isAdmin, 
+    isSuperAdmin,
     currentEmployeeId,
     login, 
     register, 

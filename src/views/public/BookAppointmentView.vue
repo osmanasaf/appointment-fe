@@ -15,35 +15,36 @@
       </div>
     </header>
 
-    <div
-      v-if="business"
-      class="main-tab-bar"
-      role="tablist"
-      aria-label="Sayfa bölümleri"
-      @keydown="onMainTabKeydown"
-    >
-      <button
-        id="tab-booking"
-        type="button"
-        class="main-tab"
-        role="tab"
-        :aria-selected="mainTab === 'booking'"
-        aria-controls="panel-booking"
-        @click="mainTab = 'booking'"
+    <div v-if="business" class="main-tab-bar">
+      <div
+        class="main-tab-track"
+        role="tablist"
+        aria-label="Sayfa bölümleri"
+        @keydown="onMainTabKeydown"
       >
-        Randevu
-      </button>
-      <button
-        id="tab-business"
-        type="button"
-        class="main-tab"
-        role="tab"
-        :aria-selected="mainTab === 'business'"
-        aria-controls="panel-business"
-        @click="mainTab = 'business'"
-      >
-        İşletme
-      </button>
+        <button
+          id="tab-booking"
+          type="button"
+          class="main-tab"
+          role="tab"
+          :aria-selected="mainTab === 'booking'"
+          aria-controls="panel-booking"
+          @click="mainTab = 'booking'"
+        >
+          Randevu
+        </button>
+        <button
+          id="tab-business"
+          type="button"
+          class="main-tab"
+          role="tab"
+          :aria-selected="mainTab === 'business'"
+          aria-controls="panel-business"
+          @click="mainTab = 'business'"
+        >
+          İşletme
+        </button>
+      </div>
     </div>
 
     <!-- Steps Bar -->
@@ -1005,43 +1006,58 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
 
 .main-tab-bar {
   flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.625rem 1rem 0.75rem;
+  box-sizing: border-box;
+}
+.main-tab-track {
   display: flex;
   max-width: 30rem;
   margin: 0 auto;
   width: 100%;
-  padding: 0.5rem 1rem 0;
-  gap: 0.375rem;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  box-sizing: border-box;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
+  background: #e8ecf4;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 .main-tab {
   flex: 1;
   margin: 0;
+  min-height: 2.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.5rem 0.75rem;
   border: none;
-  border-radius: 0.625rem 0.625rem 0 0;
+  border-radius: 0.5rem;
   font: inherit;
   font-size: 0.875rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  color: rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.12);
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  color: #64748b;
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-.main-tab:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.2);
+.main-tab:hover:not([aria-selected="true"]) {
+  color: #475569;
+  background: rgba(255, 255, 255, 0.55);
 }
 .main-tab:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 .main-tab[aria-selected="true"] {
-  color: #4f46e5;
+  color: #4338ca;
   background: #fff;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  font-weight: 700;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 2px 6px rgba(15, 23, 42, 0.08);
 }
 
 .business-info-section {

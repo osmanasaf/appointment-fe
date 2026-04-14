@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { resolveAppOrigin, resolveLandingOrigin } from '@/config/siteOrigins'
 
-type UserRole = 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
+type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -179,6 +179,31 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/superadmin',
+    component: () => import('@/views/superadmin/SuperAdminLayout.vue'),
+    meta: { requiresAuth: true, roles: ['SUPER_ADMIN'] },
+    children: [
+      {
+        path: '',
+        name: 'SuperAdminDashboard',
+        component: () => import('@/views/superadmin/SuperAdminDashboardView.vue'),
+        meta: { requiresAuth: true, roles: ['SUPER_ADMIN'] },
+      },
+      {
+        path: 'businesses',
+        name: 'SuperAdminBusinesses',
+        component: () => import('@/views/superadmin/BusinessListView.vue'),
+        meta: { requiresAuth: true, roles: ['SUPER_ADMIN'] },
+      },
+      {
+        path: 'businesses/:id',
+        name: 'SuperAdminBusinessDetail',
+        component: () => import('@/views/superadmin/BusinessDetailView.vue'),
+        meta: { requiresAuth: true, roles: ['SUPER_ADMIN'] },
+      },
+    ],
+  },
   { path: '/b/:slug', name: 'PublicBook', component: () => import('@/views/public/BookAppointmentView.vue'), meta: { public: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
@@ -198,7 +223,15 @@ router.beforeEach((to, _from, next) => {
     const isOnLandingDomain = !isOnAppDomain
 
     // Landing domain'deyken admin/staff route'larına erişim
-    if (isOnLandingDomain && (to.path.startsWith('/admin') || to.path.startsWith('/staff') || to.name === 'Login' || to.name === 'Register' || to.name === 'RegisterEmployee')) {
+    if (
+      isOnLandingDomain &&
+      (to.path.startsWith('/admin') ||
+        to.path.startsWith('/staff') ||
+        to.path.startsWith('/superadmin') ||
+        to.name === 'Login' ||
+        to.name === 'Register' ||
+        to.name === 'RegisterEmployee')
+    ) {
       redirectToSubdomain(to.fullPath, 'app')
       return next(false)
     }
@@ -222,9 +255,9 @@ router.beforeEach((to, _from, next) => {
     to.name === 'Landing'
 
   if (auth.isAuthenticated && isPublicOnlyRoute) {
-    return auth.isEmployee
-      ? next({ name: 'StaffDashboard' })
-      : next({ name: 'AdminDashboard' })
+    if (auth.isEmployee) return next({ name: 'StaffDashboard' })
+    if (auth.isSuperAdmin) return next({ name: 'SuperAdminDashboard' })
+    return next({ name: 'AdminDashboard' })
   }
 
   // 3. Role bazlı erişim kontrolü
@@ -232,10 +265,8 @@ router.beforeEach((to, _from, next) => {
   if (requiredRoles && auth.user) {
     const userRole = auth.user.role as UserRole
     if (!requiredRoles.includes(userRole)) {
-      // Yetkisiz — uygun dashboard'a yönlendir
-      return auth.isEmployee
-        ? next({ name: 'StaffDashboard' })
-        : next({ name: 'AdminDashboard' })
+      if (auth.isSuperAdmin) return next({ name: 'SuperAdminDashboard' })
+      return auth.isEmployee ? next({ name: 'StaffDashboard' }) : next({ name: 'AdminDashboard' })
     }
   }
 
@@ -246,6 +277,7 @@ router.beforeEach((to, _from, next) => {
 
   // 5. Admin/owner /staff'e giremez
   if (auth.isAuthenticated && !auth.isEmployee && to.path.startsWith('/staff')) {
+    if (auth.isSuperAdmin) return next({ name: 'SuperAdminDashboard' })
     return next({ name: 'AdminDashboard' })
   }
 

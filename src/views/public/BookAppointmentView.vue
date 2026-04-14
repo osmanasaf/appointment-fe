@@ -15,8 +15,39 @@
       </div>
     </header>
 
+    <div
+      v-if="business"
+      class="main-tab-bar"
+      role="tablist"
+      aria-label="Sayfa bölümleri"
+      @keydown="onMainTabKeydown"
+    >
+      <button
+        id="tab-booking"
+        type="button"
+        class="main-tab"
+        role="tab"
+        :aria-selected="mainTab === 'booking'"
+        aria-controls="panel-booking"
+        @click="mainTab = 'booking'"
+      >
+        Randevu
+      </button>
+      <button
+        id="tab-business"
+        type="button"
+        class="main-tab"
+        role="tab"
+        :aria-selected="mainTab === 'business'"
+        aria-controls="panel-business"
+        @click="mainTab = 'business'"
+      >
+        İşletme
+      </button>
+    </div>
+
     <!-- Steps Bar -->
-    <div v-if="business && !success" class="steps-bar" role="navigation" aria-label="Adımlar">
+    <div v-if="business && !success && mainTab === 'booking'" class="steps-bar" role="navigation" aria-label="Adımlar">
       <div class="steps-track">
         <template v-for="(step, i) in [{ label: 'Hizmet' }, { label: 'Tarih' }, { label: 'Saat' }, { label: 'Bilgiler' }]" :key="i">
           <div class="step-item" :class="{ active: currentStep >= i + 1, done: currentStep > i + 1 }">
@@ -34,7 +65,7 @@
     <!-- Mobil sticky CTA — adım 2'den itibaren aktif, adıma göre içerik değişir -->
     <Teleport to="body">
       <div
-        v-if="selectedService && !success"
+        v-if="mainTab === 'booking' && selectedService && !success"
         class="mobile-sticky-cta"
         aria-hidden="true"
       >
@@ -83,6 +114,13 @@
         </div>
 
         <template v-else-if="business">
+
+          <div
+            id="panel-booking"
+            role="tabpanel"
+            aria-labelledby="tab-booking"
+            :hidden="mainTab !== 'booking'"
+          >
 
           <!-- ── Adım 1: Hizmet & Çalışan ── -->
           <section class="section" aria-labelledby="step1-heading">
@@ -369,6 +407,46 @@
             </div>
           </section>
 
+          </div>
+
+          <section
+            id="panel-business"
+            class="section business-info-section"
+            role="tabpanel"
+            aria-labelledby="tab-business"
+            :hidden="mainTab !== 'business'"
+          >
+            <h2 class="section-title business-info-heading">
+              <span class="business-info-title-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              İşletme bilgileri
+            </h2>
+            <div v-if="hasBusinessContactInfo" class="business-info-card">
+              <div v-if="business.address" class="business-info-row">
+                <span class="business-info-label">Adres</span>
+                <p class="business-info-value business-info-address">{{ business.address }}</p>
+                <a
+                  class="business-info-link"
+                  :href="mapsSearchUrl(business.address)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Haritada aç</a>
+              </div>
+              <div v-if="business.phoneNumber" class="business-info-row">
+                <span class="business-info-label">Telefon</span>
+                <a class="business-info-value business-info-action" :href="telHref(business.phoneNumber)">{{ business.phoneNumber }}</a>
+              </div>
+              <div v-if="business.email" class="business-info-row">
+                <span class="business-info-label">E-posta</span>
+                <a class="business-info-value business-info-action" :href="`mailto:${business.email}`">{{ business.email }}</a>
+              </div>
+            </div>
+            <div v-else class="business-info-empty" role="status">
+              <p>İşletme iletişim bilgisi eklenmemiş.</p>
+            </div>
+          </section>
+
         </template>
       </div>
     </main>
@@ -409,6 +487,45 @@ const submitError = ref('')
 const submitting = ref(false)
 const success = ref(false)
 
+const mainTab = ref<'booking' | 'business'>('booking')
+
+const hasBusinessContactInfo = computed(() => {
+  const b = business.value
+  if (!b) return false
+  const addr = b.address?.trim() ?? ''
+  const phone = b.phoneNumber?.trim() ?? ''
+  const mail = b.email?.trim() ?? ''
+  return Boolean(addr || phone || mail)
+})
+
+function telHref(raw: string): string {
+  const digits = raw.replaceAll(/\D/g, '')
+  if (!digits) return '#'
+  if (digits.startsWith('90') && digits.length >= 12) return `tel:+${digits}`
+  if (digits.startsWith('0') && digits.length >= 10) return `tel:+90${digits.slice(1)}`
+  if (digits.length === 10) return `tel:+90${digits}`
+  return `tel:+${digits}`
+}
+
+function mapsSearchUrl(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address.trim())}`
+}
+
+function onMainTabKeydown(e: KeyboardEvent) {
+  let next: 'booking' | 'business' | null = null
+  if (e.key === 'ArrowRight') next = mainTab.value === 'booking' ? 'business' : null
+  else if (e.key === 'ArrowLeft') next = mainTab.value === 'business' ? 'booking' : null
+  else if (e.key === 'End') next = 'business'
+  else if (e.key === 'Home') next = 'booking'
+  else return
+  if (next === null || next === mainTab.value) return
+  e.preventDefault()
+  mainTab.value = next
+  nextTick(() => {
+    document.getElementById(next === 'booking' ? 'tab-booking' : 'tab-business')?.focus()
+  })
+}
+
 const currentStep = computed(() => {
   if (success.value) return 4
   if (selectedSlot.value) return 4
@@ -440,10 +557,15 @@ watch(currentStep, (step) => {
 
 watch(success, (isSuccess) => {
   if (isSuccess) {
+    mainTab.value = 'booking'
     nextTick(() => {
       document.getElementById('success-message')?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
     })
   }
+})
+
+watch(slug, () => {
+  mainTab.value = 'booking'
 })
 
 const twoWeeks = computed(() => {
@@ -879,6 +1001,122 @@ const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart
   color: rgba(255,255,255,0.82);
   line-height: 1.4;
   overflow-wrap: break-word;
+}
+
+.main-tab-bar {
+  flex-shrink: 0;
+  display: flex;
+  max-width: 30rem;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0.5rem 1rem 0;
+  gap: 0.375rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  box-sizing: border-box;
+}
+.main-tab {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0.625rem 0.625rem 0 0;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.12);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.main-tab:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.2);
+}
+.main-tab:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.main-tab[aria-selected="true"] {
+  color: #4f46e5;
+  background: #fff;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+}
+
+.business-info-section {
+  animation: slideUp 0.3s ease both;
+}
+.business-info-heading {
+  align-items: center;
+}
+.business-info-title-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4f46e5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.business-info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+.business-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.business-info-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.business-info-value {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: #0f172a;
+  line-height: 1.45;
+}
+.business-info-address {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.business-info-action {
+  font-weight: 600;
+  color: #4f46e5;
+  text-decoration: none;
+}
+.business-info-action:hover {
+  text-decoration: underline;
+}
+.business-info-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #7c3aed;
+  text-decoration: none;
+  width: fit-content;
+}
+.business-info-link:hover {
+  text-decoration: underline;
+}
+.business-info-empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  border: 1.5px dashed #e2e8f0;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+.business-info-empty p {
+  margin: 0;
 }
 
 /* ── Steps bar ────────────────────────────────────────────── */

@@ -1,6 +1,6 @@
 import { api, type ApiResponse } from './client'
 
-export type UserRole = 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
 
 export interface UserInfo {
   id: number

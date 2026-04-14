@@ -49,8 +49,9 @@
               </div>
               <span
                 v-if="p.code === subscription?.planCode"
-                class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700"
+                class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-600/20 shadow-sm"
               >
+                <span class="size-1.5 rounded-full bg-teal-500 animate-pulse"></span>
                 {{ t('plan.currentPlan') }}
               </span>
             </div>
@@ -65,7 +66,7 @@
             <li v-for="(f, idx) in p.features" :key="idx">{{ p.featureNames?.[f] || f }}</li>
           </ul>
           
-          <div v-if="p.code !== subscription?.planCode" class="mt-4">
+          <div v-if="p.code !== subscription?.planCode" class="mt-auto pt-4">
             <AppButton
               variant="primary"
               size="sm"
@@ -73,6 +74,16 @@
               @click="openUpgradeModal(p)"
             >
               {{ t('plan.upgrade') }}
+            </AppButton>
+          </div>
+          <div v-else class="mt-auto pt-4">
+            <AppButton
+              variant="secondary"
+              size="sm"
+              class="w-full pointer-events-none opacity-50"
+              disabled
+            >
+              Kullanımda
             </AppButton>
           </div>
         </AppCard>

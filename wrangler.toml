@@ -1,5 +1,5 @@
 # Landing deploy (randevum.pro) — build:landing → dist-landing
-name = "appointment-fe-landing"
+name = "app-randevum-fe"
 compatibility_date = "2025-04-01"
 
 [assets]

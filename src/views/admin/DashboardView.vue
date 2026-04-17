@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+    <SetupProgressBanner />
     <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h1 class="page-title">{{ welcomeTitle }}</h1>
@@ -476,6 +477,7 @@ import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSkeleton from '@/components/ui/AppSkeleton.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import AppButton from '@/components/ui/AppButton.vue'
+import SetupProgressBanner from '@/components/setup/SetupProgressBanner.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()

@@ -283,6 +283,7 @@
     "settings": "Settings",
     "plan": "Plan",
     "onboarding": "Business setup",
+    "setup": "Business setup",
     "default": "Admin"
   },
   "dashboard": {
@@ -472,6 +473,116 @@
       "s3": "Add an employee",
       "s4": "Activate employee",
       "s5": "Booking link"
+    }
+  },
+  "setup": {
+    "title": "Business setup wizard",
+    "subtitle": "Get your business ready to accept bookings in a few minutes.",
+    "stepper": {
+      "label": "Setup steps",
+      "statusDone": "Done",
+      "statusInProgress": "In progress",
+      "statusPending": "Pending"
+    },
+    "shell": {
+      "stepLabel": "Step {current} of {total}",
+      "next": "Next",
+      "back": "Back",
+      "finish": "Finish setup",
+      "dismiss": "Finish later",
+      "exit": "Exit wizard",
+      "progressText": "{current} of {total} steps complete",
+      "dismissedToast": "You can resume setup anytime.",
+      "finishedToast": "Setup complete. Your business is ready to take bookings."
+    },
+    "banner": {
+      "aria": "Setup progress",
+      "title": "Continue your setup",
+      "desc": "{current} of {total} steps complete. Spend a few minutes to make your business ready for bookings.",
+      "continue": "Resume wizard",
+      "dismiss": "Dismiss"
+    },
+    "steps": {
+      "business": {
+        "label": "Business info",
+        "title": "Tell us about your business",
+        "description": "Fill in the basics so customers can find you. Your slug is the unique address for your booking page.",
+        "addressLabel": "Address",
+        "descriptionLabel": "Description",
+        "phoneRequired": "Phone number is required"
+      },
+      "services": {
+        "label": "Services",
+        "title": "Add your services",
+        "description": "Add at least one service with duration and price. You can refine this later.",
+        "empty": "No services yet. Add one quickly below.",
+        "addCta": "Add service",
+        "namePlaceholder": "Service name (e.g. Haircut)",
+        "durationLabel": "Duration",
+        "priceLabel": "Price",
+        "minutesUnit": "min",
+        "validation": "Enter a valid name and duration.",
+        "needAtLeastOne": "You need at least one active service to continue.",
+        "deactivate": "Deactivate",
+        "activate": "Activate",
+        "remove": "Remove",
+        "removeConfirm": "Delete «{name}»? This cannot be undone."
+      },
+      "employees": {
+        "label": "Team",
+        "title": "Add your team",
+        "description": "Add the people who will take bookings. If you work alone, add yourself.",
+        "empty": "No employees added yet.",
+        "addCta": "Add employee",
+        "namePlaceholder": "Employee name (e.g. Jane Doe)",
+        "titlePlaceholder": "Title (optional)",
+        "addSelfCta": "Add me as an employee",
+        "validation": "Enter a valid employee name.",
+        "needAtLeastOne": "You need at least one employee to continue.",
+        "remove": "Remove",
+        "removeConfirm": "Delete «{name}»?"
+      },
+      "assignments": {
+        "label": "Assignments",
+        "title": "Who provides which service?",
+        "description": "Match employees with the services they can perform. Multiple selections allowed.",
+        "matrixHint": "Rows are employees, columns are services. Click a cell to toggle the assignment.",
+        "noServices": "Add at least one service first.",
+        "noEmployees": "Add at least one employee first.",
+        "needAtLeastOne": "Make at least one assignment to continue.",
+        "warningEmployeeWithoutService": "{count} employees have no services assigned. You can still continue.",
+        "saving": "Saving…",
+        "savedShort": "Saved",
+        "saveFailed": "Could not save assignment.",
+        "totalLabel": "{count} assignments"
+      },
+      "hours": {
+        "label": "Hours",
+        "title": "Set working hours",
+        "description": "Default working days and hours per employee. You can fine-tune later.",
+        "presetWeekday": "Weekdays 09:00 – 18:00",
+        "presetSixDays": "Mon–Sat 10:00 – 19:00",
+        "presetEveryDay": "Every day 10:00 – 20:00",
+        "applyPresetCta": "Apply to all employees",
+        "selectEmployee": "Select employee",
+        "noActiveEmployees": "Add at least one active employee first.",
+        "savedShort": "Hours saved",
+        "saveFailed": "Could not save working hours.",
+        "skipNote": "You can skip this and adjust later from employee settings."
+      },
+      "share": {
+        "label": "Share",
+        "title": "Share your booking page",
+        "description": "Share this link with your customers and start receiving bookings — even while you sleep.",
+        "linkLabel": "Your online booking page",
+        "copyCta": "Copy link",
+        "copied": "Copied ✓",
+        "previewCta": "Preview page",
+        "createTestAppointment": "Create test appointment",
+        "openCalendar": "Open calendar",
+        "ready": "Congratulations! Your business is ready to accept bookings.",
+        "notReady": "Complete the previous steps to access this one."
+      }
     }
   },
   "employees": {

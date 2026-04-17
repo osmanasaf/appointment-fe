@@ -283,6 +283,7 @@
     "settings": "Ayarlar",
     "plan": "Plan",
     "onboarding": "İşletme kurulumu",
+    "setup": "İşletme kurulumu",
     "default": "Yönetim"
   },
   "dashboard": {
@@ -472,6 +473,116 @@
       "s3": "Çalışan ekle",
       "s4": "Çalışan aktifleştir",
       "s5": "Randevu linki"
+    }
+  },
+  "setup": {
+    "title": "İşletme kurulum sihirbazı",
+    "subtitle": "Birkaç dakika içinde işletmenizi randevu almaya hazır hale getirin.",
+    "stepper": {
+      "label": "Kurulum adımları",
+      "statusDone": "Tamamlandı",
+      "statusInProgress": "Sürüyor",
+      "statusPending": "Bekliyor"
+    },
+    "shell": {
+      "stepLabel": "Adım {current} / {total}",
+      "next": "İleri",
+      "back": "Geri",
+      "finish": "Kurulumu tamamla",
+      "dismiss": "Sonra tamamla",
+      "exit": "Sihirbazdan çık",
+      "progressText": "{current} / {total} adım tamamlandı",
+      "dismissedToast": "Kuruluma daha sonra devam edebilirsiniz.",
+      "finishedToast": "Kurulum tamamlandı. İşletmeniz randevu almaya hazır."
+    },
+    "banner": {
+      "aria": "Kurulum ilerlemesi",
+      "title": "Kuruluma devam edin",
+      "desc": "{current} / {total} adım tamamlandı. Birkaç dakikanızı ayırarak işletmenizi randevu almaya hazır hale getirin.",
+      "continue": "Sihirbaza dön",
+      "dismiss": "Bildirimi gizle"
+    },
+    "steps": {
+      "business": {
+        "label": "İşletme bilgileri",
+        "title": "İşletmenizi tanıtın",
+        "description": "Müşterilerin sizi bulması için temel bilgileri doldurun. Slug, randevu sayfanızın benzersiz adresidir.",
+        "addressLabel": "Adres",
+        "descriptionLabel": "Açıklama",
+        "phoneRequired": "Telefon giriniz"
+      },
+      "services": {
+        "label": "Hizmetler",
+        "title": "Sunduğunuz hizmetleri ekleyin",
+        "description": "Süre ve fiyatıyla en az bir hizmet ekleyin. Daha sonra her zaman güncelleyebilirsiniz.",
+        "empty": "Henüz hizmet eklenmedi. Aşağıdan hızlıca ekleyebilirsiniz.",
+        "addCta": "Hizmet ekle",
+        "namePlaceholder": "Hizmet adı (örn. Saç Kesim)",
+        "durationLabel": "Süre",
+        "priceLabel": "Fiyat",
+        "minutesUnit": "dk",
+        "validation": "Geçerli bir hizmet adı ve süre girin.",
+        "needAtLeastOne": "Devam etmek için en az bir aktif hizmet gerekli.",
+        "deactivate": "Pasifleştir",
+        "activate": "Aktifleştir",
+        "remove": "Sil",
+        "removeConfirm": "«{name}» silinsin mi? Bu işlem geri alınamaz."
+      },
+      "employees": {
+        "label": "Çalışanlar",
+        "title": "Ekibinizi ekleyin",
+        "description": "Randevu alabilecek çalışanları ekleyin. Tek başınıza çalışıyorsanız kendinizi de ekleyebilirsiniz.",
+        "empty": "Henüz çalışan eklenmedi.",
+        "addCta": "Çalışan ekle",
+        "namePlaceholder": "Çalışan adı (örn. Ayşe Yılmaz)",
+        "titlePlaceholder": "Unvan (opsiyonel)",
+        "addSelfCta": "Kendimi çalışan olarak ekle",
+        "validation": "Geçerli bir çalışan adı girin.",
+        "needAtLeastOne": "Devam etmek için en az bir çalışan gerekli.",
+        "remove": "Sil",
+        "removeConfirm": "«{name}» silinsin mi?"
+      },
+      "assignments": {
+        "label": "Hizmet atamaları",
+        "title": "Kim hangi hizmeti veriyor?",
+        "description": "Çalışanları sundukları hizmetlerle eşleştirin. Birden fazla seçim yapabilirsiniz.",
+        "matrixHint": "Satırlar çalışanları, sütunlar hizmetleri gösterir. Bir hücreye tıklayarak atamayı açıp kapatabilirsiniz.",
+        "noServices": "Önce en az bir hizmet eklemeniz gerekir.",
+        "noEmployees": "Önce en az bir çalışan eklemeniz gerekir.",
+        "needAtLeastOne": "Devam etmek için en az bir atama yapın.",
+        "warningEmployeeWithoutService": "{count} çalışana hiç hizmet atanmadı. Yine de devam edebilirsiniz.",
+        "saving": "Kaydediliyor…",
+        "savedShort": "Kaydedildi",
+        "saveFailed": "Atama kaydedilemedi.",
+        "totalLabel": "{count} atama"
+      },
+      "hours": {
+        "label": "Çalışma saatleri",
+        "title": "Çalışma saatlerinizi belirleyin",
+        "description": "Her çalışan için varsayılan çalışma günleri ve saatleri. Daha sonra detaylı düzenleyebilirsiniz.",
+        "presetWeekday": "Hafta içi 09:00 – 18:00",
+        "presetSixDays": "Pzt-Cmt 10:00 – 19:00",
+        "presetEveryDay": "Her gün 10:00 – 20:00",
+        "applyPresetCta": "Tüm çalışanlara uygula",
+        "selectEmployee": "Çalışan seçin",
+        "noActiveEmployees": "Önce en az bir aktif çalışan ekleyin.",
+        "savedShort": "Saatler kaydedildi",
+        "saveFailed": "Çalışma saatleri kaydedilemedi.",
+        "skipNote": "Bu adımı şimdilik atlayıp daha sonra çalışan ayarlarından düzenleyebilirsiniz."
+      },
+      "share": {
+        "label": "Paylaş",
+        "title": "Randevu sayfanızı paylaşın",
+        "description": "Aşağıdaki linki müşterilerinizle paylaşın; siz uyurken bile randevular gelmeye başlasın.",
+        "linkLabel": "Online randevu sayfanız",
+        "copyCta": "Linki kopyala",
+        "copied": "Kopyalandı ✓",
+        "previewCta": "Sayfayı önizle",
+        "createTestAppointment": "Test randevu oluştur",
+        "openCalendar": "Takvime git",
+        "ready": "Tebrikler! İşletmeniz online randevu almaya hazır.",
+        "notReady": "Bu adıma erişmek için önceki adımları tamamlayın."
+      }
     }
   },
   "employees": {

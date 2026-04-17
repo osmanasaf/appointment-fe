@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useSetupStore } from '@/stores/setup'
 import { resolveAppOrigin, resolveLandingOrigin } from '@/config/siteOrigins'
 
 type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
@@ -10,6 +11,10 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     /** Bu route'a erişebilecek roller. Tanımsızsa tüm auth'lu kullanıcılar erişebilir. */
     roles?: UserRole[]
+    /** AdminLayout sidebar/header'ını gizler — full-screen ekranlar (örn. setup wizard) için. */
+    hideChrome?: boolean
+    /** Setup wizard guard'ını bu route için atlar (sonsuz döngü önlemek için). */
+    skipSetupGate?: boolean
   }
 }
 
@@ -123,10 +128,19 @@ const routes: RouteRecordRaw[] = [
       },
       { path: 'business', redirect: '/admin/settings' },
       {
+        path: 'setup',
+        name: 'AdminSetup',
+        component: () => import('@/views/admin/setup/SetupWizardView.vue'),
+        meta: {
+          requiresAuth: true,
+          roles: ['ADMIN', 'BUSINESS_OWNER'],
+          hideChrome: true,
+          skipSetupGate: true,
+        },
+      },
+      {
         path: 'onboarding',
-        name: 'AdminOnboarding',
-        component: () => import('@/views/admin/BusinessOnboardingView.vue'),
-        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+        redirect: { name: 'AdminSetup' },
       },
       {
         path: 'services',
@@ -213,7 +227,7 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const auth = useAuthStore()
 
   // Subdomain kontrolü (sadece production'da)
@@ -279,6 +293,27 @@ router.beforeEach((to, _from, next) => {
   if (auth.isAuthenticated && !auth.isEmployee && to.path.startsWith('/staff')) {
     if (auth.isSuperAdmin) return next({ name: 'SuperAdminDashboard' })
     return next({ name: 'AdminDashboard' })
+  }
+
+  // 6. Setup wizard gate: BUSINESS_OWNER ilk giriş yaptığında AdminDashboard'a girerken
+  //    setup tamamlanmamışsa ve "sonra tamamla" seçilmemişse sihirbaza yönlendir.
+  if (
+    auth.isAuthenticated &&
+    auth.isBusinessOwner &&
+    to.name === 'AdminDashboard' &&
+    !to.meta.skipSetupGate
+  ) {
+    const setup = useSetupStore()
+    if (!setup.isDismissedFresh()) {
+      try {
+        await setup.ensureLoaded()
+        if (!setup.isComplete) {
+          return next({ name: 'AdminSetup' })
+        }
+      } catch {
+        // Setup verisi alınamazsa kullanıcıyı dashboard'a bırak; hata banner üzerinden gösterilir
+      }
+    }
   }
 
   next()

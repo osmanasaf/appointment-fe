@@ -3,6 +3,14 @@ import { resolveApiBaseUrl } from '@/config/siteOrigins'
 
 const baseURL = resolveApiBaseUrl()
 
+if (import.meta.env.DEV && baseURL && !/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(baseURL)) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[api] Dev modunda VITE_API_BASE_URL "${baseURL}" olarak ayarlı; tarayıcı CORS bloklayabilir. ` +
+      'Yerel geliştirme için .env.development içinde VITE_API_BASE_URL boş bırakılmalı (Vite proxy devreye girer).',
+  )
+}
+
 export const api = axios.create({
   baseURL: baseURL || '/api/v1',
   headers: { 'Content-Type': 'application/json' },

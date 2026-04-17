@@ -1,5 +1,8 @@
 <template>
-  <div class="flex min-h-screen bg-slate-100 text-slate-900">
+  <div v-if="hideChrome" class="min-h-screen bg-slate-100 text-slate-900">
+    <router-view />
+  </div>
+  <div v-else class="flex min-h-screen bg-slate-100 text-slate-900">
     <div
       v-if="sidebarOpen"
       class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"
@@ -129,6 +132,8 @@ const route = useRoute()
 const auth = useAuthStore()
 const sidebarOpen = ref(false)
 
+const hideChrome = computed(() => route.meta.hideChrome === true)
+
 const landingUrl = resolveLandingOrigin()
 
 const brandHomeHref = computed(() =>
@@ -170,7 +175,7 @@ const breadcrumbLabel = computed(() => {
   if (p.startsWith('/admin/packages')) return t('pageTitles.packages')
   if (p.startsWith('/admin/settings/plan')) return t('pageTitles.plan')
   if (p.startsWith('/admin/settings')) return t('pageTitles.settings')
-  if (p.startsWith('/admin/onboarding')) return t('pageTitles.onboarding')
+  if (p.startsWith('/admin/onboarding') || p.startsWith('/admin/setup')) return t('pageTitles.setup')
   return t('pageTitles.default')
 })
 

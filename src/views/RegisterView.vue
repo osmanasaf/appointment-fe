@@ -191,6 +191,7 @@
               inputmode="numeric"
               autocomplete="tel-national"
               maxlength="10"
+              required
               placeholder="5XX XXX XX XX"
               class="field-input"
               @input="onPhoneInput"
@@ -398,11 +399,8 @@ const validationSchema = computed(() =>
         name: z.string().min(2, t('auth.nameMin')).max(100, t('auth.nameMax')),
         phoneNumber: z
           .string()
-          .optional()
-          .or(z.literal(''))
-          .refine((v) => !v || validationPatterns.phoneFlexible.test(v), {
-            message: t('auth.phoneInvalid'),
-          }),
+          .min(1, t('auth.phoneRequired'))
+          .regex(validationPatterns.phoneFlexible, t('auth.phoneInvalid')),
         businessName: z.string().min(2, t('auth.businessRequired')).max(100, t('auth.businessMax')),
         businessCategory: z.string().min(1, t('auth.businessCategoryRequired')),
       })
@@ -437,7 +435,7 @@ const [businessName, businessNameAttrs] = defineField('businessName')
 function onPhoneInput(event: Event) {
   const sanitized = applyPhoneInputMask(event)
   phoneNumber.value = sanitized
-  if (sanitized) validateField('phoneNumber')
+  validateField('phoneNumber')
 }
 
 function onPhonePaste(event: ClipboardEvent) {
@@ -448,7 +446,7 @@ function onPhonePaste(event: ClipboardEvent) {
   phoneNumber.value = sanitized
   const target = event.target as HTMLInputElement | null
   if (target) target.value = sanitized
-  if (sanitized) validateField('phoneNumber')
+  validateField('phoneNumber')
 }
 
 const showConfirmPassword = ref(false)
@@ -540,7 +538,7 @@ const runRegister = handleSubmit(async values => {
       email: values.email.trim(),
       password: values.password,
       name: values.name.trim(),
-      phoneNumber: values.phoneNumber?.trim() || undefined,
+      phoneNumber: values.phoneNumber.trim(),
       businessName: values.businessName.trim(),
       businessCategory: values.businessCategory,
     })

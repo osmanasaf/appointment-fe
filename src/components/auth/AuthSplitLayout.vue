@@ -8,7 +8,7 @@
 
       <!-- Brand -->
       <div class="hero-brand">
-        <AuthBrand size="lg" />
+        <AuthBrand size="lg" inverted />
       </div>
 
       <!-- Hero content -->

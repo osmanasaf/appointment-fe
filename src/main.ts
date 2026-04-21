@@ -5,10 +5,13 @@ import App from './App.vue'
 import router from './router'
 import { i18n } from './i18n'
 import { appThemePreset } from './assets/theme'
+import { installGlobalChunkReloadHandler } from './utils/chunkReload'
 
 import './assets/style.css'
 import 'primeicons/primeicons.css'
 import 'vue-sonner/style.css'
+
+installGlobalChunkReloadHandler()
 
 const app = createApp(App)
 app.use(createPinia())

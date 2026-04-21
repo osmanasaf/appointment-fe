@@ -2,6 +2,11 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useSetupStore } from '@/stores/setup'
 import { resolveAppOrigin, resolveLandingOrigin } from '@/config/siteOrigins'
+import {
+  clearChunkReloadFlag,
+  isDynamicImportError,
+  reloadForFreshChunks,
+} from '@/utils/chunkReload'
 
 type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'BUSINESS_OWNER' | 'EMPLOYEE'
 
@@ -236,6 +241,15 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.onError((error, to) => {
+  if (!isDynamicImportError(error)) return
+  reloadForFreshChunks(to.fullPath)
+})
+
+router.afterEach(to => {
+  clearChunkReloadFlag(to.fullPath)
 })
 
 router.beforeEach(async (to, _from, next) => {

@@ -29,7 +29,7 @@ const { t } = useI18n()
 
 const START_HOUR = 9
 const END_HOUR = 19
-const ROW_HEIGHT = 64
+const ROW_HEIGHT = 72
 const MAX_VISIBLE_EMPLOYEES = 6
 
 const hours = computed(() => {

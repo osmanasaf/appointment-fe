@@ -1,5 +1,8 @@
 <template>
-  <div class="auth-brand" :class="`auth-brand--${size}`">
+  <div
+    class="auth-brand"
+    :class="[`auth-brand--${size}`, { 'auth-brand--inverted': inverted }]"
+  >
     <div class="brand-icon">
       <CalendarDays :class="size === 'lg' ? 'size-6' : 'size-4'" />
     </div>
@@ -17,9 +20,11 @@ import { useI18n } from 'vue-i18n'
 withDefaults(
   defineProps<{
     size?: 'lg' | 'sm'
+    inverted?: boolean
   }>(),
   {
     size: 'lg',
+    inverted: false,
   },
 )
 
@@ -87,5 +92,23 @@ const { t } = useI18n()
   text-transform: uppercase;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.auth-brand--inverted .brand-icon {
+  background: color-mix(in srgb, var(--surface) 20%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, #000 25%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.auth-brand--inverted .brand-icon svg {
+  color: var(--surface);
+}
+
+.auth-brand--inverted .brand-name {
+  color: var(--surface);
+}
+
+.auth-brand--inverted .brand-tagline {
+  color: color-mix(in srgb, var(--surface) 80%, transparent);
 }
 </style>

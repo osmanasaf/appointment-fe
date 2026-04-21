@@ -35,17 +35,20 @@ const meta = computed<ResolvedAppointmentMeta>(() =>
 
 const durationMinutes = computed(() => getAppointmentDurationMinutes(props.appointment))
 
+const CARD_VERTICAL_GAP = 3
+const CARD_MIN_HEIGHT = 28
+
 const cardStyle = computed(() => {
   const startTime = new Date(props.appointment.scheduledAt)
   const startHourFloat = startTime.getHours() + startTime.getMinutes() / 60
   const durationHours = durationMinutes.value / 60
 
-  const top = (startHourFloat - props.startHour) * props.rowHeight + 4
-  const height = durationHours * props.rowHeight - 8
+  const top = (startHourFloat - props.startHour) * props.rowHeight + CARD_VERTICAL_GAP
+  const height = durationHours * props.rowHeight - CARD_VERTICAL_GAP * 2
 
   return {
     top: `${top}px`,
-    height: `${Math.max(height, 24)}px`,
+    height: `${Math.max(height, CARD_MIN_HEIGHT)}px`,
   }
 })
 
@@ -67,7 +70,8 @@ const statusColors = computed(() => {
   }
 })
 
-const showStatusPill = computed(() => durationMinutes.value > 60)
+const showSubtitle = computed(() => durationMinutes.value >= 30)
+const showStatusPill = computed(() => durationMinutes.value >= 75)
 
 const startTimeLabel = computed(() => {
   return new Intl.DateTimeFormat(intlLocale.value, {
@@ -113,7 +117,7 @@ function handleKeydown(event: KeyboardEvent) {
   >
     <div class="card-time">{{ startTimeLabel }}</div>
     <div class="card-title">{{ meta.customerName }}</div>
-    <div class="card-subtitle">{{ meta.serviceName }}</div>
+    <div v-if="showSubtitle" class="card-subtitle">{{ meta.serviceName }}</div>
     <div v-if="showStatusPill" class="card-status">
       <StatusPill :status="appointment.status" size="sm" />
     </div>
@@ -123,11 +127,14 @@ function handleKeydown(event: KeyboardEvent) {
 <style scoped>
 .appointment-card {
   position: absolute;
-  left: 8px;
-  right: 8px;
+  left: 6px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   border-radius: 10px;
   border-left: 3px solid;
-  padding: 8px 10px;
+  padding: 6px 10px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -149,6 +156,7 @@ function handleKeydown(event: KeyboardEvent) {
   color: var(--ink-3);
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
+  line-height: 1.2;
 }
 
 .card-title {
@@ -158,19 +166,19 @@ function handleKeydown(event: KeyboardEvent) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 2px;
+  line-height: 1.25;
 }
 
 .card-subtitle {
   font-size: 11px;
   color: var(--ink-3);
-  margin-top: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.25;
 }
 
 .card-status {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 </style>

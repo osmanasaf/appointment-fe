@@ -74,6 +74,8 @@
                     autocomplete="tel"
                     :aria-invalid="!!errors.phoneNumber"
                     :aria-describedby="errors.phoneNumber ? 'err-phone' : undefined"
+                    @blur="touchPhone"
+                    @input="onPhoneInput"
                   />
                   <span v-if="errors.phoneNumber" id="err-phone" class="field-error" role="alert">{{ errors.phoneNumber }}</span>
                 </div>
@@ -87,10 +89,13 @@
                   type="email"
                   name="email"
                   placeholder="info@isletme.com…"
+                  inputmode="email"
                   autocomplete="email"
                   spellcheck="false"
                   :aria-invalid="!!errors.email"
                   :aria-describedby="errors.email ? 'err-email' : undefined"
+                  @blur="touchEmail"
+                  @input="onEmailInput"
                 />
                 <span v-if="errors.email" id="err-email" class="field-error" role="alert">{{ errors.email }}</span>
               </div>
@@ -334,7 +339,11 @@ import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 import { businessProfileValidationSchema } from '@/validation/schemas'
+import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '@/utils/fieldValidators'
+import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/ui/AppButton.vue'
+
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
@@ -382,6 +391,37 @@ const publicUrl = computed(() => {
 })
 
 const errors = reactive<Record<string, string>>({})
+const touched = reactive<Record<string, boolean>>({})
+
+function checkPhone(): boolean {
+  const r = validatePhoneField(form.phoneNumber, { required: true })
+  errors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
+  return r.valid
+}
+
+function checkEmail(): boolean {
+  const r = validateEmailField(form.email, { required: false })
+  errors.email = r.errorKey ? t(fieldErrorI18nKey('email', r.errorKey)) : ''
+  return r.valid
+}
+
+function touchPhone() {
+  touched.phoneNumber = true
+  checkPhone()
+}
+
+function onPhoneInput() {
+  if (touched.phoneNumber) checkPhone()
+}
+
+function touchEmail() {
+  touched.email = true
+  checkEmail()
+}
+
+function onEmailInput() {
+  if (touched.email) checkEmail()
+}
 
 function setFormFromBusiness(b: BusinessResponse) {
   form.name = b.name

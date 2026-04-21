@@ -691,8 +691,13 @@
                 <input
                   v-model="wizardForm.phoneNumber"
                   type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
                   placeholder="5XX XXX XX XX"
                   class="wizard-input"
+                  :class="{ 'wizard-input--error': wizardErrors.phoneNumber }"
+                  @blur="touchWizardPhone"
+                  @input="onWizardPhoneInput"
                 />
                 <span v-if="wizardErrors.phoneNumber" class="wizard-field__error" role="alert">{{ wizardErrors.phoneNumber }}</span>
               </label>
@@ -793,6 +798,7 @@ import StatusPill from '@/components/ui/StatusPill.vue'
 import AppointmentDetailPanel from '@/components/appointments/AppointmentDetailPanel.vue'
 import EmployeeFilterDropdown from '@/components/filters/EmployeeFilterDropdown.vue'
 import { createStaffAppointmentSchema } from '@/validation/schemas'
+import { validatePhoneField, fieldErrorI18nKey } from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -1492,6 +1498,26 @@ const wizardContinueDisabled = computed(() => {
   return false
 })
 
+const wizardTouched = ref<Record<string, boolean>>({})
+
+function checkWizardPhone(): boolean {
+  const r = validatePhoneField(wizardForm.phoneNumber, { required: true })
+  wizardErrors.value = {
+    ...wizardErrors.value,
+    phoneNumber: r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : '',
+  }
+  return r.valid
+}
+
+function touchWizardPhone() {
+  wizardTouched.value.phoneNumber = true
+  checkWizardPhone()
+}
+
+function onWizardPhoneInput() {
+  if (wizardTouched.value.phoneNumber) checkWizardPhone()
+}
+
 function openCreate(opts: { date?: string } = {}) {
   wizardStep.value = 1
   wizardForm.employeeId = ''
@@ -1503,6 +1529,7 @@ function openCreate(opts: { date?: string } = {}) {
   wizardForm.source = 'PHONE'
   wizardForm.notes = ''
   wizardErrors.value = {}
+  wizardTouched.value = {}
   createSubmitError.value = ''
   wizardEmpCapabilities.value = []
   availableDates.value = []
@@ -2884,6 +2911,12 @@ onMounted(async () => {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.wizard-input--error,
+.wizard-input--error:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
 }
 
 .wizard-source-row {

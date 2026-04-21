@@ -47,6 +47,10 @@
           class="form-input"
           :class="{ 'form-input-error': fieldErrors.phoneNumber }"
           type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          @blur="touchPhone"
+          @input="onPhoneInput"
         />
         <p v-if="fieldErrors.phoneNumber" class="form-error">{{ fieldErrors.phoneNumber }}</p>
       </div>
@@ -59,6 +63,10 @@
           class="form-input"
           :class="{ 'form-input-error': fieldErrors.email }"
           type="email"
+          inputmode="email"
+          autocomplete="email"
+          @blur="touchEmail"
+          @input="onEmailInput"
         />
         <p v-if="fieldErrors.email" class="form-error">{{ fieldErrors.email }}</p>
       </div>
@@ -107,6 +115,7 @@ import AppButton from '../../ui/AppButton.vue'
 import AppCheckbox from '../../ui/AppCheckbox.vue'
 import { employeeApi, type EmployeeResponse } from '../../../api/employee'
 import { createEmployeeSchema, updateEmployeeSchema } from '../../../validation/schemas'
+import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '../../../utils/fieldValidators'
 
 const { t } = useI18n()
 
@@ -151,6 +160,37 @@ watch(() => props.employee, (e) => {
 })
 
 const fieldErrors = reactive<Record<string, string>>({})
+const touched = reactive<Record<string, boolean>>({})
+
+function checkPhone(): boolean {
+  const r = validatePhoneField(form.phoneNumber, { required: false })
+  fieldErrors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
+  return r.valid
+}
+
+function checkEmail(): boolean {
+  const r = validateEmailField(form.email, { required: false })
+  fieldErrors.email = r.errorKey ? t(fieldErrorI18nKey('email', r.errorKey)) : ''
+  return r.valid
+}
+
+function touchPhone() {
+  touched.phoneNumber = true
+  checkPhone()
+}
+
+function onPhoneInput() {
+  if (touched.phoneNumber) checkPhone()
+}
+
+function touchEmail() {
+  touched.email = true
+  checkEmail()
+}
+
+function onEmailInput() {
+  if (touched.email) checkEmail()
+}
 
 function validate(): boolean {
   Object.keys(fieldErrors).forEach((key) => { fieldErrors[key] = '' })

@@ -57,6 +57,7 @@
       },
       "emailLabel": "Email",
       "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm password",
       "nameLabel": "Full name",
       "phoneLabel": "Phone (optional)",
       "categoryLabel": "Business category",
@@ -370,6 +371,18 @@
     "footerTerms": "Terms",
     "footerKvkk": "GDPR",
     "footerCopyright": "© {year} Randevum. All rights reserved."
+  },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Enter a valid email address (e.g. example{'@'}mail.com)",
+      "tooLong": "Email is too long"
+    },
+    "phone": {
+      "required": "Phone number is required",
+      "invalid": "Enter a valid phone number (e.g. 5321234567 or +905321234567)",
+      "tooLong": "Phone number is too long"
+    }
   },
   "common": {
     "loading": "Loading…",

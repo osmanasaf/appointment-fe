@@ -44,6 +44,8 @@
           :class="{ 'form-input-error': errors.email }"
           :placeholder="t('employees.emailPlaceholder')"
           required
+          @blur="touchEmail"
+          @input="onEmailInput"
         />
         <p v-if="errors.email" class="form-error">{{ errors.email }}</p>
       </div>
@@ -75,6 +77,7 @@ import AppButton from '../ui/AppButton.vue'
 import { employeeInviteApi } from '@/api/employeeInvite'
 import { useToast } from '@/composables/useToast'
 import type { EmployeeResponse } from '@/api/employee'
+import { validateEmailField, fieldErrorI18nKey } from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -128,6 +131,7 @@ watch([() => props.visible, () => props.employee, () => props.employees], ([visi
     selectedEmployeeId.value = employee?.id ?? (actives[0]?.id ?? null)
     form.value.email = employee?.email ?? actives.find(e => e.id === selectedEmployeeId.value)?.email ?? ''
     errors.value = {}
+    emailTouched.value = false
     submitError.value = null
     successMessage.value = null
   }
@@ -141,14 +145,33 @@ watch(selectedEmployeeId, (empId) => {
   }
 })
 
-function validateForm(): boolean {
-  errors.value = {}
-  
-  if (!form.value.email || !/\S+@\S+\.\S+/.test(form.value.email)) {
-    errors.value.email = t('employees.emailInvalid')
+const emailTouched = ref(false)
+
+function checkEmail(): boolean {
+  const result = validateEmailField(form.value.email, { required: true })
+  if (result.errorKey) {
+    errors.value = { ...errors.value, email: t(fieldErrorI18nKey('email', result.errorKey)) }
+    return false
   }
-  
-  return Object.keys(errors.value).length === 0
+  const next = { ...errors.value }
+  delete next.email
+  errors.value = next
+  return true
+}
+
+function touchEmail() {
+  emailTouched.value = true
+  checkEmail()
+}
+
+function onEmailInput() {
+  if (!emailTouched.value) return
+  checkEmail()
+}
+
+function validateForm(): boolean {
+  emailTouched.value = true
+  return checkEmail()
 }
 
 async function handleSubmit() {

@@ -57,6 +57,7 @@
       },
       "emailLabel": "E-posta",
       "passwordLabel": "Şifre",
+      "confirmPasswordLabel": "Şifre tekrar",
       "nameLabel": "Ad soyad",
       "phoneLabel": "Telefon (isteğe bağlı)",
       "categoryLabel": "İşletme kategorisi",
@@ -370,6 +371,18 @@
     "footerTerms": "Kullanım Koşulları",
     "footerKvkk": "KVKK",
     "footerCopyright": "© {year} Randevum. Tüm hakları saklıdır."
+  },
+  "validation": {
+    "email": {
+      "required": "E-posta zorunludur",
+      "invalid": "Geçerli bir e-posta adresi girin (ör. ornek@mail.com)",
+      "tooLong": "E-posta çok uzun"
+    },
+    "phone": {
+      "required": "Telefon numarası zorunludur",
+      "invalid": "Geçerli bir telefon numarası girin (ör. 5321234567 veya +905321234567)",
+      "tooLong": "Telefon numarası çok uzun"
+    }
   },
   "common": {
     "loading": "Yükleniyor…",

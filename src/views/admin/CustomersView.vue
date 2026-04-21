@@ -500,11 +500,15 @@
               id="cust-phone"
               v-model="form.phoneNumber"
               type="tel"
+              inputmode="tel"
+              autocomplete="tel"
               required
               :placeholder="t('customersView.modal.phonePlaceholder')"
               class="form-input"
               :class="{ 'form-input-error': formErrors.phoneNumber }"
               :aria-invalid="!!formErrors.phoneNumber"
+              @blur="touchPhone"
+              @input="onPhoneInput"
             />
             <span v-if="formErrors.phoneNumber" class="mt-1 block text-xs" style="color: var(--danger)" role="alert">{{ formErrors.phoneNumber }}</span>
           </div>
@@ -517,9 +521,16 @@
               id="cust-email"
               v-model="form.email"
               type="email"
+              inputmode="email"
+              autocomplete="email"
               :placeholder="t('customersView.modal.emailPlaceholder')"
               class="form-input"
+              :class="{ 'form-input-error': formErrors.email }"
+              :aria-invalid="!!formErrors.email"
+              @blur="touchEmail"
+              @input="onEmailInput"
             />
+            <span v-if="formErrors.email" class="mt-1 block text-xs" style="color: var(--danger)" role="alert">{{ formErrors.email }}</span>
           </div>
 
           <div class="space-y-1">
@@ -792,6 +803,7 @@ import AppModal from '@/components/ui/AppModal.vue'
 import SectionHeader from '@/components/ui/SectionHeader.vue'
 import { X, Search, Phone, Plus, Package as PackageIcon, ListFilter, MoreHorizontal } from 'lucide-vue-next'
 import { createCustomerSchema, updateCustomerSchema } from '@/validation/schemas'
+import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -828,6 +840,37 @@ const formSaving = ref(false)
 const formSubmitError = ref('')
 const form = reactive({ name: '', phoneNumber: '', email: '', notes: '', address: '', nationalId: '' })
 const formErrors = reactive<Record<string, string>>({})
+const formTouched = reactive<Record<string, boolean>>({})
+
+function checkPhone(): boolean {
+  const r = validatePhoneField(form.phoneNumber, { required: !editingId.value })
+  formErrors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
+  return r.valid
+}
+
+function checkEmail(): boolean {
+  const r = validateEmailField(form.email, { required: false })
+  formErrors.email = r.errorKey ? t(fieldErrorI18nKey('email', r.errorKey)) : ''
+  return r.valid
+}
+
+function touchPhone() {
+  formTouched.phoneNumber = true
+  checkPhone()
+}
+
+function onPhoneInput() {
+  if (formTouched.phoneNumber) checkPhone()
+}
+
+function touchEmail() {
+  formTouched.email = true
+  checkEmail()
+}
+
+function onEmailInput() {
+  if (formTouched.email) checkEmail()
+}
 
 // ── Blacklist form ────────────────────────────────────────────────────────────
 const blacklistTarget = ref<CustomerResponse | null>(null)
@@ -1165,7 +1208,8 @@ watch(selectedCustomer, async (c) => {
 function openCreate() {
   editingId.value = null
   Object.assign(form, { name: '', phoneNumber: '', email: '', notes: '', address: '', nationalId: '' })
-  Object.assign(formErrors, { name: '', phoneNumber: '', nationalId: '' })
+  Object.assign(formErrors, { name: '', phoneNumber: '', email: '', nationalId: '' })
+  Object.assign(formTouched, { name: false, phoneNumber: false, email: false, nationalId: false })
   formSubmitError.value = ''
   showFormModal.value = true
 }
@@ -1180,7 +1224,8 @@ function openEdit(c: CustomerResponse) {
     address: c.address ?? '',
     nationalId: '',
   })
-  Object.assign(formErrors, { name: '', phoneNumber: '', nationalId: '' })
+  Object.assign(formErrors, { name: '', phoneNumber: '', email: '', nationalId: '' })
+  Object.assign(formTouched, { name: false, phoneNumber: false, email: false, nationalId: false })
   formSubmitError.value = ''
   showFormModal.value = true
 }
@@ -1190,6 +1235,7 @@ function closeCreate() { showFormModal.value = false }
 function validateCustomer(): boolean {
   formErrors.name = ''
   formErrors.phoneNumber = ''
+  formErrors.email = ''
   formErrors.nationalId = ''
   const schema = editingId.value ? updateCustomerSchema : createCustomerSchema
   const phone = form.phoneNumber.replaceAll(/\D/g, '')
@@ -1205,10 +1251,12 @@ function validateCustomer(): boolean {
   if (result.success) return true
   for (const issue of result.error.issues) {
     const key = issue.path[0]
-    if (key === 'name' || key === 'phoneNumber' || key === 'nationalId') {
+    if (key === 'name' || key === 'phoneNumber' || key === 'email' || key === 'nationalId') {
       if (!formErrors[key]) formErrors[key] = issue.message
     }
   }
+  formTouched.phoneNumber = true
+  formTouched.email = true
   return false
 }
 

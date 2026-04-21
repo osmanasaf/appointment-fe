@@ -47,10 +47,11 @@
           class="form-input"
           :class="{ 'form-input-error': fieldErrors.phoneNumber }"
           type="tel"
-          inputmode="tel"
-          autocomplete="tel"
-          @blur="touchPhone"
+          inputmode="numeric"
+          autocomplete="tel-national"
+          maxlength="10"
           @input="onPhoneInput"
+          @paste="onPhonePaste"
         />
         <p v-if="fieldErrors.phoneNumber" class="form-error">{{ fieldErrors.phoneNumber }}</p>
       </div>
@@ -115,7 +116,13 @@ import AppButton from '../../ui/AppButton.vue'
 import AppCheckbox from '../../ui/AppCheckbox.vue'
 import { employeeApi, type EmployeeResponse } from '../../../api/employee'
 import { createEmployeeSchema, updateEmployeeSchema } from '../../../validation/schemas'
-import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '../../../utils/fieldValidators'
+import {
+  validatePhoneField,
+  validateEmailField,
+  fieldErrorI18nKey,
+  sanitizeLocalPhoneInput,
+  applyPhoneInputMask,
+} from '../../../utils/fieldValidators'
 
 const { t } = useI18n()
 
@@ -135,7 +142,7 @@ const error = ref<string | null>(null)
 const form = reactive({
   name: props.employee?.name ?? '',
   title: props.employee?.title ?? '',
-  phoneNumber: props.employee?.phoneNumber ?? '',
+  phoneNumber: sanitizeLocalPhoneInput(props.employee?.phoneNumber ?? ''),
   email: props.employee?.email ?? '',
   bio: props.employee?.bio ?? '',
   profileImageUrl: props.employee?.profileImageUrl ?? '',
@@ -149,7 +156,7 @@ watch(() => props.employee, (e) => {
   Object.assign(form, {
     name: e.name,
     title: e.title ?? '',
-    phoneNumber: e.phoneNumber ?? '',
+    phoneNumber: sanitizeLocalPhoneInput(e.phoneNumber ?? ''),
     email: e.email ?? '',
     bio: e.bio ?? '',
     profileImageUrl: e.profileImageUrl ?? '',
@@ -163,6 +170,10 @@ const fieldErrors = reactive<Record<string, string>>({})
 const touched = reactive<Record<string, boolean>>({})
 
 function checkPhone(): boolean {
+  if (!form.phoneNumber) {
+    fieldErrors.phoneNumber = ''
+    return true
+  }
   const r = validatePhoneField(form.phoneNumber, { required: false })
   fieldErrors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
   return r.valid
@@ -174,13 +185,20 @@ function checkEmail(): boolean {
   return r.valid
 }
 
-function touchPhone() {
-  touched.phoneNumber = true
+function onPhoneInput(event: Event) {
+  form.phoneNumber = applyPhoneInputMask(event)
   checkPhone()
 }
 
-function onPhoneInput() {
-  if (touched.phoneNumber) checkPhone()
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  checkPhone()
 }
 
 function touchEmail() {

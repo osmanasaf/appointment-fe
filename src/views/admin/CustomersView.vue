@@ -500,15 +500,16 @@
               id="cust-phone"
               v-model="form.phoneNumber"
               type="tel"
-              inputmode="tel"
-              autocomplete="tel"
+              inputmode="numeric"
+              autocomplete="tel-national"
               required
+              maxlength="10"
               :placeholder="t('customersView.modal.phonePlaceholder')"
               class="form-input"
               :class="{ 'form-input-error': formErrors.phoneNumber }"
               :aria-invalid="!!formErrors.phoneNumber"
-              @blur="touchPhone"
               @input="onPhoneInput"
+              @paste="onPhonePaste"
             />
             <span v-if="formErrors.phoneNumber" class="mt-1 block text-xs" style="color: var(--danger)" role="alert">{{ formErrors.phoneNumber }}</span>
           </div>
@@ -803,7 +804,13 @@ import AppModal from '@/components/ui/AppModal.vue'
 import SectionHeader from '@/components/ui/SectionHeader.vue'
 import { X, Search, Phone, Plus, Package as PackageIcon, ListFilter, MoreHorizontal } from 'lucide-vue-next'
 import { createCustomerSchema, updateCustomerSchema } from '@/validation/schemas'
-import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '@/utils/fieldValidators'
+import {
+  validatePhoneField,
+  validateEmailField,
+  fieldErrorI18nKey,
+  sanitizeLocalPhoneInput,
+  applyPhoneInputMask,
+} from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -842,8 +849,13 @@ const form = reactive({ name: '', phoneNumber: '', email: '', notes: '', address
 const formErrors = reactive<Record<string, string>>({})
 const formTouched = reactive<Record<string, boolean>>({})
 
-function checkPhone(): boolean {
-  const r = validatePhoneField(form.phoneNumber, { required: !editingId.value })
+function checkPhone(showRequired = false): boolean {
+  const value = form.phoneNumber
+  if (!value && !showRequired) {
+    formErrors.phoneNumber = ''
+    return false
+  }
+  const r = validatePhoneField(value, { required: true })
   formErrors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
   return r.valid
 }
@@ -854,13 +866,21 @@ function checkEmail(): boolean {
   return r.valid
 }
 
-function touchPhone() {
-  formTouched.phoneNumber = true
+function onPhoneInput(event: Event) {
+  const sanitized = applyPhoneInputMask(event)
+  form.phoneNumber = sanitized
   checkPhone()
 }
 
-function onPhoneInput() {
-  if (formTouched.phoneNumber) checkPhone()
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  checkPhone()
 }
 
 function touchEmail() {
@@ -1218,7 +1238,7 @@ function openEdit(c: CustomerResponse) {
   editingId.value = c.id
   Object.assign(form, {
     name: c.name,
-    phoneNumber: c.phoneNumber,
+    phoneNumber: sanitizeLocalPhoneInput(c.phoneNumber),
     email: c.email ?? '',
     notes: c.notes ?? '',
     address: c.address ?? '',
@@ -1255,7 +1275,6 @@ function validateCustomer(): boolean {
       if (!formErrors[key]) formErrors[key] = issue.message
     }
   }
-  formTouched.phoneNumber = true
   formTouched.email = true
   return false
 }

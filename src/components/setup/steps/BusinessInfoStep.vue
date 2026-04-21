@@ -61,12 +61,14 @@
             id="setup-biz-phone"
             v-model="form.phoneNumber"
             type="tel"
-            inputmode="tel"
-            autocomplete="tel"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            maxlength="10"
             class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
             :class="{ 'border-red-400': fieldErrors.phoneNumber }"
             required
-            @blur="validateField('phoneNumber')"
+            @input="onPhoneInput"
+            @paste="onPhonePaste"
           />
           <p v-if="fieldErrors.phoneNumber" class="text-xs text-red-600">{{ fieldErrors.phoneNumber }}</p>
         </div>
@@ -135,6 +137,7 @@ import { useToast } from '@/composables/useToast'
 import { businessApi, type BusinessCategoryResponse, type UpdateBusinessRequest } from '@/api/business'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 import { validationPatterns } from '@/validation/schemas'
+import { sanitizeLocalPhoneInput, applyPhoneInputMask } from '@/utils/fieldValidators'
 import { z } from 'zod'
 
 defineProps<{ stepIndex: number; totalSteps: number; isFinal?: boolean }>()
@@ -194,10 +197,34 @@ function fillFromStore() {
   if (!b) return
   form.name = b.name ?? ''
   form.category = b.category ?? ''
-  form.phoneNumber = b.phoneNumber ?? ''
+  form.phoneNumber = sanitizeLocalPhoneInput(b.phoneNumber ?? '')
   form.email = b.email ?? ''
   form.address = b.address ?? ''
   form.description = b.description ?? ''
+}
+
+function onPhoneInput(event: Event) {
+  form.phoneNumber = applyPhoneInputMask(event)
+  if (form.phoneNumber) {
+    validateField('phoneNumber')
+  } else {
+    fieldErrors.phoneNumber = ''
+  }
+}
+
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  if (sanitized) {
+    validateField('phoneNumber')
+  } else {
+    fieldErrors.phoneNumber = ''
+  }
 }
 
 function validateField(field: keyof typeof form): boolean {

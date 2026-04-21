@@ -258,7 +258,7 @@
     >
       <div class="template-modal">
         <!-- Form column -->
-        <form class="template-modal__form" @submit.prevent="saveTemplate">
+        <form class="template-modal__form" autocomplete="off" @submit.prevent="saveTemplate">
           <div class="space-y-1">
             <label class="form-label" for="tpl-name">
               {{ t('packagesView.field.name') }} <span :style="{ color: 'var(--danger)' }">*</span>
@@ -267,9 +267,13 @@
               id="tpl-name"
               v-model="templateForm.name"
               type="text"
+              name="package-template-name"
               required
               minlength="2"
               maxlength="100"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
               :placeholder="t('packagesView.field.namePlaceholder')"
               class="form-input"
             />
@@ -316,6 +320,8 @@
                   min="1"
                   max="99"
                   required
+                  autocomplete="off"
+                  inputmode="numeric"
                   class="stepper__input"
                 />
                 <button
@@ -343,6 +349,8 @@
                   min="0"
                   step="0.01"
                   placeholder="0"
+                  autocomplete="off"
+                  inputmode="decimal"
                   class="form-input form-input--with-prefix"
                 />
               </div>

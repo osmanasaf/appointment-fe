@@ -99,9 +99,13 @@
             :id="`emp-phone-${uid}`"
             v-model="form.phoneNumber"
             type="tel"
-            :placeholder="t('auth.phoneOptional')"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            maxlength="10"
+            placeholder="5XX XXX XX XX"
             class="field-input"
-            autocomplete="tel"
+            @input="onPhoneInput"
+            @paste="onPhonePaste"
           />
           <span v-if="errors.phoneNumber" class="field-error" role="alert">
             {{ errors.phoneNumber }}
@@ -157,6 +161,12 @@ import { authApi } from '@/api/auth'
 import AppButton from '@/components/ui/AppButton.vue'
 import { extractApiError } from '@/utils/apiError'
 import { registerEmployeeSchema } from '@/validation/schemas'
+import {
+  validatePhoneField,
+  fieldErrorI18nKey,
+  sanitizeLocalPhoneInput,
+  applyPhoneInputMask,
+} from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -182,6 +192,39 @@ const form = ref({
 })
 
 const errors = ref<Record<string, string>>({})
+
+function checkPhone(): boolean {
+  const value = form.value.phoneNumber
+  if (!value) {
+    const { phoneNumber: _drop, ...rest } = errors.value
+    errors.value = rest
+    return true
+  }
+  const r = validatePhoneField(value, { required: false })
+  if (r.errorKey) {
+    errors.value = { ...errors.value, phoneNumber: t(fieldErrorI18nKey('phone', r.errorKey)) }
+  } else {
+    const { phoneNumber: _drop, ...rest } = errors.value
+    errors.value = rest
+  }
+  return r.valid
+}
+
+function onPhoneInput(event: Event) {
+  form.value.phoneNumber = applyPhoneInputMask(event)
+  checkPhone()
+}
+
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.value.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  checkPhone()
+}
 
 onMounted(async () => {
   inviteToken.value = (route.query.token as string) || ''

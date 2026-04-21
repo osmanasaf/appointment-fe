@@ -69,13 +69,14 @@
                     type="tel"
                     name="phone"
                     required
+                    maxlength="10"
                     placeholder="5XX XXX XX XX"
-                    inputmode="tel"
-                    autocomplete="tel"
+                    inputmode="numeric"
+                    autocomplete="tel-national"
                     :aria-invalid="!!errors.phoneNumber"
                     :aria-describedby="errors.phoneNumber ? 'err-phone' : undefined"
-                    @blur="touchPhone"
                     @input="onPhoneInput"
+                    @paste="onPhonePaste"
                   />
                   <span v-if="errors.phoneNumber" id="err-phone" class="field-error" role="alert">{{ errors.phoneNumber }}</span>
                 </div>
@@ -339,7 +340,13 @@ import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
 import { businessProfileValidationSchema } from '@/validation/schemas'
-import { validatePhoneField, validateEmailField, fieldErrorI18nKey } from '@/utils/fieldValidators'
+import {
+  validatePhoneField,
+  validateEmailField,
+  fieldErrorI18nKey,
+  sanitizeLocalPhoneInput,
+  applyPhoneInputMask,
+} from '@/utils/fieldValidators'
 import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/ui/AppButton.vue'
 
@@ -393,7 +400,11 @@ const publicUrl = computed(() => {
 const errors = reactive<Record<string, string>>({})
 const touched = reactive<Record<string, boolean>>({})
 
-function checkPhone(): boolean {
+function checkPhone(showRequired = false): boolean {
+  if (!form.phoneNumber && !showRequired) {
+    errors.phoneNumber = ''
+    return false
+  }
   const r = validatePhoneField(form.phoneNumber, { required: true })
   errors.phoneNumber = r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : ''
   return r.valid
@@ -405,13 +416,20 @@ function checkEmail(): boolean {
   return r.valid
 }
 
-function touchPhone() {
-  touched.phoneNumber = true
+function onPhoneInput(event: Event) {
+  form.phoneNumber = applyPhoneInputMask(event)
   checkPhone()
 }
 
-function onPhoneInput() {
-  if (touched.phoneNumber) checkPhone()
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  checkPhone()
 }
 
 function touchEmail() {
@@ -425,7 +443,7 @@ function onEmailInput() {
 
 function setFormFromBusiness(b: BusinessResponse) {
   form.name = b.name
-  form.phoneNumber = b.phoneNumber ?? ''
+  form.phoneNumber = sanitizeLocalPhoneInput(b.phoneNumber ?? '')
   form.email = b.email ?? ''
   form.address = b.address ?? ''
   form.description = b.description ?? ''

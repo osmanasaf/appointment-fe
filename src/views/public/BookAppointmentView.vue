@@ -359,14 +359,16 @@
                     v-model="form.phoneNumber"
                     type="tel"
                     name="phone"
-                    autocomplete="tel"
-                    inputmode="tel"
+                    autocomplete="tel-national"
+                    inputmode="numeric"
                     spellcheck="false"
                     required
+                    maxlength="10"
                     placeholder="5XX XXX XX XX"
                     :aria-invalid="!!errors.phoneNumber"
                     aria-describedby="cust-phone-error"
-                    @blur="validatePhoneField()"
+                    @input="onPhoneInput"
+                    @paste="onPhonePaste"
                   />
                 </div>
                 <span id="cust-phone-error" v-if="errors.phoneNumber" class="error-msg" role="alert">{{ errors.phoneNumber }}</span>
@@ -479,6 +481,7 @@ import { useRoute } from 'vue-router'
 import { publicApi, type BusinessResponse, type ServiceResponse, type EmployeeResponse } from '@/api/public'
 import { usePageMeta, setPageMeta } from '@/composables/usePageMeta'
 import { publicBookingCustomerSchema } from '@/validation/schemas'
+import { sanitizeLocalPhoneInput, applyPhoneInputMask } from '@/utils/fieldValidators'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
@@ -727,7 +730,13 @@ function normalizeToLocalPhone(value: string): string {
 }
 
 function validatePhoneField(): void {
-  const phone = normalizeToLocalPhone(form.value.phoneNumber)
+  const value = form.value.phoneNumber
+  if (!value) {
+    const { phoneNumber: _, ...rest } = errors.value
+    errors.value = rest
+    return
+  }
+  const phone = normalizeToLocalPhone(value)
   const result = publicBookingCustomerSchema.shape.customerPhone.safeParse(phone)
   if (!result.success) {
     errors.value = { ...errors.value, phoneNumber: result.error.issues[0]?.message ?? 'Geçersiz telefon' }
@@ -735,6 +744,22 @@ function validatePhoneField(): void {
     const { phoneNumber: _, ...rest } = errors.value
     errors.value = rest
   }
+}
+
+function onPhoneInput(event: Event) {
+  form.value.phoneNumber = applyPhoneInputMask(event)
+  validatePhoneField()
+}
+
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  form.value.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  validatePhoneField()
 }
 
 function validateForm(): boolean {

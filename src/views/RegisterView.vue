@@ -188,11 +188,19 @@
               v-model="phoneNumber"
               v-bind="phoneNumberAttrs"
               type="tel"
-              autocomplete="tel"
-              placeholder="+90 5xx xxx xx xx"
+              inputmode="numeric"
+              autocomplete="tel-national"
+              maxlength="10"
+              placeholder="5XX XXX XX XX"
               class="field-input"
+              @input="onPhoneInput"
+              @paste="onPhonePaste"
             />
           </div>
+          <p v-if="errors.phoneNumber" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.phoneNumber }}
+          </p>
         </div>
 
         <div class="form-field">
@@ -324,6 +332,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
 import { validationPatterns } from '@/validation/schemas'
+import { sanitizeLocalPhoneInput, applyPhoneInputMask } from '@/utils/fieldValidators'
 import {
   Mail,
   Lock,
@@ -423,6 +432,23 @@ const [name, nameAttrs] = defineField('name')
 const [phoneNumber, phoneNumberAttrs] = defineField('phoneNumber')
 const [businessCategory, businessCategoryAttrs] = defineField('businessCategory')
 const [businessName, businessNameAttrs] = defineField('businessName')
+
+function onPhoneInput(event: Event) {
+  const sanitized = applyPhoneInputMask(event)
+  phoneNumber.value = sanitized
+  if (sanitized) validateField('phoneNumber')
+}
+
+function onPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  phoneNumber.value = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  if (sanitized) validateField('phoneNumber')
+}
 
 const showConfirmPassword = ref(false)
 

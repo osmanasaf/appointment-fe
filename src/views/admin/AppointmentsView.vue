@@ -691,13 +691,14 @@
                 <input
                   v-model="wizardForm.phoneNumber"
                   type="tel"
-                  inputmode="tel"
-                  autocomplete="tel"
+                  inputmode="numeric"
+                  autocomplete="tel-national"
+                  maxlength="10"
                   placeholder="5XX XXX XX XX"
                   class="wizard-input"
                   :class="{ 'wizard-input--error': wizardErrors.phoneNumber }"
-                  @blur="touchWizardPhone"
                   @input="onWizardPhoneInput"
+                  @paste="onWizardPhonePaste"
                 />
                 <span v-if="wizardErrors.phoneNumber" class="wizard-field__error" role="alert">{{ wizardErrors.phoneNumber }}</span>
               </label>
@@ -798,7 +799,12 @@ import StatusPill from '@/components/ui/StatusPill.vue'
 import AppointmentDetailPanel from '@/components/appointments/AppointmentDetailPanel.vue'
 import EmployeeFilterDropdown from '@/components/filters/EmployeeFilterDropdown.vue'
 import { createStaffAppointmentSchema } from '@/validation/schemas'
-import { validatePhoneField, fieldErrorI18nKey } from '@/utils/fieldValidators'
+import {
+  validatePhoneField,
+  fieldErrorI18nKey,
+  sanitizeLocalPhoneInput,
+  applyPhoneInputMask,
+} from '@/utils/fieldValidators'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -1498,10 +1504,13 @@ const wizardContinueDisabled = computed(() => {
   return false
 })
 
-const wizardTouched = ref<Record<string, boolean>>({})
-
-function checkWizardPhone(): boolean {
-  const r = validatePhoneField(wizardForm.phoneNumber, { required: true })
+function checkWizardPhone(showRequired = false): boolean {
+  const value = wizardForm.phoneNumber
+  if (!value && !showRequired) {
+    wizardErrors.value = { ...wizardErrors.value, phoneNumber: '' }
+    return false
+  }
+  const r = validatePhoneField(value, { required: true })
   wizardErrors.value = {
     ...wizardErrors.value,
     phoneNumber: r.errorKey ? t(fieldErrorI18nKey('phone', r.errorKey)) : '',
@@ -1509,13 +1518,20 @@ function checkWizardPhone(): boolean {
   return r.valid
 }
 
-function touchWizardPhone() {
-  wizardTouched.value.phoneNumber = true
+function onWizardPhoneInput(event: Event) {
+  wizardForm.phoneNumber = applyPhoneInputMask(event)
   checkWizardPhone()
 }
 
-function onWizardPhoneInput() {
-  if (wizardTouched.value.phoneNumber) checkWizardPhone()
+function onWizardPhonePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted) return
+  event.preventDefault()
+  const sanitized = sanitizeLocalPhoneInput(pasted)
+  wizardForm.phoneNumber = sanitized
+  const target = event.target as HTMLInputElement | null
+  if (target) target.value = sanitized
+  checkWizardPhone()
 }
 
 function openCreate(opts: { date?: string } = {}) {
@@ -1529,7 +1545,6 @@ function openCreate(opts: { date?: string } = {}) {
   wizardForm.source = 'PHONE'
   wizardForm.notes = ''
   wizardErrors.value = {}
-  wizardTouched.value = {}
   createSubmitError.value = ''
   wizardEmpCapabilities.value = []
   availableDates.value = []

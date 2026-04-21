@@ -232,6 +232,7 @@
     "ctaLogin": "Sign in",
     "navNiches": "Industries",
     "navFeatures": "Features",
+    "navPricing": "Pricing",
     "navFaq": "FAQ",
     "trustedTitle": "Trusted by businesses across the country",
     "trustedStats": {
@@ -328,6 +329,46 @@
     "ctaBannerTitle": "Take your business digital",
     "ctaBannerSubtitle": "Try free for 14 days. No credit card required.",
     "ctaBannerButton": "Get started",
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Pick the plan that fits your business",
+      "subtitle": "14-day free trial. No credit card required. Cancel anytime.",
+      "billingMonthly": "Monthly",
+      "billingYearly": "Yearly",
+      "yearlySavings": "2 months free",
+      "popular": "Most popular",
+      "perMonth": "/mo",
+      "monthlyEquivalentBilledYearly": "Billed {price} yearly",
+      "ctaStart": "Start free trial",
+      "ctaContactSales": "Contact sales",
+      "featuresTitle": "What's included",
+      "errorLoad": "Couldn't load plans",
+      "retry": "Try again",
+      "planName": {
+        "SOLO": "Solo",
+        "PRO": "Pro",
+        "ENTERPRISE": "Enterprise"
+      },
+      "planTagline": {
+        "SOLO": "For solo professionals",
+        "PRO": "For small and growing teams",
+        "ENTERPRISE": "For multi-branch businesses"
+      },
+      "limits": {
+        "employees": "{n} employees",
+        "employeesUnlimited": "Unlimited employees",
+        "appointments": "{n} appointments / month",
+        "appointmentsUnlimited": "Unlimited appointments",
+        "services": "{n} services",
+        "servicesUnlimited": "Unlimited services",
+        "branches": "{n} branches",
+        "branchesUnlimited": "Unlimited branches",
+        "whatsapp": "{n} WhatsApp notifications / month",
+        "whatsappUnlimited": "Unlimited WhatsApp notifications",
+        "sms": "{n} SMS notifications / month",
+        "smsUnlimited": "Unlimited SMS notifications"
+      }
+    },
     "faqTitle": "Frequently asked questions",
     "faq": {
       "q0": {

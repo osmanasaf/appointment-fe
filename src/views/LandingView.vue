@@ -17,6 +17,9 @@
           <a href="#features" class="hidden text-slate-600 transition hover:text-slate-900 sm:inline">
             {{ t('landing.navFeatures') }}
           </a>
+          <a href="#pricing" class="hidden text-slate-600 transition hover:text-slate-900 sm:inline">
+            {{ t('landing.navPricing') }}
+          </a>
           <a href="#faq" class="hidden text-slate-600 transition hover:text-slate-900 md:inline">
             {{ t('landing.navFaq') }}
           </a>
@@ -42,6 +45,7 @@
     <FeaturesSection />
     <SolutionSection />
     <TestimonialsSection />
+    <PricingSection />
     <CtaBannerSection />
     <FaqSection />
     <FooterSection />
@@ -57,6 +61,7 @@ import NicheShowcaseSection from '@/components/landing/NicheShowcaseSection.vue'
 import FeaturesSection from '@/components/landing/FeaturesSection.vue'
 import SolutionSection from '@/components/landing/SolutionSection.vue'
 import TestimonialsSection from '@/components/landing/TestimonialsSection.vue'
+import PricingSection from '@/components/landing/PricingSection.vue'
 import CtaBannerSection from '@/components/landing/CtaBannerSection.vue'
 import FaqSection from '@/components/landing/FaqSection.vue'
 import FooterSection from '@/components/landing/FooterSection.vue'

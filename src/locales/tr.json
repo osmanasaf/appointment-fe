@@ -232,6 +232,7 @@
     "ctaLogin": "Giriş yap",
     "navNiches": "Sektörler",
     "navFeatures": "Özellikler",
+    "navPricing": "Fiyatlandırma",
     "navFaq": "SSS",
     "trustedTitle": "Türkiye'nin dört bir yanından işletmeler güveniyor",
     "trustedStats": {
@@ -328,6 +329,46 @@
     "ctaBannerTitle": "İşletmenizi dijitale taşıyın",
     "ctaBannerSubtitle": "14 gün ücretsiz deneyin. Kredi kartı gerekmez.",
     "ctaBannerButton": "Hemen başla",
+    "pricing": {
+      "eyebrow": "Fiyatlandırma",
+      "title": "İşletmenize uygun planı seçin",
+      "subtitle": "14 gün ücretsiz deneme. Kredi kartı gerekmez. İstediğiniz zaman iptal edin.",
+      "billingMonthly": "Aylık",
+      "billingYearly": "Yıllık",
+      "yearlySavings": "2 ay bedava",
+      "popular": "En popüler",
+      "perMonth": "/ay",
+      "monthlyEquivalentBilledYearly": "Yıllık {price} ödenir",
+      "ctaStart": "Hemen başla",
+      "ctaContactSales": "Bize ulaşın",
+      "featuresTitle": "Plana dahil özellikler",
+      "errorLoad": "Planlar yüklenirken bir sorun oluştu",
+      "retry": "Tekrar dene",
+      "planName": {
+        "SOLO": "Solo",
+        "PRO": "Pro",
+        "ENTERPRISE": "Enterprise"
+      },
+      "planTagline": {
+        "SOLO": "Tek başına çalışan profesyoneller için",
+        "PRO": "Küçük ve orta ölçekli ekipler için",
+        "ENTERPRISE": "Çok şubeli ve büyük işletmeler için"
+      },
+      "limits": {
+        "employees": "{n} çalışan",
+        "employeesUnlimited": "Sınırsız çalışan",
+        "appointments": "Aylık {n} randevu",
+        "appointmentsUnlimited": "Sınırsız randevu",
+        "services": "{n} hizmet",
+        "servicesUnlimited": "Sınırsız hizmet",
+        "branches": "{n} şube",
+        "branchesUnlimited": "Sınırsız şube",
+        "whatsapp": "Aylık {n} WhatsApp bildirimi",
+        "whatsappUnlimited": "Sınırsız WhatsApp bildirimi",
+        "sms": "Aylık {n} SMS bildirimi",
+        "smsUnlimited": "Sınırsız SMS bildirimi"
+      }
+    },
     "faqTitle": "Sık sorulan sorular",
     "faq": {
       "q0": {

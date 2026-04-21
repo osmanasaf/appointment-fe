@@ -4,6 +4,8 @@ const { phoneFlexible, emailMax } = validationPatterns
 
 const EMAIL_RFC_LIKE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+export const PHONE_LOCAL_MAX_LENGTH = 10
+
 export interface ValidatorOptions {
   required?: boolean
 }
@@ -32,6 +34,21 @@ export function normalizePhoneInput(raw: string | null | undefined): string {
     return '+' + trimmed.slice(1).replace(/\D/g, '')
   }
   return trimmed.replace(/\D/g, '')
+}
+
+export function sanitizeLocalPhoneInput(raw: string | null | undefined): string {
+  if (!raw) return ''
+  return String(raw).replace(/\D/g, '').slice(0, PHONE_LOCAL_MAX_LENGTH)
+}
+
+export function applyPhoneInputMask(event: Event): string {
+  const target = event.target as HTMLInputElement | null
+  if (!target) return ''
+  const sanitized = sanitizeLocalPhoneInput(target.value)
+  if (target.value !== sanitized) {
+    target.value = sanitized
+  }
+  return sanitized
 }
 
 export function validatePhoneField(

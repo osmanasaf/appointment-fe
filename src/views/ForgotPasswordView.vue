@@ -182,7 +182,7 @@ import { useI18n } from 'vue-i18n'
 import { authApi } from '@/api/auth'
 import OtpInput from '@/components/auth/OtpInput.vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import { extractApiError } from '@/utils/apiError'
+import { normalizeApiError } from '@/utils/apiError'
 import { resetPasswordSchema } from '@/validation/schemas'
 
 const { t } = useI18n()
@@ -288,9 +288,9 @@ async function onVerifyOtp() {
     resetToken.value = data.data!.resetToken
     currentStep.value = 'password'
   } catch (e: unknown) {
-    const msg = extractApiError(e, 'Geçersiz veya süresi dolmuş kod')
+    const normalized = normalizeApiError(e, 'Geçersiz veya süresi dolmuş kod')
     otpInputRef.value?.clear()
-    otpError.value = msg
+    otpError.value = normalized.message
   } finally {
     loading.value = false
   }
@@ -319,8 +319,9 @@ async function onResetPassword() {
     })
     currentStep.value = 'success'
   } catch (e: unknown) {
+    const normalized = normalizeApiError(e, t('auth.forgot.resetFailedError'))
     bannerOk.value = false
-    banner.value = extractApiError(e, t('auth.forgot.resetFailedError'))
+    banner.value = normalized.message
   } finally {
     loading.value = false
   }

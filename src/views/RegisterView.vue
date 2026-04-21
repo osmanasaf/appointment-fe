@@ -351,6 +351,7 @@ import {
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse } from '@/api/business'
+import { normalizeApiError } from '@/utils/apiError'
 import AuthSplitLayout from '@/components/auth/AuthSplitLayout.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 
@@ -548,7 +549,8 @@ const runRegister = handleSubmit(async values => {
       query: { email: values.email.trim() },
     })
   } catch (e: unknown) {
-    submitError.value = e instanceof Error ? e.message : t('auth.registerFailed')
+    const normalized = normalizeApiError(e, t('auth.registerFailed'))
+    submitError.value = normalized.message
   } finally {
     loading.value = false
   }

@@ -1928,5 +1928,18 @@
       "expiryInvalid": "Bitiş tarihi gelecekte olmalıdır",
       "templateRequired": "Şablon seçiniz"
     }
+  },
+  "errors": {
+    "network": "İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edin.",
+    "timeout": "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",
+    "server": "Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.",
+    "unknown": "Beklenmeyen bir hata oluştu.",
+    "sessionExpired": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
+    "accessDenied": "Bu işlem için yetkiniz yok."
+  },
+  "upgrade": {
+    "modalTitle": "Plan Yükseltme Gerekli",
+    "modalHint": "Daha fazla özellik ve limitsiz kullanım için planınızı yükseltin.",
+    "viewPlans": "Planları Görüntüle"
   }
 }

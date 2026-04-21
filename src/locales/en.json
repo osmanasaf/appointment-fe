@@ -1928,5 +1928,18 @@
       "expiryInvalid": "Expiry date must be in the future",
       "templateRequired": "Select a template"
     }
+  },
+  "errors": {
+    "network": "No internet connection. Please check your connection.",
+    "timeout": "Request timed out. Please try again.",
+    "server": "A server error occurred. Please try again later.",
+    "unknown": "An unexpected error occurred.",
+    "sessionExpired": "Your session has expired. Please log in again.",
+    "accessDenied": "You don't have permission for this operation."
+  },
+  "upgrade": {
+    "modalTitle": "Plan Upgrade Required",
+    "modalHint": "Upgrade your plan for more features and unlimited usage.",
+    "viewPlans": "View Plans"
   }
 }

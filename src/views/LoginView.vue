@@ -111,6 +111,7 @@ import axios from 'axios'
 import { Mail, Lock, Eye, EyeOff, AlertCircle, QrCode } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ApiResponse } from '@/api/client'
+import { normalizeApiError } from '@/utils/apiError'
 import AuthSplitLayout from '@/components/auth/AuthSplitLayout.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 
@@ -153,15 +154,15 @@ const onSubmit = handleSubmit(async values => {
     const redirect = (route.query.redirect as string) || '/admin'
     await router.push(redirect)
   } catch (e: unknown) {
-    if (axios.isAxiosError(e) && e.response?.status === 403) {
-      const body = e.response.data as ApiResponse<unknown> | undefined
-      if (body?.error?.code === 'EMAIL_NOT_VERIFIED') {
-        emailNotVerified.value = true
-        submitError.value = body.error.message || t('auth.emailNotVerifiedMessage')
-        return
-      }
+    const normalized = normalizeApiError(e, t('auth.loginFailed'))
+    
+    if (normalized.code === 'EMAIL_NOT_VERIFIED') {
+      emailNotVerified.value = true
+      submitError.value = normalized.message
+      return
     }
-    submitError.value = e instanceof Error ? e.message : t('auth.loginFailed')
+    
+    submitError.value = normalized.message
   } finally {
     loading.value = false
   }

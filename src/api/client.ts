@@ -168,6 +168,9 @@ const processQueue = (error: unknown = null) => {
 api.interceptors.response.use(
   (res) => res,
   async (err: AxiosError<ApiResponse<unknown>>) => {
+    const { normalizeApiError } = await import('@/utils/apiError')
+    ;(err as AxiosError & { normalized?: unknown }).normalized = normalizeApiError(err)
+
     const originalRequest = err.config
     
     // 401 hatası varsa refresh dene (giriş/kayıt gibi public auth'ta 401 = hatalı bilgi, refresh yok)

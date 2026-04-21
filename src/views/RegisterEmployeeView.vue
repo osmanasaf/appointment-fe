@@ -1,109 +1,148 @@
 <template>
   <div class="employee-register-view">
-    <div class="register-container">
-      <div class="register-card">
-        <h1 class="title">{{ t('auth.registerEmployeeTitle') }}</h1>
-        <p class="subtitle">{{ t('auth.registerEmployeeSubtitle') }}</p>
+    <div class="register-card">
+      <div class="card-header">
+        <h1 class="display-md">{{ t('auth.registerEmployee.title') }}</h1>
+        <p class="body">{{ t('auth.registerEmployee.subtitle') }}</p>
         <p v-if="businessName" class="business-hint">
           {{ t('auth.inviteBusinessLabel', { name: businessName }) }}
         </p>
+      </div>
 
-        <p v-if="inviteToken && invitePreviewLoading" class="preview-status">
-          {{ t('auth.loadingInvite') }}
-        </p>
-        <p v-else-if="inviteToken && invitePreviewError" class="submit-error">{{ invitePreviewError }}</p>
-        <p v-else-if="!inviteToken && submitError" class="submit-error">{{ submitError }}</p>
+      <div v-if="inviteToken && invitePreviewLoading" class="status-message">
+        <span class="spinner" aria-hidden="true" />
+        <p>{{ t('auth.loadingInvite') }}</p>
+      </div>
 
-        <form
-          v-else-if="inviteToken && invitePreviewReady"
-          @submit.prevent="handleSubmit"
-          class="register-form"
-        >
-          <div class="form-group">
-            <label for="name">{{ t('auth.name') }}</label>
+      <div v-else-if="inviteToken && invitePreviewError" class="error-message" role="alert">
+        <AlertCircle class="size-5" aria-hidden="true" />
+        <p>{{ invitePreviewError }}</p>
+      </div>
+
+      <div v-else-if="!inviteToken && submitError" class="error-message" role="alert">
+        <AlertCircle class="size-5" aria-hidden="true" />
+        <p>{{ submitError }}</p>
+      </div>
+
+      <form
+        v-else-if="inviteToken && invitePreviewReady"
+        class="register-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div class="form-field">
+          <label :for="`emp-name-${uid}`" class="field-label">{{ t('auth.name') }}</label>
+          <input
+            :id="`emp-name-${uid}`"
+            v-model="form.name"
+            type="text"
+            :placeholder="t('auth.name')"
+            readonly
+            required
+            class="field-input field-input--readonly"
+            autocomplete="name"
+          />
+          <p class="field-hint">{{ t('auth.inviteFieldsReadOnly') }}</p>
+          <span v-if="errors.name" class="field-error" role="alert">{{ errors.name }}</span>
+        </div>
+
+        <div class="form-field">
+          <label :for="`emp-email-${uid}`" class="field-label">{{ t('auth.email') }}</label>
+          <input
+            :id="`emp-email-${uid}`"
+            v-model="form.email"
+            type="email"
+            :placeholder="t('auth.email')"
+            readonly
+            required
+            class="field-input field-input--readonly"
+            autocomplete="email"
+          />
+          <span v-if="errors.email" class="field-error" role="alert">{{ errors.email }}</span>
+        </div>
+
+        <div class="form-field">
+          <label :for="`emp-password-${uid}`" class="field-label">{{ t('auth.password') }}</label>
+          <input
+            :id="`emp-password-${uid}`"
+            v-model="form.password"
+            type="password"
+            :placeholder="t('auth.password')"
+            required
+            class="field-input"
+            autocomplete="new-password"
+          />
+          <p class="field-hint">{{ t('auth.passwordHelp') }}</p>
+          <span v-if="errors.password" class="field-error" role="alert">{{ errors.password }}</span>
+        </div>
+
+        <div class="form-field">
+          <label :for="`emp-confirm-password-${uid}`" class="field-label">
+            {{ t('auth.register.confirmPasswordLabel') }}
+          </label>
+          <input
+            :id="`emp-confirm-password-${uid}`"
+            v-model="form.confirmPassword"
+            type="password"
+            :placeholder="t('auth.register.confirmPasswordLabel')"
+            required
+            class="field-input"
+            autocomplete="new-password"
+          />
+          <span v-if="errors.confirmPassword" class="field-error" role="alert">
+            {{ errors.confirmPassword }}
+          </span>
+        </div>
+
+        <div class="form-field">
+          <label :for="`emp-phone-${uid}`" class="field-label">{{ t('auth.phoneOptional') }}</label>
+          <input
+            :id="`emp-phone-${uid}`"
+            v-model="form.phoneNumber"
+            type="tel"
+            :placeholder="t('auth.phoneOptional')"
+            class="field-input"
+            autocomplete="tel"
+          />
+          <span v-if="errors.phoneNumber" class="field-error" role="alert">
+            {{ errors.phoneNumber }}
+          </span>
+        </div>
+
+        <div v-if="submitError" class="submit-error" role="alert">
+          <AlertCircle class="size-4" aria-hidden="true" />
+          {{ submitError }}
+        </div>
+
+        <div class="terms-box">
+          <div class="terms-content">
             <input
-              id="name"
-              v-model="form.name"
-              type="text"
-              :placeholder="t('auth.name')"
-              readonly
-              required
-              class="input-readonly"
-              autocomplete="name"
-            />
-            <p class="field-hint">{{ t('auth.inviteFieldsReadOnly') }}</p>
-            <span v-if="errors.name" class="error">{{ errors.name }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="email">{{ t('auth.email') }}</label>
-            <input
-              id="email"
-              v-model="form.email"
-              type="email"
-              :placeholder="t('auth.email')"
-              readonly
-              required
-              class="input-readonly"
-              autocomplete="email"
-            />
-            <span v-if="errors.email" class="error">{{ errors.email }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="password">{{ t('auth.password') }}</label>
-            <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              :placeholder="t('auth.password')"
-              required
-            />
-            <span v-if="errors.password" class="error">{{ errors.password }}</span>
-          </div>
-
-          <div class="form-group">
-            <label for="phone">{{ t('auth.phoneOptional') }}</label>
-            <input
-              id="phone"
-              v-model="form.phoneNumber"
-              type="tel"
-              :placeholder="t('auth.phoneOptional')"
-            />
-          </div>
-
-          <p v-if="submitError" class="submit-error">{{ submitError }}</p>
-
-          <!-- Terms & Privacy Agreement -->
-          <div class="terms-agreement">
-            <input
-              id="employee-terms"
+              :id="`emp-terms-${uid}`"
               v-model="termsAccepted"
               type="checkbox"
               class="terms-checkbox"
             />
-            <label for="employee-terms" class="terms-label">
-              <RouterLink to="/terms" target="_blank" class="terms-link">
-                {{ t('auth.termsLink') }}
-              </RouterLink>
-              ve
-              <RouterLink to="/privacy" target="_blank" class="terms-link">
-                {{ t('auth.privacyLink') }}
-              </RouterLink>
-              'nı okudum, kabul ediyorum.
+            <label :for="`emp-terms-${uid}`" class="terms-label">
+              <i18n-t keypath="auth.termsAgreementFull" tag="span">
+                <template #terms>
+                  <RouterLink to="/terms" target="_blank" class="terms-link">{{ t('auth.termsLink') }}</RouterLink>
+                </template>
+                <template #privacy>
+                  <RouterLink to="/privacy" target="_blank" class="terms-link">{{ t('auth.privacyLink') }}</RouterLink>
+                </template>
+              </i18n-t>
             </label>
           </div>
-          <p v-if="termsError" class="error">{{ termsError }}</p>
-
-          <button type="submit" :disabled="loading" class="btn-submit">
-            {{ loading ? t('auth.signingUp') : t('auth.signUp') }}
-          </button>
-        </form>
-
-        <div class="login-link">
-          {{ t('auth.hasAccount') }}
-          <RouterLink to="/login">{{ t('auth.loginLink') }}</RouterLink>
+          <p v-if="termsError" class="field-error" role="alert">{{ termsError }}</p>
         </div>
+
+        <AppButton type="submit" variant="primary" size="lg" :loading="loading" class="submit-btn">
+          {{ loading ? t('auth.signingUp') : t('auth.signUp') }}
+        </AppButton>
+      </form>
+
+      <div class="footer-text">
+        {{ t('auth.hasAccount') }}
+        <RouterLink to="/login" class="footer-link">{{ t('auth.loginLink') }}</RouterLink>
       </div>
     </div>
   </div>
@@ -113,11 +152,16 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { AlertCircle } from 'lucide-vue-next'
 import { authApi } from '@/api/auth'
+import AppButton from '@/components/ui/AppButton.vue'
+import { extractApiError } from '@/utils/apiError'
+import { registerEmployeeSchema } from '@/validation/schemas'
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
+const uid = Math.random().toString(36).slice(2, 9)
 
 const loading = ref(false)
 const submitError = ref<string | null>(null)
@@ -133,6 +177,7 @@ const form = ref({
   name: '',
   email: '',
   password: '',
+  confirmPassword: '',
   phoneNumber: '',
 })
 
@@ -168,20 +213,20 @@ onMounted(async () => {
 
 function validateForm(): boolean {
   errors.value = {}
-  
-  if (!form.value.name || form.value.name.length < 2) {
-    errors.value.name = t('auth.nameRequired')
+  const result = registerEmployeeSchema.safeParse({
+    ...form.value,
+    inviteToken: inviteToken.value,
+  })
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const key = issue.path[0]
+      if (typeof key === 'string') {
+        errors.value[key] = issue.message
+      }
+    }
+    return false
   }
-  
-  if (!form.value.email || !/\S+@\S+\.\S+/.test(form.value.email)) {
-    errors.value.email = t('auth.emailInvalid')
-  }
-  
-  if (!form.value.password || form.value.password.length < 6) {
-    errors.value.password = t('auth.passwordMin')
-  }
-  
-  return Object.keys(errors.value).length === 0
+  return true
 }
 
 async function handleSubmit() {
@@ -207,15 +252,18 @@ async function handleSubmit() {
   
   try {
     const { data } = await authApi.registerEmployee({
-      ...form.value,
+      name: form.value.name,
+      email: form.value.email,
+      password: form.value.password,
+      phoneNumber: form.value.phoneNumber || undefined,
       inviteToken: inviteToken.value,
     })
     
     if (data.success) {
       router.push({ name: 'Login', query: { registered: '1' } })
     }
-  } catch (err: any) {
-    submitError.value = err.response?.data?.error?.message || t('auth.registerFailed')
+  } catch (err: unknown) {
+    submitError.value = extractApiError(err, t('auth.registerFailed'))
   } finally {
     loading.value = false
   }
@@ -228,62 +276,82 @@ async function handleSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem 1rem;
-}
-
-.register-container {
-  width: 100%;
-  max-width: 480px;
+  background: var(--bg);
 }
 
 .register-card {
-  background: white;
-  border-radius: 1rem;
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-xl);
   padding: 2.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-2);
 }
 
-.title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #111827;
+.card-header {
+  margin-bottom: 2rem;
+}
+
+.card-header .display-md {
+  color: var(--ink-1);
   margin: 0 0 0.5rem 0;
   text-align: center;
 }
 
-.subtitle {
-  color: #6b7280;
+.card-header .body {
+  color: var(--ink-3);
   text-align: center;
-  margin: 0 0 2rem 0;
-  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
 }
 
 .business-hint {
   text-align: center;
-  margin: -1.25rem 0 1.25rem 0;
+  margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--ink-2);
 }
 
-.preview-status {
+.status-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--ink-3);
   font-size: 0.875rem;
-  margin: 1rem 0;
 }
 
-.field-hint {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #9ca3af;
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--primary-tint);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
 }
 
-.input-readonly {
-  background-color: #f3f4f6 !important;
-  color: #374151;
-  cursor: default;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 15%, transparent);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+  text-align: center;
+  color: color-mix(in srgb, var(--danger) 90%, var(--ink-1));
+  font-size: 0.875rem;
 }
 
 .register-form {
@@ -292,118 +360,129 @@ async function handleSubmit() {
   gap: 1.25rem;
 }
 
-.form-group {
+.form-field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.field-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--ink-2);
 }
 
-.form-group input {
+.field-input {
+  width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
   font-size: 1rem;
-  transition: border-color 0.2s;
+  color: var(--ink-1);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.form-group input:focus {
+.field-input::placeholder {
+  color: var(--ink-4);
+}
+
+.field-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
 }
 
-.error {
+.field-input--readonly {
+  background: var(--bg-subtle);
+  color: var(--ink-2);
+  cursor: default;
+}
+
+.field-hint {
+  margin: 0;
   font-size: 0.75rem;
-  color: #ef4444;
+  color: var(--ink-4);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: var(--danger);
 }
 
 .submit-error {
-  color: #ef4444;
-  font-size: 0.875rem;
-  text-align: center;
-  margin: 0;
-}
-
-.terms-agreement {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 15%, transparent);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--danger) 90%, var(--ink-1));
+}
+
+.terms-box {
   padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.terms-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
 }
 
 .terms-checkbox {
   margin-top: 0.125rem;
   width: 1rem;
   height: 1rem;
+  flex-shrink: 0;
   cursor: pointer;
-  accent-color: #0891b2;
+  accent-color: var(--primary);
 }
 
 .terms-label {
   font-size: 0.875rem;
   line-height: 1.5;
-  color: #475569;
+  color: var(--ink-2);
   cursor: pointer;
 }
 
 .terms-link {
-  color: #0891b2;
   font-weight: 500;
+  color: var(--primary);
   text-decoration: none;
+  transition: color 0.15s;
 }
 
 .terms-link:hover {
-  color: #0e7490;
+  color: var(--primary-pressed);
   text-decoration: underline;
 }
 
-.btn-submit {
+.submit-btn {
   width: 100%;
-  padding: 0.875rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.login-link {
+.footer-text {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--ink-3);
 }
 
-.login-link a {
-  color: #667eea;
+.footer-link {
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.15s;
 }
 
-.login-link a:hover {
+.footer-link:hover {
+  color: var(--primary-pressed);
   text-decoration: underline;
 }
 </style>

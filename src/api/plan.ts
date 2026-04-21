@@ -1,6 +1,6 @@
 import { api, type ApiResponse } from './client'
 
-export type PlanCode = 'STARTER' | 'PRO' | 'BUSINESS' | 'PREMIUM'
+export type PlanCode = 'SOLO' | 'PRO' | 'ENTERPRISE'
 
 export type SubscriptionStatus = 'TRIAL' | 'ACTIVE' | 'EXPIRED' | 'SUSPENDED'
 

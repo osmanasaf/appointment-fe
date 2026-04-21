@@ -88,7 +88,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/DashboardView.vue'),
         meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
       },
-      { path: 'calendar', redirect: '/admin/appointments' },
+      {
+        path: 'calendar',
+        name: 'AdminCalendar',
+        component: () => import('@/views/admin/CalendarView.vue'),
+        meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+      },
       {
         path: 'settings',
         component: () => import('@/views/admin/SettingsLayout.vue'),
@@ -122,6 +127,12 @@ const routes: RouteRecordRaw[] = [
             path: 'security',
             name: 'AdminSecurity',
             component: () => import('@/views/admin/settings/SecurityView.vue'),
+            meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
+          },
+          {
+            path: 'appearance',
+            name: 'AdminAppearance',
+            component: () => import('@/views/admin/settings/AppearanceView.vue'),
             meta: { requiresAuth: true, roles: ['ADMIN', 'BUSINESS_OWNER'] },
           },
         ],

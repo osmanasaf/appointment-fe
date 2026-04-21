@@ -1,106 +1,264 @@
 @layer base, primevue, utilities;
 @import 'tailwindcss';
 
-/* Tailwind v4 tema — utility üretimi (bg-brand-primary, font-sans, …) */
+/* =============================================================================
+ * Randevum Design System — Faz 1 (foundation tokens + tipografi)
+ * Mobil tokenlarına eşlenir (web-tokens.css). Eski `--color-*` değişkenleri
+ * geriye uyum için yeni semantic token'lara alias edilmiştir.
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * Tailwind v4 @theme — utility üretimi (bg-brand-primary, font-display, …)
+ * Yalnızca renk paletleri ve font ailesi için kullanılır.
+ * ------------------------------------------------------------------------ */
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
 
-  /* Ayarla Brand Colors - Teal/Cyan primary */
-  --color-brand-primary: #0891B2;
-  --color-brand-primary-light: #CCFBF1;
-  --color-brand-primary-dark: #0E7490;
-  --color-brand-secondary: #6366F1;
-  --color-brand-success: #10B981;
-  --color-brand-warning: #F59E0B;
-  --color-brand-danger: #EF4444;
+  /* Brand — yeni derin teal primary (#0D7A8F) */
+  --color-brand-primary: #0d7a8f;
+  --color-brand-primary-light: #e7f6f6;
+  --color-brand-primary-dark: #0e7490;
+  --color-brand-secondary: #6366f1;
+  --color-brand-success: #059669;
+  --color-brand-warning: #d97706;
+  --color-brand-danger: #dc2626;
 
-  /* Teal scale for landing */
-  --color-teal-50: #F0FDFA;
-  --color-teal-100: #CCFBF1;
-  --color-teal-200: #99F6E4;
-  --color-teal-300: #5EEAD4;
-  --color-teal-400: #2DD4BF;
-  --color-teal-500: #14B8A6;
-  --color-teal-600: #0891B2;
-  --color-teal-700: #0E7490;
-  --color-teal-800: #155E75;
-  --color-teal-900: #164E63;
+  /* Teal scale — landing & dark mode primary */
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0891b2;
+  --color-teal-700: #0e7490;
+  --color-teal-800: #155e75;
+  --color-teal-900: #164e63;
 
   /* Cyan scale */
-  --color-cyan-50: #ECFEFF;
-  --color-cyan-100: #CFFAFE;
-  --color-cyan-200: #A5F3FC;
-  --color-cyan-300: #67E8F9;
-  --color-cyan-400: #22D3EE;
-  --color-cyan-500: #06B6D4;
-  --color-cyan-600: #0891B2;
-  --color-cyan-700: #0E7490;
-  --color-cyan-800: #155E75;
-  --color-cyan-900: #164E63;
+  --color-cyan-50: #ecfeff;
+  --color-cyan-100: #cffafe;
+  --color-cyan-200: #a5f3fc;
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-cyan-800: #155e75;
+  --color-cyan-900: #164e63;
 
   /* Niche accent colors */
-  --color-niche-hair: #0891B2;
-  --color-niche-beauty: #EC4899;
-  --color-niche-nail: #F43F5E;
-  --color-niche-tattoo: #8B5CF6;
-  --color-niche-psych: #3B82F6;
-  --color-niche-diet: #22C55E;
+  --color-niche-hair: #0891b2;
+  --color-niche-beauty: #ec4899;
+  --color-niche-nail: #f43f5e;
+  --color-niche-tattoo: #8b5cf6;
+  --color-niche-psych: #3b82f6;
+  --color-niche-diet: #22c55e;
 
-  --color-neutral-50: #F8FAFC;
-  --color-neutral-100: #F1F5F9;
-  --color-neutral-200: #E2E8F0;
-  --color-neutral-300: #CBD5E1;
-  --color-neutral-400: #94A3B8;
-  --color-neutral-500: #64748B;
+  /* Neutral — ink-merkezli yeni palet */
+  --color-neutral-50: #f8faf7;
+  --color-neutral-100: #f4f2ed;
+  --color-neutral-200: #e5e2da;
+  --color-neutral-300: #cbd3df;
+  --color-neutral-400: #98a2b3;
+  --color-neutral-500: #5f6b7e;
   --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1E293B;
-  --color-neutral-900: #0F172A;
+  --color-neutral-700: #2b3445;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0b1220;
+
+  /* Ink scale — semantic text renkleri (utility üretir: text-ink-1 vs.) */
+  --color-ink-1: #0b1220;
+  --color-ink-2: #2b3445;
+  --color-ink-3: #5f6b7e;
+  --color-ink-4: #98a2b3;
+  --color-ink-5: #cbd3df;
 }
 
-/* Design tokens — scoped Vue stilleri ve auth sayfaları için (:root) */
+/* ---------------------------------------------------------------------------
+ * Semantic design tokens — :root (light theme default)
+ * Web-tokens.css ile birebir uyumlu; component CSS bu değişkenleri tüketir.
+ * ------------------------------------------------------------------------ */
 :root {
-  --color-background: #F8FAFC;
-  --color-background-alt: #F1F5F9;
-  --color-surface: #ffffff;
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
+  /* Surface & background */
+  --bg: #faf9f6;
+  --bg-elevated: #ffffff;
+  --bg-subtle: #f4f2ed;
+  --surface: #ffffff;
+  --surface-2: #f8f6f1;
 
-  /* Ayarla primary - Teal */
-  --color-primary: #0891B2;
-  --color-primary-hover: #0E7490;
-  --color-primary-light: #CCFBF1;
+  /* Ink — text hierarchy */
+  --ink-1: #0b1220;
+  --ink-2: #2b3445;
+  --ink-3: #5f6b7e;
+  --ink-4: #98a2b3;
+  --ink-5: #cbd3df;
 
-  /* Secondary - Indigo (for accents) */
-  --color-secondary: #6366F1;
-  --color-secondary-hover: #4F46E5;
-  --color-secondary-light: #E0E7FF;
+  /* Hairline borders */
+  --hairline: rgba(11, 18, 32, 0.08);
+  --hairline-strong: rgba(11, 18, 32, 0.14);
 
-  --color-text: #0F172A;
-  --color-text-muted: #64748B;
-  --color-text-subtle: #94A3B8;
-  --color-text-secondary: #475569;
+  /* Brand primary (derin teal) */
+  --primary: #0d7a8f;
+  --primary-pressed: #0e7490;
+  --primary-tint: #e7f6f6;
 
-  --color-danger: #EF4444;
-  --color-danger-bg: #FEE2E2;
-  --color-success: #10B981;
-  --color-success-bg: #D1FAE5;
-  --color-warning: #F59E0B;
-  --color-warning-bg: #FEF3C7;
+  /* Semantic status renkleri + tint'ler */
+  --success: #059669;
+  --success-tint: #d1fae5;
+  --warning: #d97706;
+  --warning-tint: #fef3c7;
+  --danger: #dc2626;
+  --danger-tint: #fee2e2;
+  --info: #2563eb;
+  --info-tint: #dbeafe;
 
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  /* Niche kategori vurgu renkleri */
+  --niche-hair: #0891b2;
+  --niche-beauty: #ec4899;
+  --niche-nail: #f43f5e;
+  --niche-tattoo: #8b5cf6;
+  --niche-psych: #3b82f6;
+  --niche-diet: #22c55e;
 
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.06);
-  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.05);
+  /* Tipografi font aileleri */
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+
+  /* Shadows — 4 seviye + brand pop */
+  --shadow-1: 0 1px 2px rgba(11, 18, 32, 0.04), 0 1px 3px rgba(11, 18, 32, 0.03);
+  --shadow-2: 0 4px 12px rgba(11, 18, 32, 0.06), 0 2px 4px rgba(11, 18, 32, 0.04);
+  --shadow-3: 0 12px 32px rgba(11, 18, 32, 0.10), 0 4px 8px rgba(11, 18, 32, 0.06);
+  --shadow-pop: 0 16px 40px rgba(13, 122, 143, 0.20), 0 4px 8px rgba(13, 122, 143, 0.10);
+
+  /* Modal/Drawer scrim — light tema */
+  --scrim: rgba(11, 18, 32, 0.45);
+  --scrim-soft: rgba(11, 18, 32, 0.32);
+
+  /* Hero gradient stop (auth split-hero) */
+  --gradient-end: #14b8a6;
+
+  /* Radius scale */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-full: 9999px;
+
+  /* Web shell metrikleri */
+  --sidebar-w: 244px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 64px;
+
+  /* ----- Geriye uyum (legacy --color-* aliases) -----
+   * Mevcut bileşenleri bozmamak için yeni token'lara map'lenir.
+   * Yeni kod yazımında --bg / --ink-* / --primary tercih edilir. */
+  --color-background: var(--bg);
+  --color-background-alt: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-border: var(--hairline-strong);
+  --color-border-light: var(--hairline);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-pressed);
+  --color-primary-dark: var(--primary-pressed);
+  --color-primary-light: var(--primary-tint);
+
+  --color-secondary: #6366f1;
+  --color-secondary-hover: #4f46e5;
+  --color-secondary-light: #e0e7ff;
+
+  --color-text: var(--ink-1);
+  --color-text-secondary: var(--ink-2);
+  --color-text-muted: var(--ink-3);
+  --color-text-subtle: var(--ink-4);
+
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-tint);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-tint);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-tint);
+
+  --radius-sm: 6px;
+  --radius-md: var(--r-sm);
+  --radius-lg: var(--r-md);
+  --radius-xl: var(--r-lg);
+  --radius-2xl: var(--r-xl);
+
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-2);
+  --shadow-lg: var(--shadow-3);
+  --shadow-xl: var(--shadow-3);
 }
 
+/* ---------------------------------------------------------------------------
+ * Dark theme — `.theme-dark` class root öğeye eklenince aktif.
+ * Faz 7'de toggle bağlanır (`useTheme` composable + Topbar butonu).
+ * ------------------------------------------------------------------------ */
+.theme-dark {
+  --bg: #0a0f18;
+  --bg-elevated: #121823;
+  --bg-subtle: #0e141e;
+  --surface: #161d29;
+  --surface-2: #1c2432;
+
+  --ink-1: #f4f6fa;
+  --ink-2: #d3dae5;
+  --ink-3: #97a1b2;
+  --ink-4: #6a7486;
+  --ink-5: #3d4758;
+
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+
+  --primary: #2dd4bf;
+  --primary-pressed: #5eead4;
+  --primary-tint: rgba(45, 212, 191, 0.12);
+
+  --success: #34d399;
+  --success-tint: rgba(52, 211, 153, 0.14);
+  --warning: #fbbf24;
+  --warning-tint: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-tint: rgba(248, 113, 113, 0.14);
+  --info: #60a5fa;
+  --info-tint: rgba(96, 165, 250, 0.14);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 16px 40px rgba(45, 212, 191, 0.24);
+
+  --scrim: rgba(0, 0, 0, 0.65);
+  --scrim-soft: rgba(0, 0, 0, 0.5);
+  --gradient-end: #5eead4;
+}
+
+/* ---------------------------------------------------------------------------
+ * Reduced motion — global accessibility guardrail.
+ * Kullanıcı işletim sisteminden hareket azaltma istemişse animasyon ve
+ * geçişleri devre dışı bırakırız. Bireysel bileşenler kendi hassas
+ * media query'lerini de tanımlayabilir.
+ * ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Base reset + body
+ * ------------------------------------------------------------------------ */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -109,26 +267,126 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  color: var(--color-text);
-  background: var(--color-background);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-1);
+  background: var(--bg);
 }
 
-/* Display font for headings */
+/* ---------------------------------------------------------------------------
+ * Tipografi sınıfları (web-tokens.css ile birebir)
+ * Plus Jakarta Sans display başlıklar; Inter body; JetBrains Mono sayısal.
+ * ------------------------------------------------------------------------ */
+.display-lg {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.display-md {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.display-sm {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.title-lg {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.body-sm {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.caption {
+  font-size: 10.5px;
+  line-height: 1.3;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum';
+}
+
+/* Eski .font-display sınıfını koru (LandingView gibi yerlerde kullanılıyor) */
 .font-display {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-display);
 }
 
-/* Landing page specific heading styles */
+/* Landing page heading */
 .landing-heading {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.1;
 }
 
-/* Admin shell — layout içeriği */
+/* ---------------------------------------------------------------------------
+ * Hairline / divider yardımcı sınıflar
+ * ------------------------------------------------------------------------ */
+.hairline-b { border-bottom: 0.5px solid var(--hairline); }
+.hairline-t { border-top: 0.5px solid var(--hairline); }
+.hairline { border: 0.5px solid var(--hairline); }
+
+/* ---------------------------------------------------------------------------
+ * Quiet scrollbar (Webkit)
+ * ------------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hairline-strong);
+}
+
+/* ---------------------------------------------------------------------------
+ * Admin shell content paddingleri (mevcut layout için korunur)
+ * ------------------------------------------------------------------------ */
 .admin-content {
   padding: 1rem 1.25rem 2rem;
 }
@@ -145,76 +403,80 @@ body {
   }
 }
 
-/* Sayfa başlıkları — Tailwind + eski iskelet sayfalar */
+/* Sayfa başlıkları — mevcut iskelet uyumu */
 .page-title {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--color-text);
+  color: var(--ink-1);
   line-height: 1.2;
 }
 
 @media (min-width: 640px) {
   .page-title {
-    font-size: 1.75rem;
+    font-size: 1.625rem;
   }
 }
 
-/* Prime Dialog — başlık + özel kapatma (AppModal) */
+/* ---------------------------------------------------------------------------
+ * PrimeVue Dialog — özel başlık (AppModal)
+ * ------------------------------------------------------------------------ */
 .p-dialog.app-modal .p-dialog-header {
   width: 100%;
 }
 
-/* Native date inputs — tutarlı görünüm (AppDateField + genel) */
+/* ---------------------------------------------------------------------------
+ * Native date input — tutarlı görünüm (AppDateField + genel)
+ * ------------------------------------------------------------------------ */
 input[type='date'].app-date-field {
   box-sizing: border-box;
   width: 100%;
   min-height: 2.625rem;
   padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  color: var(--color-text);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink-1);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25;
-  color-scheme: light;
-  accent-color: var(--color-primary);
+  color-scheme: light dark;
+  accent-color: var(--primary);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 }
 
 input[type='date'].app-date-field:hover:not(:disabled) {
-  border-color: var(--color-neutral-300);
+  border-color: var(--ink-4);
 }
 
 input[type='date'].app-date-field:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
 }
 
 input[type='date'].app-date-field:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-  background: var(--color-background-alt);
+  background: var(--bg-subtle);
 }
 
-/* Diğer sayfalardaki düz type=date (ikon yok) */
 input[type='date'].input-date-plain {
   box-sizing: border-box;
   min-height: 2.625rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  color: var(--color-text);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink-1);
   font-family: inherit;
   font-size: 0.875rem;
-  color-scheme: light;
-  accent-color: var(--color-primary);
+  color-scheme: light dark;
+  accent-color: var(--primary);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
@@ -222,11 +484,13 @@ input[type='date'].input-date-plain {
 
 input[type='date'].input-date-plain:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
 }
 
-/* Native selects — modern appearance (add class="app-select") */
+/* ---------------------------------------------------------------------------
+ * Native select — modern appearance (class="app-select")
+ * ------------------------------------------------------------------------ */
 select.app-select {
   --app-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5 10 12.5 15 7.5' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   box-sizing: border-box;
@@ -234,14 +498,14 @@ select.app-select {
   min-width: 0;
   min-height: 2.625rem;
   padding: 0.5rem 2.35rem 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background-color: var(--surface);
   background-image: var(--app-select-chevron);
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
   background-size: 1.15rem;
-  color: var(--color-text);
+  color: var(--ink-1);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.35;
@@ -253,27 +517,27 @@ select.app-select {
 }
 
 select.app-select:hover:not(:disabled) {
-  border-color: var(--color-neutral-300);
+  border-color: var(--ink-4);
 }
 
 select.app-select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
 }
 
 select.app-select:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-  background-color: var(--color-background-alt);
+  background-color: var(--bg-subtle);
 }
 
 select.app-select[aria-invalid='true'] {
-  border-color: var(--color-danger);
+  border-color: var(--danger);
 }
 
 select.app-select[aria-invalid='true']:focus {
-  box-shadow: 0 0 0 3px var(--color-danger-bg);
+  box-shadow: 0 0 0 3px var(--danger-tint);
 }
 
 select.app-select.app-select--compact {
@@ -283,7 +547,7 @@ select.app-select.app-select--compact {
   padding-right: 1.85rem;
   font-size: 0.8125rem;
   background-size: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--r-sm);
 }
 
 select.app-select.app-select--no-chevron {
@@ -315,4 +579,26 @@ select.app-select.app-select--nested:focus {
   outline: none;
 }
 
+/* ---------------------------------------------------------------------------
+ * Rich Utility Classes — Card, Card-flat, Section (Faz 4 Dashboard)
+ * ------------------------------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+  padding: 1.25rem;
+}
 
+.card-flat {
+  background: var(--surface);
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 1rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

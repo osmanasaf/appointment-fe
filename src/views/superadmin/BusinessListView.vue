@@ -183,10 +183,9 @@ function formatDate(dateStr: string): string {
 
 function planBadgeClass(plan: string): string {
   const map: Record<string, string> = {
-    STARTER: 'bg-gray-700 text-gray-300',
-    PRO: 'bg-sky-900/50 text-sky-300',
-    BUSINESS: 'bg-indigo-900/50 text-indigo-300',
-    PREMIUM: 'bg-amber-900/50 text-amber-300',
+    SOLO: 'bg-sky-900/50 text-sky-300',
+    PRO: 'bg-indigo-900/50 text-indigo-300',
+    ENTERPRISE: 'bg-amber-900/50 text-amber-300',
   }
   return map[plan] ?? 'bg-gray-700 text-gray-300'
 }

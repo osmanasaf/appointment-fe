@@ -1,5 +1,133 @@
 {
+  "filters": {
+    "employee": {
+      "groupLabel": "Filter by staff",
+      "all": "All staff",
+      "searchPlaceholder": "Search staff…",
+      "noResults": "No matching staff",
+      "clear": "Clear staff filter"
+    },
+    "status": {
+      "groupLabel": "Filter by status",
+      "all": "All statuses",
+      "clear": "Clear status filter"
+    }
+  },
   "auth": {
+    "brand": {
+      "name": "Randevum",
+      "tagline": "PRO PANEL"
+    },
+    "hero": {
+      "title": "Set your appointments,\nfocus on your craft",
+      "subtitle": "Manage appointments, staff and customers from one panel with ease.",
+      "features": [
+        "Online booking & calendar management",
+        "Customer & staff tracking",
+        "Service & package management",
+        "Real-time notifications & reminders"
+      ],
+      "footerTitle": "Manage your time wisely,\ngrow your business.",
+      "footerSubtitle": "Every appointment is an opportunity.",
+      "trialTitle": "14-day free trial",
+      "trialSubtitleNoCreditCard": "No credit card required."
+    },
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Sign in to your booking panel",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "forgot": "Forgot password",
+      "noAccount": "No account?",
+      "signupLink": "Register",
+      "orDivider": "or",
+      "inviteSignIn": "Sign in with employee invitation"
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create a new business account",
+      "steps": {
+        "account": "Account",
+        "business": "Business",
+        "labels": [
+          "Enter your email and password",
+          "Add business information"
+        ]
+      },
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "nameLabel": "Full name",
+      "phoneLabel": "Phone (optional)",
+      "categoryLabel": "Business category",
+      "businessNameLabel": "Business name",
+      "businessNamePlaceholder": "Your business name",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "passwordStrength": {
+        "weak": "Weak password",
+        "medium": "Medium password",
+        "good": "Good password",
+        "strong": "Strong password"
+      }
+    },
+    "registerEmployee": {
+      "title": "Employee registration",
+      "subtitle": "Join a business with your invite"
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "subtitle": "We'll send you a link. Check your inbox.",
+      "emailLabel": "Email",
+      "submit": "Send link",
+      "submitCodeStep": "Send Code",
+      "otpTitle": "Verification Code",
+      "otpSubtitle": "Enter the 6-digit code sent to {email}.",
+      "verifying": "Verifying...",
+      "verifyButton": "Verify",
+      "resetTitle": "Set New Password",
+      "resetSubtitle": "Create a new password for your account.",
+      "passwordLabel": "New Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "resetButton": "Change Password",
+      "saving": "Saving...",
+      "submitting": "Sending…",
+      "successTitle": "Password Changed",
+      "successSubtitle": "You can now sign in with your new password.",
+      "successButton": "Sign In",
+      "resendCountdown": "Didn't receive the code? You can resend in {seconds}s",
+      "resendButton": "Resend code",
+      "backButton": "← Use different email",
+      "backToLogin": "Back to sign in",
+      "passwordMinError": "Password must be at least 6 characters",
+      "passwordMismatchError": "Passwords don't match",
+      "resetFailedError": "Failed to change password",
+      "verificationFailedError": "Verification failed",
+      "invalidCodeError": "Invalid verification code",
+      "resendFailedError": "Failed to send code"
+    },
+    "emailVerificationPending": {
+      "title": "Check your email",
+      "subtitle": "We sent a verification link. Open it to activate your account.",
+      "emailSentTo": "Verification code sent to:",
+      "otpLabel": "Enter verification code",
+      "resendCountdown": "Didn't receive the code? You can resend in {seconds}s",
+      "resendButton": "Resend code",
+      "verifying": "Verifying...",
+      "verifyButton": "Verify and Sign In",
+      "resend": "Resend verification email",
+      "checkInbox": "Check inbox",
+      "verificationFailedError": "Verification failed",
+      "invalidCodeError": "Invalid verification code",
+      "resendFailedError": "Failed to send code",
+      "resendSuccess": "New verification code sent"
+    },
+    "emailVerified": {
+      "title": "Email verified",
+      "subtitle": "You can now sign in and use your dashboard.",
+      "continue": "Sign in"
+    },
     "loginTitle": "Sign in",
     "loginSubtitle": "Sign in to your booking panel",
     "registerTitle": "Register",
@@ -31,7 +159,12 @@
     "emailRequired": "Enter your email",
     "emailInvalid": "Enter a valid email",
     "passwordRequired": "Enter your password",
-    "passwordMin": "Password must be at least 6 characters",
+    "passwordMin": "Password must be at least 8 characters",
+    "passwordHint": "At least 8 characters, 1 uppercase letter and 1 digit",
+    "phoneInvalid": "Enter a valid phone number (e.g. 5321234567)",
+    "phoneOptionalHint": "Optional; prefix +90 for international format",
+    "confirmPasswordRequired": "Password confirmation is required",
+    "confirmPasswordMismatch": "Passwords do not match",
     "nameRequired": "Enter your name",
     "nameMin": "At least 2 characters",
     "businessRequired": "Enter business name",
@@ -57,10 +190,14 @@
     "resendVerificationLink": "Resend verification email",
     "forgotPassword": "Forgot password",
     "termsAgreement": "I have read and accept the Terms of Service and Privacy Policy.",
+    "termsAgreementFull": "I have read and accept the {terms} and {privacy}.",
     "termsRequired": "You must accept the terms to continue.",
     "termsLink": "Terms of Service",
     "privacyLink": "Privacy Policy",
-    "kvkkLink": "GDPR Notice"
+    "kvkkLink": "GDPR Notice",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "togglePasswordVisibility": "Toggle password visibility"
   },
   "landing": {
     "documentTitle": "Randevum — Online booking & customer management.",
@@ -238,6 +375,7 @@
     "loading": "Loading…",
     "error": "Something went wrong",
     "errorOccurred": "An error occurred",
+    "sending": "Sending...",
     "retry": "Retry",
     "save": "Save",
     "cancel": "Cancel",
@@ -245,13 +383,23 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close",
+    "increment": "Increase",
+    "decrement": "Decrease",
     "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "moreActions": "More actions",
     "preview": "Preview",
     "copyLink": "Copy link",
     "copied": "Copied ✓",
     "logout": "Log out",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "customerFallback": "Customer #{id}",
+    "serviceFallback": "Service #{id}",
+    "employeeFallback": "Employee #{id}",
+    "packageNameSuffix": "{name} Package",
+    "notSpecified": "Not specified"
   },
   "admin": {
     "brand": "Randevum",
@@ -259,7 +407,29 @@
     "menuOpen": "Open menu",
     "menuClose": "Close menu",
     "publicBookingPage": "Public booking page",
-    "breadcrumb": "Admin"
+    "breadcrumb": "Admin",
+    "sidebarLabel": "Main navigation",
+    "searchPlaceholder": "Search customer, appointment, service…",
+    "notifications": "Notifications",
+    "themeDark": "Switch to dark theme",
+    "themeLight": "Switch to light theme",
+    "navGroup": {
+      "general": "General",
+      "business": "Business",
+      "account": "Account",
+      "today": "Today"
+    },
+    "roleLabel": {
+      "owner": "Business owner",
+      "employee": "Employee",
+      "admin": "Admin",
+      "superAdmin": "Super admin"
+    },
+    "upgradePromo": {
+      "title": "Try Pro",
+      "desc": "WhatsApp reminders, multi-location and unlimited packages.",
+      "cta": "Upgrade plan"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -271,6 +441,52 @@
     "packages": "Packages",
     "settings": "Settings",
     "onboarding": "Getting started"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No new notifications",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all notifications",
+    "filters": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "unreadBadge": "{n} unread",
+    "dismissAria": "Dismiss notification",
+    "closeAria": "Close notifications",
+    "relativeTime": {
+      "minutes": "{n} min ago",
+      "hours": "{n}h ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{n}d ago",
+      "justNow": "Just now"
+    },
+    "kinds": {
+      "appointment_created": {
+        "title": "New appointment",
+        "body": "{customer} booked an appointment at {time}"
+      },
+      "appointment_cancelled": {
+        "title": "Appointment cancelled",
+        "body": "{customer} cancelled their appointment"
+      },
+      "reminder_sent": {
+        "title": "Reminder sent",
+        "body": "Reminder SMS sent to {count} customers"
+      },
+      "payment_received": {
+        "title": "Payment received",
+        "body": "{customer} paid {amount}"
+      },
+      "system": {
+        "title": "System update",
+        "body": "{message}"
+      }
+    },
+    "actions": {
+      "viewAppointment": "View appointment",
+      "viewCustomer": "View customer"
+    }
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -297,7 +513,12 @@
       "label": "Period",
       "daily": "Daily",
       "weekly": "Weekly",
-      "monthly": "Monthly"
+      "monthly": "Monthly",
+      "lead": {
+        "daily": "Today",
+        "weekly": "This week",
+        "monthly": "This month"
+      }
     },
     "kpi": {
       "total": "Total appointments",
@@ -309,17 +530,77 @@
       "occupancy": "Occupancy",
       "occupancyHint": "Will update with analytics API",
       "noShowRate": "No-show rate",
-      "pendingBadge": "{count} pending"
+      "pendingBadge": "{count} pending",
+      "servicesActive": "Active services",
+      "activeCustomers": "Active customers"
+    },
+    "heroNext": {
+      "title": "Next appointment",
+      "empty": "No scheduled appointments today"
+    },
+    "appointmentCount": "{n} appointments",
+    "topServices": {
+      "title": "Top booked services",
+      "empty": "No data for this period"
+    },
+    "customerStats": {
+      "title": "Customer stats",
+      "total": "Total customers",
+      "newInPeriod": "New {lead}",
+      "returnRate": "Return rate",
+      "blacklisted": "Blacklisted",
+      "topCustomers": "Top customers",
+      "empty": "No data"
+    },
+    "packageAlerts": {
+      "title": "Packages needing attention",
+      "lowSession": "Low sessions",
+      "expiring": "Expires in 7 days",
+      "activeTotal": "Active packages",
+      "sessionsShort": "{remaining}/{total} sessions",
+      "expiringTag": "Expiring",
+      "lowTag": "Low",
+      "viewAll": "View all packages →"
     },
     "stats": {
       "services": "Services",
       "customers": "Customers",
       "employees": "Staff"
     },
-    "todaySection": "Today's appointments",
+    "downloadReport": "Download report",
+    "newAppointment": "New appointment",
+    "report": {
+      "filenamePrefix": "report",
+      "kpiSection": "Summary",
+      "todaySection": "Today's appointments",
+      "topServicesSection": "Top services",
+      "customerStatsSection": "Customer stats",
+      "headers": {
+        "metric": "Metric",
+        "value": "Value",
+        "time": "Time",
+        "customer": "Customer",
+        "service": "Service",
+        "employee": "Staff",
+        "status": "Status",
+        "rank": "Rank",
+        "appointments": "Appointments",
+        "completionRate": "Completion %",
+        "revenue": "Revenue"
+      }
+    },
+    "todaySection": "Today's flow",
+    "todayMeta": "{count} appointments · {employees} active staff",
+    "todayMetaSingular": "{count} appointment · {employees} active staff",
+    "gotoCalendar": "Go to calendar",
+    "appointmentDuration": "{minutes}m",
+    "appointmentDurationHours": "{hours}h {minutes}m",
+    "openAppointment": "Open appointment details",
     "priceList": "Price list",
     "noAppointmentsToday": "No appointments today.",
     "createAppointment": "Create appointment",
+    "employeeFallback": "Staff #{id}",
+    "serviceFallback": "Service #{id}",
     "noActiveServices": "No active services yet.",
     "addService": "Add service",
     "moreAppointments": "+{count} more…",
@@ -350,12 +631,72 @@
   },
   "calendar": {
     "title": "Calendar",
-    "emptyTitle": "Calendar coming soon",
-    "emptyDescription": "Drag-and-drop and staff filters will be available here.",
-    "loadError": "Could not load calendar data.",
-    "filterEmployee": "Staff",
-    "allEmployees": "All",
-    "hint": "Week view; drag-and-drop needs a backend reschedule API."
+    "subtitle": "All staff appointments in one place. Red line shows the current time.",
+    "today": "Today",
+    "view": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "viewSelector": "Calendar view",
+    "filter": "Filter",
+    "newAppointment": "Appointment",
+    "filterPanel": {
+      "title": "Filters",
+      "statusLabel": "Status",
+      "employeeLabel": "Staff",
+      "clear": "Clear",
+      "status": {
+        "all": "All",
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "risky": "Risky",
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "no_show": "No-show"
+      }
+    },
+    "loading": "Loading calendar...",
+    "empty": "No appointments in this view.",
+    "error": "Could not load calendar.",
+    "retry": "Retry",
+    "nav": {
+      "previous": {
+        "day": "Previous day",
+        "week": "Previous week",
+        "month": "Previous month"
+      },
+      "next": {
+        "day": "Next day",
+        "week": "Next week",
+        "month": "Next month"
+      }
+    },
+    "appointmentCard": {
+      "aria": "{time} · {customer} · {service} · {status}"
+    },
+    "day": {
+      "active": "Active",
+      "appointmentCount": "{count} appointments",
+      "now": "Now",
+      "noEmployees": "No employees defined for this business yet."
+    },
+    "week": {
+      "title": "Week intensity",
+      "subtitle": "Hourly appointment counts",
+      "intensity": {
+        "low": "Low",
+        "high": "High"
+      },
+      "legendAria": "Intensity legend",
+      "cellAria": "{day} {hour}: {count} appointments"
+    },
+    "month": {
+      "moreCount": "+{n} more",
+      "moreCountAria": "{n} additional appointments",
+      "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "dayAria": "{date} · {count} appointments"
+    }
   },
   "settings": {
     "tabs": {
@@ -363,7 +704,8 @@
       "notifications": "Notifications",
       "messageTemplates": "Message Templates",
       "plan": "Plan & usage",
-      "security": "Security"
+      "security": "Security",
+      "appearance": "Appearance"
     },
     "messageTemplates": {
       "title": "Message Templates",
@@ -387,6 +729,7 @@
       },
       "variables": {
         "title": "Available Variables",
+        "hint": "Click on a variable to add it to the message content.",
         "customer_name": "Customer name",
         "business_name": "Business name",
         "service_name": "Service name",
@@ -400,36 +743,116 @@
         "preview": "Preview"
       },
       "messages": {
+        "loadError": "Could not load templates",
         "saveSuccess": "Template saved",
         "saveError": "Could not save template",
         "resetSuccess": "Template reset to default",
-        "resetConfirm": "Are you sure you want to reset this template to its default?"
+        "resetError": "Could not reset template",
+        "resetConfirm": "Are you sure you want to reset this template to its default?",
+        "savingButton": "Saving..."
       }
     },
     "notifications": {
       "title": "Notification Settings",
       "subtitle": "Manage your appointment notification and reminder preferences.",
+      "monthlyUsage": "Monthly Usage",
+      "unlimited": "Unlimited",
+      "messagesRemaining": "{n} messages left",
+      "smsRemaining": "{n} SMS left",
+      "planUpgradeRequired": "Plan upgrade required",
+      "unsavedChanges": "Unsaved changes",
+      "retryButton": "Retry",
+      "savingButton": "Saving...",
       "whatsapp": {
         "title": "WhatsApp Notifications",
+        "subtitle": "WhatsApp Messages",
         "enabled": "WhatsApp notifications enabled",
         "sendReminders": "Send appointment reminders",
         "reminderHours": "Reminder time (hours before)",
         "sendConfirmations": "Send confirmation messages",
-        "sendCancellations": "Send cancellation messages"
+        "sendCancellations": "Send cancellation messages",
+        "planUpgradeNote": "You need to upgrade your plan for this feature"
       },
       "sms": {
         "title": "SMS Notifications",
-        "enabled": "SMS notifications enabled (fallback when WhatsApp fails)",
-        "fallback": "Send SMS if WhatsApp fails"
+        "subtitle": "SMS",
+        "enabled": "SMS notifications enabled",
+        "fallback": "Send SMS if WhatsApp fails",
+        "planNote": "SMS notifications available in Business plans and above"
+      },
+      "reminderOptions": {
+        "h1": "1 hour",
+        "h2": "2 hours",
+        "h4": "4 hours",
+        "h12": "12 hours",
+        "h24": "24 hours (1 day)",
+        "h48": "48 hours (2 days)"
+      },
+      "secondReminder": {
+        "label": "Send second reminder",
+        "timeLabel": "Second reminder time:",
+        "h1": "1 hour before",
+        "h2": "2 hours before",
+        "h4": "4 hours before"
+      },
+      "toast": {
+        "loadError": "Could not load settings",
+        "success": "Notification settings saved",
+        "error": "Could not save settings"
       }
     },
     "security": {
       "title": "Security Settings",
       "subtitle": "Manage your account security and access settings.",
       "changePassword": "Change Password",
+      "changePasswordSubtitle": "Change your account password",
       "twoFactor": "Two-Factor Authentication",
-      "sessions": "Active Sessions"
+      "twoFactorSubtitle": "Make your account more secure",
+      "twoFactorComingSoon": "Two-factor authentication coming soon.",
+      "sessions": "Active Sessions",
+      "sessionsSubtitle": "Manage your active sessions",
+      "thisDevice": "This device",
+      "thisDevicePlatform": "Windows · Chrome",
+      "activeStatus": "Active",
+      "newPasswordHint": "Must be at least 8 characters.",
+      "fields": {
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm New Password"
+      },
+      "errors": {
+        "currentRequired": "Current password is required.",
+        "newRequired": "New password is required.",
+        "newTooShort": "New password must be at least {min} characters.",
+        "confirmMismatch": "New passwords do not match."
+      },
+      "button": {
+        "change": "Change Password"
+      },
+      "toast": {
+        "success": "Password changed",
+        "error": "Could not change password"
+      }
     }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "lead": "Customize your theme preference and screen appearance.",
+    "option": {
+      "light": {
+        "label": "Light",
+        "desc": "Classic theme for bright environments."
+      },
+      "dark": {
+        "label": "Dark",
+        "desc": "Easy on the eyes in low-light conditions."
+      },
+      "system": {
+        "label": "System",
+        "desc": "Automatically matches your OS preference."
+      }
+    },
+    "note": "Preference is saved on this device."
   },
   "plan": {
     "title": "Subscription plans",
@@ -449,8 +872,23 @@
     "matrixHint": "Cells show whether each plan lists the feature.",
     "upgrade": "Upgrade",
     "currentPlan": "Current plan",
+    "inUse": "In use",
     "contactUs": "Contact us",
-    "upgradeMessage": "Please contact us to upgrade your plan."
+    "upgradeMessage": "Please contact us to upgrade your plan.",
+    "upgradeModalBody": "You are about to upgrade to {plan} plan.",
+    "plans": {
+      "SOLO": "Solo",
+      "PRO": "Professional",
+      "ENTERPRISE": "Enterprise"
+    },
+    "subscriptionStatus": {
+      "TRIAL": "Trial",
+      "ACTIVE": "Active",
+      "EXPIRED": "Expired",
+      "SUSPENDED": "Suspended"
+    },
+    "emailSubject": "Plan Upgrade Request - {code}",
+    "emailBody": "Hello,\n\nI would like to upgrade to {plan} plan.\n\nThank you."
   },
   "onboarding": {
     "title": "Business setup wizard",
@@ -603,6 +1041,7 @@
     "linkCopied": "Link copied",
     "linkCopyFailed": "Could not copy link",
     "cancelInviteConfirm": "Are you sure you want to cancel the invite for {email}?",
+    "inviteCancelled": "Invite cancelled",
     "inviteStatus": {
       "PENDING": "Pending",
       "USED": "Used",
@@ -642,6 +1081,7 @@
     "nameRequired": "Enter a name",
     "nameMin": "At least 2 characters",
     "emailInvalid": "Enter a valid email",
+    "emailPlaceholder": "example{'@'}mail.com",
     "onboardingTitle": "Employee setup — {name}",
     "stepCapabilities": "Service capabilities",
     "stepSchedule": "Working hours (optional)",
@@ -705,7 +1145,12 @@
     "service": "Service",
     "selectService": "Select service",
     "selectSkillLevel": "Select level",
-    "assign": "Assign"
+    "assign": "Assign",
+    "stats": {
+      "todayAppointments": "Today",
+      "services": "Services",
+      "status": "Status"
+    }
   },
   "leave": {
     "newLeave": "New leave",
@@ -756,5 +1201,678 @@
     "completeSuccess": "Appointment completed",
     "cancelSuccess": "Appointment cancelled",
     "cancelConfirm": "Are you sure you want to cancel this appointment?"
+  },
+  "appointmentsView": {
+    "title": "Appointments",
+    "summary": "{count} appointments",
+    "summaryWithPeriod": "{count} appointments · {period}",
+    "newAppointment": "New appointment",
+    "newShort": "New",
+    "viewLabel": "View",
+    "view": {
+      "list": "List",
+      "calendar": "Calendar"
+    },
+    "filter": {
+      "start": "Start",
+      "end": "End",
+      "status": "Status",
+      "statusAll": "All",
+      "statusGroupLabel": "Filter by status",
+      "allStatuses": "All statuses",
+      "clear": "Clear",
+      "refresh": "Refresh",
+      "employeeAll": "All staff",
+      "employeeGroupLabel": "Filter by staff",
+      "employeeSearchPlaceholder": "Search staff…",
+      "employeeNoResults": "No matching staff"
+    },
+    "table": {
+      "time": "Time",
+      "customer": "Customer",
+      "service": "Service",
+      "employee": "Staff",
+      "status": "Status",
+      "duration": "Duration"
+    },
+    "noBusiness": "Business information not found.",
+    "errorLoad": "Could not load appointments.",
+    "errorRefs": "Could not load staff and services.",
+    "errorConfirm": "Could not confirm.",
+    "errorComplete": "Could not complete.",
+    "errorNoShow": "Could not mark as no-show.",
+    "errorCancel": "Could not cancel.",
+    "list": {
+      "emptyTitle": "No appointments in this range",
+      "emptyHint": "Change the date range or filters.",
+      "createCta": "Create appointment",
+      "groupCount": "{n} appointments",
+      "minutesShort": "{n} min",
+      "riskyTag": "Risky",
+      "requiresConfirm": "Confirmation required"
+    },
+    "source": {
+      "PHONE": "Phone",
+      "WALK_IN": "Walk-in",
+      "ONLINE": "Online"
+    },
+    "action": {
+      "confirm": "Confirm",
+      "complete": "Complete",
+      "cancel": "Cancel",
+      "noShow": "No-show"
+    },
+    "detail": {
+      "title": "Appointment detail",
+      "emptyTitle": "Select an appointment",
+      "emptyHint": "Pick an appointment from the list to see details.",
+      "customer": "Customer",
+      "employee": "Staff",
+      "service": "Service",
+      "source": "Source",
+      "notes": "Notes",
+      "durationMin": "{n} minutes",
+      "requiresConfirm": "Confirmation required"
+    },
+    "cancelModal": {
+      "title": "Cancel appointment",
+      "question": "Cancel the appointment scheduled for {datetime}?",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Message to share with the customer…",
+      "submit": "Cancel"
+    }
+  },
+  "packagesView": {
+    "title": "Package Templates",
+    "lead": "Manage package templates and view customer packages.",
+    "summary": "{templates} active templates · {sales} sold packages · {active} still active",
+    "noBusiness": "Business information not found.",
+    "errorLoad": "Could not load packages.",
+    "section": {
+      "templates": "Package templates",
+      "templatesDesc": "Templates you'll assign to customers (e.g. Haircut 8-pack).",
+      "sold": "Sold packages",
+      "soldDesc": "Grouped by template"
+    },
+    "action": {
+      "newTemplate": "New Package",
+      "edit": "Edit",
+      "deactivate": "Deactivate"
+    },
+    "card": {
+      "perSession": "Per session {price}",
+      "sold": "Sold",
+      "active": "Active"
+    },
+    "empty": {
+      "templates": "No templates yet. Add a new template.",
+      "sold": "No packages sold yet. You can assign packages from customer detail or template."
+    },
+    "template": {
+      "passive": "Inactive",
+      "sessions": "{n} sessions",
+      "sales": "{n} sales"
+    },
+    "stat": {
+      "totalSales": "Total sales",
+      "active": "Active",
+      "lowSessions": "Running low",
+      "expired": "Expired"
+    },
+    "group": {
+      "manual": "Manual",
+      "activeCount": "{n} active",
+      "lowCount": "{n} low",
+      "expiredCount": "{n} expired",
+      "customers": "{n} customers",
+      "detail": "Detail"
+    },
+    "package": {
+      "statusExpired": "Expired",
+      "statusLow": "Low",
+      "statusActive": "Active",
+      "expiryUnlimited": "Unlimited",
+      "expiryUntil": "Until {date}"
+    },
+    "modal": {
+      "editTemplate": "Edit template",
+      "newTemplate": "New package template",
+      "deactivate": "Deactivate template",
+      "deactivateBody": "«{name}» will be deactivated. Existing customer packages will not be affected.",
+      "confirmCancel": "Cancel",
+      "confirmDeactivate": "Deactivate",
+      "preview": "Preview",
+      "previewNamePlaceholder": "Package name",
+      "previewServicePlaceholder": "Select a service"
+    },
+    "field": {
+      "name": "Template name",
+      "namePlaceholder": "E.g. Haircut 8-pack",
+      "service": "Service",
+      "servicePlaceholder": "Select",
+      "serviceEmptyHint": "Add a 'package eligible' service first.",
+      "sessions": "Number of sessions",
+      "price": "Package price",
+      "priceOptional": "(optional)",
+      "color": "Color"
+    },
+    "validation": {
+      "nameMin": "Template name must be at least 2 characters",
+      "serviceRequired": "Select a service",
+      "sessionsMin": "Number of sessions must be at least 1",
+      "saveFailed": "Save failed",
+      "deactivateFailed": "Could not deactivate template."
+    }
+  },
+  "servicesView": {
+    "title": "Services",
+    "lead": "{total} services · {active} active",
+    "search": {
+      "placeholder": "Search services…",
+      "aria": "Search services"
+    },
+    "filter": {
+      "label": "Filter",
+      "all": "All",
+      "active": "Active",
+      "passive": "Inactive",
+      "packageEligible": "Package eligible"
+    },
+    "action": {
+      "new": "New service",
+      "addNew": "Add new service",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "employees": "Staff",
+      "employeesCount": "({count})",
+      "createPackage": "Create package"
+    },
+    "empty": {
+      "title": "No services yet",
+      "desc": "Start by adding your first service.",
+      "action": "Add first service"
+    },
+    "status": {
+      "active": "Active",
+      "passive": "Inactive"
+    },
+    "tag": {
+      "packageEligible": "Package",
+      "requiresConfirmation": "Confirmation required"
+    },
+    "field": {
+      "duration": "{n} min",
+      "durationUnit": "min",
+      "price": "{price} {currency}",
+      "notAssigned": "No staff assigned yet"
+    },
+    "detail": {
+      "empty": "Select a service from the left",
+      "emptyDesc": "Click a card from the list to view details.",
+      "info": {
+        "duration": "Duration",
+        "price": "Price",
+        "bufferBefore": "Preparation time",
+        "bufferAfter": "Buffer after",
+        "confirmation": "Confirmation required",
+        "package": "Package eligible"
+      },
+      "employees": {
+        "title": "Staff",
+        "count": "· {assigned}/{total}",
+        "searchPlaceholder": "Search staff…",
+        "noEmployees": "No staff added yet.",
+        "empty": "No staff assigned yet.",
+        "changeSkill": "Change skill level",
+        "assign": "Assign",
+        "unassign": "Remove"
+      }
+    },
+    "modal": {
+      "create": "New service",
+      "edit": "Edit service",
+      "delete": "Delete service",
+      "deleteBody": "«{name}» will be permanently deleted. This cannot be undone.",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete",
+      "employees": "Staff — {name}"
+    },
+    "form": {
+      "section1": "Basic info",
+      "section2": "Duration & Price",
+      "section3": "Settings",
+      "nameLabel": "Service name",
+      "nameRequired": "*",
+      "namePlaceholder": "E.g. Haircut",
+      "descLabel": "Description",
+      "descOptional": "(optional)",
+      "descPlaceholder": "Add a brief description…",
+      "durationLabel": "Duration (min)",
+      "durationUnit": "min",
+      "priceLabel": "Price",
+      "priceUnit": "₺",
+      "bufferBeforeLabel": "Preparation time (min)",
+      "bufferAfterLabel": "Buffer after (min)",
+      "requiresConfirmationLabel": "Confirmation required",
+      "requiresConfirmationDesc": "Appointment waits for manual confirmation.",
+      "sameDayLabel": "Same-day booking allowed",
+      "sameDayDesc": "Customer can book for today.",
+      "packageEligibleLabel": "Package service",
+      "packageEligibleDesc": "A session package template can be created for this service.",
+      "submitCreate": "Add service",
+      "submitUpdate": "Update"
+    },
+    "employeesModal": {
+      "capable": "Staff who can provide this service",
+      "capableEmpty": "No staff assigned yet.",
+      "assignTitle": "Assign staff",
+      "assignEmpty": "No other active staff available to assign.",
+      "assignEmployeeLabel": "Staff member",
+      "assignEmployeePlaceholder": "Select staff",
+      "assignSkillLabel": "Skill level",
+      "assignSkillPlaceholder": "Select level",
+      "assignButton": "Assign",
+      "removeButton": "Remove",
+      "close": "Close"
+    },
+    "packagePrompt": {
+      "title": "Create package template",
+      "body": "Would you like a package template for «{name}»?",
+      "desc": "You can add this service to a package. Would you like to create a package template now?",
+      "later": "Later",
+      "create": "Create package"
+    },
+    "toast": {
+      "serviceCreated": "Service added · you can now assign staff",
+      "focusEmployee": "Select services for {name}"
+    },
+    "error": {
+      "load": "Could not load the list.",
+      "nameMin": "Enter at least 2 characters",
+      "durationRange": "Must be between 15–360 minutes",
+      "saveFailed": "Could not save.",
+      "activateFailed": "Could not activate.",
+      "deactivateFailed": "Could not deactivate.",
+      "deleteFailed": "Could not delete.",
+      "assignFailed": "Assignment failed.",
+      "removeFailed": "Could not remove.",
+      "loadCapabilitiesFailed": "Could not load capabilities.",
+      "loadEmployeesFailed": "Could not load staff.",
+      "reloadCapabilitiesFailed": "Could not reload capabilities."
+    }
+  },
+  "packageDetailView": {
+    "title": {
+      "fallback": "Package Detail"
+    },
+    "lead": "Template information and customers with this package",
+    "error": {
+      "load": "Could not load data."
+    },
+    "action": {
+      "retry": "Retry",
+      "assign": "Assign this package to a customer"
+    },
+    "template": {
+      "active": "Active",
+      "passive": "Inactive",
+      "sessions": "{n} sessions"
+    },
+    "stats": {
+      "totalSales": "Total sales",
+      "activeCustomers": "Active customers",
+      "remainingSessions": "Remaining sessions",
+      "usedSessions": "Used sessions"
+    },
+    "section": {
+      "customers": "Customers with this package"
+    },
+    "filter": {
+      "all": "All",
+      "active": "Active",
+      "low": "Running low",
+      "expired": "Expired"
+    },
+    "empty": {
+      "noAssigned": "This template has not been assigned to any customer yet.",
+      "noFilter": "No customers in this filter."
+    },
+    "status": {
+      "expired": "Expired",
+      "low": "Low",
+      "active": "Active"
+    },
+    "expiry": {
+      "unlimited": "Unlimited",
+      "until": "Until {date}"
+    },
+    "sessions": {
+      "loading": "Loading sessions…",
+      "empty": "No session records.",
+      "title": "Sessions",
+      "createAppointment": "Create appointment",
+      "assignAppointment": "Assign appointment"
+    },
+    "sessionStatus": {
+      "PENDING": "Pending",
+      "SCHEDULED": "Scheduled",
+      "COMPLETED": "Completed",
+      "NO_SHOW": "No-show",
+      "CANCELLED": "Cancelled"
+    },
+    "modal": {
+      "assign": {
+        "title": "Assign package to customer",
+        "customerLabel": "Customer",
+        "customerRequired": "*",
+        "customerPlaceholder": "Search name or phone…",
+        "empty": "No customers found",
+        "cancel": "Cancel",
+        "submit": "Assign package",
+        "error": "Assignment failed."
+      },
+      "appointment": {
+        "title": "Create Appointment"
+      }
+    },
+    "wizard": {
+      "step": {
+        "employee": "Staff",
+        "date": "Date",
+        "time": "Time",
+        "summary": "Summary"
+      },
+      "employeeSelect": {
+        "label": "Staff",
+        "required": "*",
+        "error": "Select a staff member"
+      },
+      "dateSelect": {
+        "empty": "No available dates found.",
+        "error": "Select a date",
+        "days": {
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat",
+          "sun": "Sun"
+        }
+      },
+      "timeSelect": {
+        "empty": "No available times for this date.",
+        "error": "Select a time",
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      },
+      "summary": {
+        "customer": "Customer",
+        "employee": "Staff",
+        "service": "Service",
+        "dateTime": "Date & time",
+        "packageSession": "Package session",
+        "sessionNumber": "Session #{n}"
+      },
+      "action": {
+        "back": "← Back",
+        "next": "Continue →",
+        "cancel": "Cancel",
+        "submit": "Create appointment"
+      },
+      "bridge": {
+        "empty": "This staff member has no assigned services",
+        "action": "Go to Services page and assign"
+      }
+    }
+  },
+  "commandPalette": {
+    "title": "Command Palette",
+    "searchPlaceholder": "Search command or page...",
+    "empty": "No results",
+    "sections": {
+      "navigation": "Pages",
+      "actions": "Actions",
+      "recent": "Recent",
+      "help": "Help"
+    },
+    "commands": {
+      "gotoDashboard": "Go to Dashboard",
+      "gotoCalendar": "Go to Calendar",
+      "gotoAppointments": "Go to Appointments",
+      "gotoCustomers": "Go to Customers",
+      "gotoEmployees": "Go to Employees",
+      "gotoServices": "Go to Services",
+      "gotoPackages": "Go to Packages",
+      "gotoSettings": "Go to Settings"
+    },
+    "actions": {
+      "newAppointment": "New appointment",
+      "newCustomer": "New customer",
+      "toggleTheme": "Toggle theme",
+      "logout": "Sign out"
+    },
+    "actionsDesc": {
+      "newAppointment": "Create a new appointment",
+      "newCustomer": "Add a new customer",
+      "toggleTheme": "Switch between light and dark theme",
+      "logout": "Sign out of your account"
+    },
+    "help": {
+      "shortcuts": "Keyboard shortcuts"
+    },
+    "helpDesc": {
+      "shortcuts": "View all keyboard shortcuts"
+    },
+    "shortcutHint": "Press ESC to close"
+  },
+  "customersView": {
+    "title": "Customers",
+    "lead": "Customer records, contact details, packages, and appointment history.",
+    "summary": "{total} total · {recent} new this month",
+    "noBusiness": "Business information not found.",
+    "error": {
+      "load": "Could not load list.",
+      "retry": "Retry",
+      "blacklist": "Operation failed.",
+      "removeBlacklist": "Could not remove from blacklist.",
+      "delete": "Could not delete customer.",
+      "save": "Could not save.",
+      "sessionAssign": "Could not assign appointment.",
+      "sessionUnassign": "Could not remove appointment."
+    },
+    "action": {
+      "new": "New customer",
+      "edit": "Edit",
+      "blacklist": "Blacklist",
+      "removeBlacklist": "Remove from blacklist",
+      "clearApproval": "Clear approval requirement",
+      "delete": "Delete",
+      "assignPackage": "Assign package"
+    },
+    "search": {
+      "placeholder": "Search name or phone…",
+      "aria": "Search customers"
+    },
+    "toolbar": {
+      "filter": "Filter",
+      "filterToggleAria": "Toggle filter options"
+    },
+    "filter": {
+      "all": "All",
+      "new": "New",
+      "risky": "Risky",
+      "blacklist": "Blacklisted",
+      "approval": "Approval"
+    },
+    "list": {
+      "count": "{n} customers",
+      "aria": "Customer list",
+      "empty": "No customers yet",
+      "emptyDesc": "Start by adding your first customer.",
+      "emptyAction": "+ Add",
+      "noResults": "No results for «{q}»."
+    },
+    "table": {
+      "name": "Name",
+      "tag": "Tag",
+      "joined": "Joined"
+    },
+    "badge": {
+      "blacklist": "Blacklisted",
+      "risky": "Risky",
+      "requireApproval": "Approval required",
+      "new": "New",
+      "regular": "Regular",
+      "noShowCount": "{n}× no-show"
+    },
+    "relative": {
+      "justNow": "just now",
+      "minute": "{n} min ago",
+      "hour": "{n} h ago",
+      "day": "{n} d ago",
+      "week": "{n} w ago",
+      "month": "{n} mo ago"
+    },
+    "hero": {
+      "appointment": "Appointment",
+      "callAria": "Call {name}"
+    },
+    "stat": {
+      "visits": "Visits",
+      "completed": "Completed",
+      "packages": "Packages"
+    },
+    "detail": {
+      "empty": "Select a customer from the list.",
+      "activePackage": "Active package",
+      "moreActions": "More actions",
+      "viewAll": "View all ({n})",
+      "noteLabel": "Note"
+    },
+    "section": {
+      "contact": "Contact",
+      "packages": "Packages",
+      "appointments": "Appointment history"
+    },
+    "field": {
+      "phone": "Phone",
+      "email": "Email",
+      "createdAt": "Created",
+      "address": "Address",
+      "nationalId": "National ID",
+      "notes": "Notes",
+      "blacklistReason": "Blacklist reason"
+    },
+    "package": {
+      "empty": "No packages assigned to this customer yet.",
+      "statusExpired": "Expired",
+      "statusLow": "Running low",
+      "statusActive": "Active",
+      "sessionsRemaining": "{remaining}/{total} sessions left",
+      "expiry": "Expires: {date}",
+      "expiryNone": "Expires: —",
+      "deductLabel": "Deduct session: {name}",
+      "deductTitle": "Deduct 1 session",
+      "addLabel": "Add session: {name}",
+      "addTitle": "Add 1 session"
+    },
+    "session": {
+      "title": "Sessions",
+      "statusPending": "Pending",
+      "statusScheduled": "Scheduled",
+      "statusCompleted": "Completed",
+      "statusNoShow": "No-show",
+      "statusCancelled": "Cancelled",
+      "selectAppointment": "Select appointment",
+      "assignPlaceholder": "Assign appointment…",
+      "assignAction": "Assign",
+      "createAppointment": "+ Create appointment",
+      "unassign": "Remove from appointment"
+    },
+    "appointment": {
+      "empty": "No appointment records for this customer.",
+      "packageBadge": "Package",
+      "packageBadgeTitle": "Package session",
+      "moreHint": "+{n} more appointments"
+    },
+    "modal": {
+      "create": {
+        "title": "New customer"
+      },
+      "edit": {
+        "title": "Edit customer"
+      },
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "create": "Create",
+      "saving": "Saving…",
+      "nameLabel": "Full name",
+      "nameRequired": "*",
+      "namePlaceholder": "Full Name",
+      "phoneLabel": "Phone",
+      "phonePlaceholder": "5XX XXX XX XX",
+      "emailLabel": "Email",
+      "emailPlaceholder": "example{'@'}mail.com",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Notes about this customer…",
+      "addressLabel": "Address (for invoice)",
+      "addressPlaceholder": "Invoice address (optional)",
+      "nationalIdLabel": "National ID (for invoice)",
+      "nationalIdPlaceholder": "11 digits (optional)",
+      "nationalIdHint": "Current: {masked}",
+      "blacklist": {
+        "title": "Blacklist customer",
+        "body": "«{name}» will be blacklisted. Enter a reason.",
+        "reasonLabel": "Reason (optional)",
+        "reasonPlaceholder": "Reason…",
+        "submit": "Blacklist",
+        "submitting": "Processing…"
+      },
+      "delete": {
+        "title": "Delete customer",
+        "body": "«{name}» will be permanently deleted. This cannot be undone.",
+        "cancel": "Cancel",
+        "submit": "Delete permanently",
+        "submitting": "Deleting…"
+      },
+      "package": {
+        "title": "Assign package",
+        "body": "Define a new package for {name}.",
+        "tabTemplate": "From template",
+        "tabManual": "Manual",
+        "templateLabel": "Package template",
+        "templatePlaceholder": "Select…",
+        "templateOption": "{name} ({sessions} sessions)",
+        "templateEmptyHint": "Create a package template in the Packages page first.",
+        "serviceLabel": "Service",
+        "serviceOption": "{name} — {price} {currency}",
+        "serviceEmptyHint": "Define package-eligible services. Services marked as «Package service» in the Services page will be listed here.",
+        "nameLabel": "Package name",
+        "namePlaceholder": "E.g. 10-session haircut",
+        "sessionsLabel": "Number of sessions",
+        "expiryLabel": "Expiry date",
+        "previewLabel": "Summary:",
+        "previewText": "{sessions} sessions × {price} = {total}",
+        "submit": "Create package"
+      }
+    },
+    "validation": {
+      "nameRequired": "Enter a name",
+      "nameMin": "Must be at least 2 characters",
+      "phoneRequired": "Enter a phone number",
+      "phoneInvalid": "Enter a valid phone number",
+      "nationalIdInvalid": "National ID must be 11 digits",
+      "serviceRequired": "Select a service",
+      "packageNameRequired": "Enter a package name",
+      "sessionsMin": "Must be at least 1 session",
+      "expiryRequired": "Enter an expiry date",
+      "expiryInvalid": "Expiry date must be in the future",
+      "templateRequired": "Select a template"
+    }
   }
 }

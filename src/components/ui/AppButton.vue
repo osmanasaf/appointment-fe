@@ -1,8 +1,8 @@
 <template>
   <button
     :type="nativeType"
-    class="inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:pointer-events-none disabled:opacity-50"
-    :class="[variantClass, sizeClass]"
+    class="app-btn"
+    :class="[`app-btn--${variant}`, sizeClass]"
     :disabled="disabled || loading"
     @click="$emit('click', $event)"
   >
@@ -33,20 +33,6 @@ const props = withDefaults(
 
 defineEmits<{ click: [MouseEvent] }>()
 
-const variantClass = computed(() => {
-  const v = props.variant
-  if (v === 'primary') {
-    return 'bg-indigo-500 text-white hover:bg-indigo-600 active:bg-indigo-700'
-  }
-  if (v === 'secondary') {
-    return 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50'
-  }
-  if (v === 'danger') {
-    return 'border border-red-200 bg-white text-red-600 hover:bg-red-50'
-  }
-  return 'bg-transparent text-slate-700 hover:bg-slate-100'
-})
-
 const sizeClass = computed(() => {
   const s = props.size
   if (s === 'sm') return 'min-h-8 px-3 text-xs'
@@ -54,3 +40,63 @@ const sizeClass = computed(() => {
   return 'min-h-10 px-4 text-sm'
 })
 </script>
+
+<style scoped>
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.app-btn:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.app-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.app-btn--primary {
+  background: var(--primary);
+  color: var(--bg);
+}
+.app-btn--primary:hover {
+  background: var(--primary-pressed);
+}
+.app-btn--primary:active {
+  filter: brightness(0.95);
+}
+
+.app-btn--secondary {
+  background: var(--surface);
+  color: var(--ink-2);
+  border-color: var(--hairline-strong);
+}
+.app-btn--secondary:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.app-btn--danger {
+  background: var(--surface);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.app-btn--danger:hover {
+  background: var(--danger-tint);
+}
+
+.app-btn--ghost {
+  background: transparent;
+  color: var(--ink-2);
+}
+.app-btn--ghost:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+</style>

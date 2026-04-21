@@ -7,15 +7,13 @@
     @update:visible="$emit('update:visible', $event)"
   >
     <!-- Tab navigation -->
-    <div class="mb-5 flex gap-0.5 rounded-lg bg-slate-100 p-1">
+    <div class="tab-nav">
       <button
         v-for="tab in visibleTabs"
         :key="tab.key"
         type="button"
-        class="flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition"
-        :class="activeTab === tab.key
-          ? 'bg-white text-slate-900 shadow-sm'
-          : 'text-slate-500 hover:text-slate-700'"
+        class="tab-button"
+        :class="{ 'tab-button--active': activeTab === tab.key }"
         @click="activeTab = tab.key"
       >
         {{ tab.label }}
@@ -126,3 +124,39 @@ function onProfileSaved(emp: EmployeeResponse) {
 }
 
 </script>
+
+<style scoped>
+.tab-nav {
+  display: flex;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-lg);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab-button:hover:not(.tab-button--active) {
+  color: var(--ink-2);
+  background: color-mix(in oklab, var(--surface-2) 50%, var(--surface));
+}
+
+.tab-button--active {
+  background: var(--surface);
+  color: var(--ink-1);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+</style>

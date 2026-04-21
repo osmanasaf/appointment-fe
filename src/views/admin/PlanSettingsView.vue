@@ -1,37 +1,37 @@
 <template>
   <div class="space-y-6">
-    <header>
-      <h1 class="page-title">{{ t('plan.title') }}</h1>
-      <p class="mt-1 text-sm text-slate-600">{{ t('plan.subtitle') }}</p>
-    </header>
+    <SectionHeader
+      :title="t('plan.title')"
+      :subtitle="t('plan.subtitle')"
+    />
 
     <div
       v-if="usage"
-      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4"
+      class="card p-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4"
     >
       <div>
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ t('plan.currentUsage') }}</p>
-        <p class="mt-1 text-lg font-semibold text-slate-900">
+        <p class="text-xs font-semibold uppercase tracking-wide" :style="{ color: 'var(--ink-4)' }">{{ t('plan.currentUsage') }}</p>
+        <p class="mt-1 text-lg font-semibold" :style="{ color: 'var(--ink-1)' }">
           {{ t('plan.usageAppointments', { n: usage.appointmentsCount, max: formatLimit(usage.maxAppointmentsMonthly) }) }}
         </p>
-        <p class="text-sm text-slate-600">{{ usage.month }}/{{ usage.year }}</p>
+        <p class="text-sm" :style="{ color: 'var(--ink-3)' }">{{ usage.month }}/{{ usage.year }}</p>
       </div>
-      <div v-if="subscription" class="text-sm text-slate-600">
-        <span class="font-medium text-slate-800">{{ getPlanName(subscription.planCode) }}</span>
+      <div v-if="subscription" class="text-sm" :style="{ color: 'var(--ink-3)' }">
+        <span class="font-medium" :style="{ color: 'var(--ink-2)' }">{{ getPlanName(subscription.planCode) }}</span>
         · {{ getSubscriptionStatus(subscription.status) }}
-        <span v-if="subscription.trialEndDate" class="block text-xs text-slate-500">
+        <span v-if="subscription.trialEndDate" class="block text-xs" :style="{ color: 'var(--ink-4)' }">
           {{ t('plan.trialUntil', { date: formatDate(subscription.trialEndDate) }) }}
         </span>
       </div>
     </div>
 
-    <div v-if="loadError" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+    <div v-if="loadError" class="rounded-xl px-4 py-3 text-sm" role="alert" :style="{ border: '1px solid var(--danger)', background: 'var(--danger-tint)', color: 'var(--danger)' }">
       {{ t('plan.loadError') }}
       <AppButton class="ml-2" size="sm" variant="secondary" @click="load">{{ t('common.retry') }}</AppButton>
     </div>
 
     <div v-else-if="loading" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <div v-for="i in 4" :key="i" class="h-40 animate-pulse rounded-xl bg-slate-200" />
+      <div v-for="i in 4" :key="i" class="h-40 animate-pulse rounded-xl" :style="{ background: 'var(--surface-2)' }" />
     </div>
 
     <template v-else>
@@ -39,30 +39,36 @@
         <AppCard
           v-for="p in plans"
           :key="p.id"
-          :class="p.code === subscription?.planCode ? 'ring-2 ring-indigo-500' : ''"
+          :class="p.code === subscription?.planCode ? 'ring-2' : ''"
+          :style="p.code === subscription?.planCode ? { borderColor: 'var(--primary)' } : {}"
         >
           <template #title>
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-base font-semibold text-slate-900">{{ getPlanName(p.code) }}</h2>
-                <p class="mt-0.5 text-sm text-slate-600">{{ formatMoney(p.monthlyPrice) }} / {{ t('plan.month') }}</p>
+                <h2 class="text-base font-semibold" :style="{ color: 'var(--ink-1)' }">{{ getPlanName(p.code) }}</h2>
+                <p class="mt-0.5 text-sm" :style="{ color: 'var(--ink-3)' }">{{ formatMoney(p.monthlyPrice) }} / {{ t('plan.month') }}</p>
               </div>
               <span
                 v-if="p.code === subscription?.planCode"
-                class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 px-3 py-1 text-xs font-semibold text-teal-700 ring-1 ring-inset ring-teal-600/20 shadow-sm"
+                class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-sm"
+                :style="{
+                  background: 'var(--primary-tint)',
+                  color: 'var(--primary)',
+                  border: '1px solid color-mix(in oklab, var(--primary) 20%, transparent)'
+                }"
               >
-                <span class="size-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+                <span class="size-1.5 rounded-full animate-pulse" :style="{ background: 'var(--primary)' }"></span>
                 {{ t('plan.currentPlan') }}
               </span>
             </div>
           </template>
-          <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-slate-600">
+          <ul class="mt-2 list-inside list-disc space-y-1 text-sm" :style="{ color: 'var(--ink-3)' }">
             <li>{{ t('plan.limitEmployees', { n: formatLimit(p.maxEmployees) }) }}</li>
             <li>{{ t('plan.limitServices', { n: formatLimit(p.maxServices) }) }}</li>
             <li>{{ t('plan.limitAppts', { n: formatLimit(p.maxAppointmentsMonthly) }) }}</li>
           </ul>
-          <p v-if="p.features?.length" class="mt-3 text-xs font-medium text-slate-500">{{ t('plan.features') }}</p>
-          <ul class="mt-1 space-y-0.5 text-xs text-slate-600">
+          <p v-if="p.features?.length" class="mt-3 text-xs font-medium" :style="{ color: 'var(--ink-4)' }">{{ t('plan.features') }}</p>
+          <ul class="mt-1 space-y-0.5 text-xs" :style="{ color: 'var(--ink-3)' }">
             <li v-for="(f, idx) in p.features" :key="idx">{{ p.featureNames?.[f] || f }}</li>
           </ul>
           
@@ -83,7 +89,7 @@
               class="w-full pointer-events-none opacity-50"
               disabled
             >
-              Kullanımda
+              {{ t('plan.inUse') }}
             </AppButton>
           </div>
         </AppCard>
@@ -93,24 +99,24 @@
         <div class="overflow-x-auto">
           <table class="w-full min-w-[32rem] border-collapse text-left text-sm">
             <thead>
-              <tr class="border-b border-slate-200">
-                <th class="py-2 pr-4 font-semibold text-slate-700">{{ t('plan.featureCol') }}</th>
-                <th v-for="p in plans" :key="p.id" class="px-2 py-2 text-center font-semibold text-slate-700">
+              <tr :style="{ borderBottom: '1px solid var(--hairline)' }">
+                <th class="py-2 pr-4 font-semibold" :style="{ color: 'var(--ink-2)' }">{{ t('plan.featureCol') }}</th>
+                <th v-for="p in plans" :key="p.id" class="px-2 py-2 text-center font-semibold" :style="{ color: 'var(--ink-2)' }">
                   {{ getPlanName(p.code) }}
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in matrixFeatures" :key="row.label" class="border-b border-slate-100">
-                <td class="py-2 pr-4 text-slate-700">{{ row.label }}</td>
-                <td v-for="p in plans" :key="p.id" class="px-2 py-2 text-center text-slate-600">
+              <tr v-for="row in matrixFeatures" :key="row.label" :style="{ borderBottom: '1px solid color-mix(in oklab, var(--hairline) 50%, transparent)' }">
+                <td class="py-2 pr-4" :style="{ color: 'var(--ink-2)' }">{{ row.label }}</td>
+                <td v-for="p in plans" :key="p.id" class="px-2 py-2 text-center" :style="{ color: 'var(--ink-3)' }">
                   {{ row.byPlan.get(p.code) ? '✓' : '—' }}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <p class="mt-3 text-xs text-slate-500">{{ t('plan.matrixHint') }}</p>
+        <p class="mt-3 text-xs" :style="{ color: 'var(--ink-4)' }">{{ t('plan.matrixHint') }}</p>
       </AppCard>
     </template>
 
@@ -120,18 +126,18 @@
       :title="t('plan.upgrade')"
     >
       <div v-if="selectedPlan" class="space-y-4">
-        <p class="text-sm text-slate-700">
-          <strong>{{ getPlanName(selectedPlan.code) }}</strong> paketine yükseltmek istiyorsunuz.
+        <p class="text-sm" :style="{ color: 'var(--ink-2)' }">
+          {{ t('plan.upgradeModalBody', { plan: getPlanName(selectedPlan.code) }) }}
         </p>
-        <div class="rounded-lg bg-slate-50 p-4 text-sm">
-          <p class="font-medium text-slate-900">{{ formatMoney(selectedPlan.monthlyPrice) }} / {{ t('plan.month') }}</p>
-          <ul class="mt-2 space-y-1 text-slate-600">
+        <div class="rounded-lg p-4 text-sm" :style="{ background: 'var(--surface-2)' }">
+          <p class="font-medium" :style="{ color: 'var(--ink-1)' }">{{ formatMoney(selectedPlan.monthlyPrice) }} / {{ t('plan.month') }}</p>
+          <ul class="mt-2 space-y-1" :style="{ color: 'var(--ink-3)' }">
             <li>• {{ t('plan.limitEmployees', { n: formatLimit(selectedPlan.maxEmployees) }) }}</li>
             <li>• {{ t('plan.limitServices', { n: formatLimit(selectedPlan.maxServices) }) }}</li>
             <li>• {{ t('plan.limitAppts', { n: formatLimit(selectedPlan.maxAppointmentsMonthly) }) }}</li>
           </ul>
         </div>
-        <p class="text-sm text-slate-600">
+        <p class="text-sm" :style="{ color: 'var(--ink-3)' }">
           {{ t('plan.upgradeMessage') }}
         </p>
       </div>
@@ -151,11 +157,19 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { planApi, type PlanResponse, type BusinessSubscriptionResponse, type PlanUsageResponse, type PlanCode } from '@/api/plan'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
 import AppCard from '@/components/ui/AppCard.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const LOCALE_BY_LANG: Record<string, string> = {
+  tr: 'tr-TR',
+  en: 'en-US'
+}
+
+const intlLocale = computed(() => LOCALE_BY_LANG[locale.value] ?? 'en-US')
 
 const plans = ref<PlanResponse[]>([])
 const subscription = ref<BusinessSubscriptionResponse | null>(null)
@@ -174,7 +188,6 @@ const matrixFeatures = computed(() => {
     for (const p of plans.value) {
       byPlan.set(p.code, Boolean(p.features?.includes(featureCode)))
     }
-    // Feature display name'i al
     const displayName = plans.value[0]?.featureNames?.[featureCode] || featureCode
     return { label: displayName, byPlan }
   })
@@ -182,7 +195,7 @@ const matrixFeatures = computed(() => {
 
 function formatMoney(v: number | string): string {
   const n = typeof v === 'string' ? Number.parseFloat(v) : v
-  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat(intlLocale.value, { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(n)
 }
 
 function formatLimit(value: number): string {
@@ -190,28 +203,17 @@ function formatLimit(value: number): string {
 }
 
 function getPlanName(code: PlanCode): string {
-  const names: Record<PlanCode, string> = {
-    STARTER: 'Başlangıç',
-    PRO: 'Profesyonel',
-    BUSINESS: 'İşletme',
-    PREMIUM: 'Premium'
-  }
-  return names[code] || code
+  return t(`plan.plans.${code}`)
 }
 
 function getSubscriptionStatus(status: string): string {
-  const statuses: Record<string, string> = {
-    TRIAL: 'Deneme',
-    ACTIVE: 'Aktif',
-    EXPIRED: 'Süresi dolmuş',
-    SUSPENDED: 'Askıya alınmış'
-  }
-  return statuses[status] || status
+  const key = `plan.subscriptionStatus.${status}`
+  return t(key, status)
 }
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
-  return new Intl.DateTimeFormat('tr-TR', {
+  return new Intl.DateTimeFormat(intlLocale.value, {
     day: '2-digit',
     month: 'long',
     year: 'numeric'
@@ -224,10 +226,9 @@ function openUpgradeModal(plan: PlanResponse) {
 }
 
 function contactForUpgrade() {
-  // İletişim için email veya WhatsApp açılabilir
   const email = 'destek@randevum.pro'
-  const subject = `Paket Yükseltme Talebi - ${selectedPlan.value?.code}`
-  const body = `Merhaba,\n\n${getPlanName(selectedPlan.value?.code || 'PRO')} paketine geçmek istiyorum.\n\nTeşekkürler.`
+  const subject = t('plan.emailSubject', { code: selectedPlan.value?.code })
+  const body = t('plan.emailBody', { plan: getPlanName(selectedPlan.value?.code || 'PRO') })
   window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)
   upgradeModalVisible.value = false
 }

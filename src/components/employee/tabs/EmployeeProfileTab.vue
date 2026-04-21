@@ -2,46 +2,86 @@
   <form class="space-y-4" @submit.prevent="submit">
     <div class="grid gap-4 sm:grid-cols-2">
       <div class="space-y-1 sm:col-span-2">
-        <label class="block text-sm font-medium text-slate-700" for="pf-name">{{ t('employees.name') }} *</label>
+        <label class="form-label" for="pf-name">{{ t('employees.name') }} *</label>
         <input
           id="pf-name"
           v-model="form.name"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+          class="form-input"
+          :class="{ 'form-input-error': fieldErrors.name }"
           type="text"
           required
           minlength="2"
           maxlength="100"
         />
+        <p v-if="fieldErrors.name" class="form-error">{{ fieldErrors.name }}</p>
       </div>
 
       <div class="space-y-1">
-        <label class="block text-sm font-medium text-slate-700" for="pf-title">{{ t('employees.titleLabel') }}</label>
-        <input id="pf-title" v-model="form.title" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="text" maxlength="120" />
+        <label class="form-label" for="pf-title">{{ t('employees.titleLabel') }}</label>
+        <input
+          id="pf-title"
+          v-model="form.title"
+          class="form-input"
+          type="text"
+          maxlength="120"
+        />
       </div>
 
       <div class="space-y-1">
-        <label class="block text-sm font-medium text-slate-700" for="pf-exp">{{ t('employees.experienceYears') }}</label>
-        <input id="pf-exp" v-model.number="form.experienceYears" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="number" min="0" max="80" />
+        <label class="form-label" for="pf-exp">{{ t('employees.experienceYears') }}</label>
+        <input
+          id="pf-exp"
+          v-model.number="form.experienceYears"
+          class="form-input"
+          type="number"
+          min="0"
+          max="80"
+        />
       </div>
 
       <div class="space-y-1">
-        <label class="block text-sm font-medium text-slate-700" for="pf-phone">{{ t('employees.phone') }}</label>
-        <input id="pf-phone" v-model="form.phoneNumber" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="tel" />
+        <label class="form-label" for="pf-phone">{{ t('employees.phone') }}</label>
+        <input
+          id="pf-phone"
+          v-model="form.phoneNumber"
+          class="form-input"
+          :class="{ 'form-input-error': fieldErrors.phoneNumber }"
+          type="tel"
+        />
+        <p v-if="fieldErrors.phoneNumber" class="form-error">{{ fieldErrors.phoneNumber }}</p>
       </div>
 
       <div class="space-y-1">
-        <label class="block text-sm font-medium text-slate-700" for="pf-email">{{ t('employees.email') }}</label>
-        <input id="pf-email" v-model="form.email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="email" />
+        <label class="form-label" for="pf-email">{{ t('employees.email') }}</label>
+        <input
+          id="pf-email"
+          v-model="form.email"
+          class="form-input"
+          :class="{ 'form-input-error': fieldErrors.email }"
+          type="email"
+        />
+        <p v-if="fieldErrors.email" class="form-error">{{ fieldErrors.email }}</p>
       </div>
 
       <div class="space-y-1 sm:col-span-2">
-        <label class="block text-sm font-medium text-slate-700" for="pf-bio">{{ t('employees.bio') }}</label>
-        <textarea id="pf-bio" v-model="form.bio" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" rows="3" maxlength="500" />
+        <label class="form-label" for="pf-bio">{{ t('employees.bio') }}</label>
+        <textarea
+          id="pf-bio"
+          v-model="form.bio"
+          class="form-input"
+          rows="3"
+          maxlength="500"
+        />
       </div>
 
       <div class="space-y-1 sm:col-span-2">
-        <label class="block text-sm font-medium text-slate-700" for="pf-img">{{ t('employees.profileImageUrl') }}</label>
-        <input id="pf-img" v-model="form.profileImageUrl" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100" type="url" />
+        <label class="form-label" for="pf-img">{{ t('employees.profileImageUrl') }}</label>
+        <input
+          id="pf-img"
+          v-model="form.profileImageUrl"
+          class="form-input"
+          type="url"
+        />
       </div>
     </div>
 
@@ -50,7 +90,7 @@
       <AppCheckbox v-if="isCreate" v-model="form.owner" :label="t('employees.ownerCheck')" />
     </div>
 
-    <p v-if="error" class="text-sm text-red-500" role="alert">{{ error }}</p>
+    <p v-if="error" class="text-sm" :style="{ color: 'var(--danger)' }" role="alert">{{ error }}</p>
 
     <div class="flex justify-end gap-2 pt-2">
       <AppButton variant="primary" native-type="submit" :loading="saving">
@@ -66,6 +106,7 @@ import { useI18n } from 'vue-i18n'
 import AppButton from '../../ui/AppButton.vue'
 import AppCheckbox from '../../ui/AppCheckbox.vue'
 import { employeeApi, type EmployeeResponse } from '../../../api/employee'
+import { createEmployeeSchema, updateEmployeeSchema } from '../../../validation/schemas'
 
 const { t } = useI18n()
 
@@ -109,8 +150,38 @@ watch(() => props.employee, (e) => {
   })
 })
 
+const fieldErrors = reactive<Record<string, string>>({})
+
+function validate(): boolean {
+  Object.keys(fieldErrors).forEach((key) => { fieldErrors[key] = '' })
+  const schema = props.isCreate ? createEmployeeSchema : updateEmployeeSchema
+  const phoneDigits = form.phoneNumber.replaceAll(/\D/g, '')
+  const result = schema.safeParse({
+    name: form.name,
+    title: form.title || undefined,
+    phoneNumber: phoneDigits || undefined,
+    email: form.email || undefined,
+    bio: form.bio || undefined,
+    experienceYears: form.experienceYears,
+    acceptsOnlineBooking: form.acceptsOnlineBooking,
+    owner: form.owner,
+  })
+  if (result.success) return true
+  for (const issue of result.error.issues) {
+    const key = issue.path[0]
+    if (typeof key === 'string' && !fieldErrors[key]) {
+      fieldErrors[key] = issue.message
+    }
+  }
+  return false
+}
+
 async function submit() {
   error.value = null
+  if (!validate()) {
+    error.value = Object.values(fieldErrors).find(Boolean) ?? null
+    return
+  }
   saving.value = true
   try {
     let result: EmployeeResponse
@@ -146,3 +217,64 @@ async function submit() {
 }
 </script>
 
+<style scoped>
+/* Form styling */
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 0.25rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-1);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.form-input::placeholder {
+  color: var(--ink-4);
+}
+
+.form-input:hover:not(:disabled) {
+  border-color: var(--ink-3);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.form-input-error {
+  border-color: var(--danger) !important;
+}
+
+.form-input-error:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 12%, transparent) !important;
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--surface-2);
+}
+
+.form-error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+textarea.form-input {
+  resize: vertical;
+  min-height: 4rem;
+}
+</style>

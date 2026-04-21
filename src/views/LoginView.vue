@@ -1,198 +1,103 @@
 <template>
-  <div class="flex min-h-screen">
-    <!-- Left: Brand Panel -->
-    <div
-      class="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-800 p-12 text-white lg:flex lg:w-[46%]"
-    >
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -left-24 -top-24 size-[28rem] rounded-full bg-white/5 blur-3xl" />
-        <div class="absolute -bottom-24 -right-24 size-[28rem] rounded-full bg-cyan-400/10 blur-3xl" />
-      </div>
-
-      <div class="relative z-10 flex items-center gap-3">
-        <div class="flex size-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
-          <CalendarDays class="size-5" />
-        </div>
-        <span class="text-xl font-bold tracking-tight">{{ t('admin.brand') }}</span>
-      </div>
-
-      <div class="relative z-10">
-        <h2 class="mb-4 text-4xl font-bold leading-tight tracking-tight">
-          Randevunu ayarla,<br />işine odaklan
-        </h2>
-        <p class="mb-10 text-base leading-relaxed text-teal-100">
-          Randevularınızı, personelinizi ve müşterilerinizi tek panelden kolayca yönetin.
-        </p>
-        <ul class="space-y-3.5">
-          <li v-for="feature in BRAND_FEATURES" :key="feature" class="flex items-center gap-3 text-sm text-teal-100">
-            <span class="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15">
-              <Check class="size-3" />
-            </span>
-            {{ feature }}
-          </li>
-        </ul>
-      </div>
-
-      <div class="relative z-10 border-t border-white/10 pt-8">
-        <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-          <CalendarDays class="size-7" />
-        </div>
-        <p class="text-lg font-semibold leading-snug">
-          Zamanınızı akıllıca yönetin,<br />işinizi büyütün.
-        </p>
-        <p class="mt-2 text-sm text-teal-200">Her randevu, bir fırsat.</p>
-      </div>
-
+  <AuthSplitLayout>
+    <div class="login-form-header">
+      <h1 class="display-md">{{ t('auth.loginTitle') }}</h1>
+      <p class="body">{{ t('auth.loginSubtitle') }}</p>
     </div>
 
-    <!-- Right: Form Panel -->
-    <div class="flex flex-1 flex-col items-center justify-center bg-white px-6 py-16 sm:px-10">
-      <!-- Mobile logo -->
-      <div class="mb-10 flex items-center gap-2.5 lg:hidden">
-        <div class="flex size-9 items-center justify-center rounded-xl bg-teal-600">
-          <CalendarDays class="size-4 text-white" />
+    <form class="auth-form" novalidate @submit.prevent="onSubmit">
+      <div class="form-field">
+        <label :for="`login-email-${uid}`" class="field-label">{{ t('auth.login.emailLabel') }}</label>
+        <div class="field-input-wrapper">
+          <Mail class="field-icon" aria-hidden="true" />
+          <input
+            :id="`login-email-${uid}`"
+            v-model="email"
+            v-bind="emailAttrs"
+            type="email"
+            autocomplete="email"
+            placeholder="ornek@sirket.com"
+            class="field-input"
+            :class="{ 'field-input--error': !!errors.email }"
+          />
         </div>
-        <span class="text-lg font-bold text-slate-900">{{ t('admin.brand') }}</span>
+        <p v-if="errors.email" class="field-error" role="alert">
+          <AlertCircle class="size-3.5" aria-hidden="true" />
+          {{ errors.email }}
+        </p>
       </div>
 
-      <div class="w-full max-w-[22rem]">
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-            {{ t('auth.loginTitle') }}
-          </h1>
-          <p class="mt-1.5 text-sm text-slate-500">{{ t('auth.loginSubtitle') }}</p>
-        </div>
-
-        <form class="space-y-4" novalidate @submit.prevent="onSubmit">
-          <!-- Email -->
-          <div>
-            <label for="login-email" class="mb-1.5 block text-sm font-medium text-slate-700">
-              {{ t('auth.email') }}
-            </label>
-            <div class="relative">
-              <Mail
-                class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                id="login-email"
-                v-model="email"
-                v-bind="emailAttrs"
-                type="email"
-                autocomplete="email"
-                placeholder="ornek@sirket.com"
-                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                :class="{
-                  'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20': !!errors.email,
-                }"
-              />
-            </div>
-            <p
-              v-if="errors.email"
-              class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-              role="alert"
-            >
-              <AlertCircle class="size-3.5 shrink-0" />
-              {{ errors.email }}
-            </p>
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label for="login-password" class="mb-1.5 block text-sm font-medium text-slate-700">
-              {{ t('auth.password') }}
-            </label>
-            <div class="relative">
-              <Lock
-                class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                id="login-password"
-                v-model="password"
-                v-bind="passwordAttrs"
-                :type="showPassword ? 'text' : 'password'"
-                autocomplete="current-password"
-                placeholder="••••••••"
-                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                :class="{
-                  'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                    !!errors.password,
-                }"
-              />
-              <button
-                type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition hover:text-slate-600 focus:outline-none"
-                :aria-label="showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'"
-                @click="showPassword = !showPassword"
-              >
-                <EyeOff v-if="showPassword" class="size-4" />
-                <Eye v-else class="size-4" />
-              </button>
-            </div>
-            <p
-              v-if="errors.password"
-              class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-              role="alert"
-            >
-              <AlertCircle class="size-3.5 shrink-0" />
-              {{ errors.password }}
-            </p>
-          </div>
-
-          <!-- Forgot password link -->
-          <div class="flex justify-end">
-            <RouterLink
-              to="/forgot-password"
-              class="text-sm font-medium text-teal-600 hover:text-teal-700"
-            >
-              {{ t('auth.forgotPassword') }}
-            </RouterLink>
-          </div>
-
-          <!-- Submit error banner -->
-          <div
-            v-if="submitError"
-            class="flex flex-col gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
-            role="alert"
-          >
-            <div class="flex items-start gap-2.5">
-              <AlertCircle class="mt-0.5 size-4 shrink-0" />
-              {{ submitError }}
-            </div>
-            <RouterLink
-              v-if="emailNotVerified"
-              :to="{ path: '/auth/pending-verification', query: { email: lastAttemptEmail } }"
-              class="ml-6 text-sm font-semibold text-teal-700 underline-offset-2 hover:underline"
-            >
-              {{ t('auth.resendVerificationLink') }}
-            </RouterLink>
-          </div>
-
-          <!-- Submit -->
+      <div class="form-field">
+        <label :for="`login-password-${uid}`" class="field-label">{{ t('auth.login.passwordLabel') }}</label>
+        <div class="field-input-wrapper">
+          <Lock class="field-icon" aria-hidden="true" />
+          <input
+            :id="`login-password-${uid}`"
+            v-model="password"
+            v-bind="passwordAttrs"
+            :type="showPassword ? 'text' : 'password'"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            class="field-input"
+            :class="{ 'field-input--error': !!errors.password }"
+          />
           <button
-            type="submit"
-            :disabled="loading"
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            class="field-toggle-btn"
+            :aria-label="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
+            @click="showPassword = !showPassword"
           >
-            <span
-              v-if="loading"
-              class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-            />
-            {{ loading ? t('auth.signingIn') : t('auth.signIn') }}
+            <EyeOff v-if="showPassword" class="size-4" />
+            <Eye v-else class="size-4" />
           </button>
-        </form>
-
-        <p class="mt-6 text-center text-sm text-slate-500">
-          {{ t('auth.noAccount') }}
-          <RouterLink
-            to="/register"
-            class="font-semibold text-teal-600 transition hover:text-teal-700"
-          >
-            {{ t('auth.registerLink') }}
-          </RouterLink>
+        </div>
+        <p v-if="errors.password" class="field-error" role="alert">
+          <AlertCircle class="size-3.5" aria-hidden="true" />
+          {{ errors.password }}
         </p>
       </div>
+
+      <div class="form-actions">
+        <RouterLink to="/forgot-password" class="forgot-link">
+          {{ t('auth.login.forgot') }}
+        </RouterLink>
+      </div>
+
+      <div v-if="submitError" class="submit-error" role="alert">
+        <div class="submit-error-content">
+          <AlertCircle class="size-4" aria-hidden="true" />
+          {{ submitError }}
+        </div>
+        <RouterLink
+          v-if="emailNotVerified"
+          :to="{ path: '/auth/pending-verification', query: { email: lastAttemptEmail } }"
+          class="submit-error-link"
+        >
+          {{ t('auth.resendVerificationLink') }}
+        </RouterLink>
+      </div>
+
+      <AppButton type="submit" variant="primary" size="lg" :loading="loading" class="submit-btn">
+        {{ loading ? t('auth.signingIn') : t('auth.login.submit') }}
+      </AppButton>
+    </form>
+
+    <div class="divider" role="separator" aria-orientation="horizontal">
+      <span class="divider-text">{{ t('auth.login.orDivider') }}</span>
     </div>
-  </div>
+
+    <AppButton variant="ghost" size="lg" class="invite-btn">
+      <QrCode class="size-4" aria-hidden="true" />
+      {{ t('auth.login.inviteSignIn') }}
+    </AppButton>
+
+    <p class="footer-text">
+      {{ t('auth.login.noAccount') }}
+      <RouterLink to="/register" class="footer-link">
+        {{ t('auth.login.signupLink') }}
+      </RouterLink>
+    </p>
+  </AuthSplitLayout>
 </template>
 
 <script setup lang="ts">
@@ -203,21 +108,17 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
-import { CalendarDays, Mail, Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-vue-next'
+import { Mail, Lock, Eye, EyeOff, AlertCircle, QrCode } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import type { ApiResponse } from '@/api/client'
-
-const BRAND_FEATURES = [
-  'Online randevu ve takvim yönetimi',
-  'Müşteri ve personel takibi',
-  'Hizmet & paket yönetimi',
-  'Anlık bildirimler ve hatırlatmalar',
-]
+import AuthSplitLayout from '@/components/auth/AuthSplitLayout.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const uid = Math.random().toString(36).slice(2, 9)
 
 const showPassword = ref(false)
 const loading = ref(false)
@@ -266,3 +167,207 @@ const onSubmit = handleSubmit(async values => {
   }
 })
 </script>
+
+<style scoped>
+.login-form-header {
+  margin-bottom: 2rem;
+}
+
+.login-form-header .display-md {
+  color: var(--ink-1);
+  margin-bottom: 0.375rem;
+}
+
+.login-form-header .body {
+  color: var(--ink-3);
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.field-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 0.875rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ink-4);
+  pointer-events: none;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 0.875rem;
+  color: var(--ink-1);
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.field-input::placeholder {
+  color: var(--ink-4);
+}
+
+.field-input:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.field-input--error {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.field-input--error:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent);
+}
+
+.field-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: color 0.15s;
+}
+
+.field-toggle-btn:hover {
+  color: var(--ink-2);
+}
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.forgot-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.forgot-link:hover {
+  color: var(--primary-pressed);
+}
+
+.submit-error {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 15%, transparent);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--danger) 90%, var(--ink-1));
+}
+
+.submit-error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.submit-error-link {
+  margin-left: 1.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--primary) 85%, var(--danger));
+  text-decoration: none;
+  text-decoration-skip-ink: auto;
+}
+
+.submit-error-link:hover {
+  text-decoration: underline;
+}
+
+.submit-btn {
+  width: 100%;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+.divider-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-4);
+}
+
+.invite-btn {
+  width: 100%;
+}
+
+.footer-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+.footer-link {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: var(--primary-pressed);
+}
+</style>

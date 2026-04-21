@@ -1,19 +1,15 @@
 <template>
   <div class="space-y-6">
-    <header>
-      <h2 class="text-lg font-semibold text-slate-900">
-        {{ t('settings.messageTemplates.title') }}
-      </h2>
-      <p class="mt-1 text-sm text-slate-500">
-        {{ t('settings.messageTemplates.subtitle') }}
-      </p>
-    </header>
+    <SectionHeader
+      :title="t('settings.messageTemplates.title')"
+      :subtitle="t('settings.messageTemplates.subtitle')"
+    />
 
     <div v-if="loading" class="flex items-center justify-center py-12">
-      <div class="size-8 animate-spin rounded-full border-4 border-teal-500 border-t-transparent" />
+      <div class="size-8 animate-spin rounded-full" :style="{ border: '4px solid var(--primary)', borderTopColor: 'transparent' }" />
     </div>
 
-    <div v-else-if="error" class="rounded-lg bg-red-50 p-4 text-sm text-red-700">
+    <div v-else-if="error" class="rounded-lg p-4 text-sm" role="alert" :style="{ background: 'var(--danger-tint)', color: 'var(--danger)' }">
       {{ error }}
     </div>
 
@@ -21,27 +17,27 @@
       <div
         v-for="template in templates"
         :key="template.id"
-        class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+        class="card p-6"
       >
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div
               class="flex size-10 items-center justify-center rounded-lg"
-              :class="getTemplateIconBg(template.type)"
+              :style="{ background: getTemplateBgColor(template.type) }"
             >
               <component :is="getTemplateIcon(template.type)" class="size-5 text-white" />
             </div>
             <div>
-              <h3 class="font-medium text-slate-900">
+              <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
                 {{ t(`settings.messageTemplates.templateTypes.${template.type}`) }}
               </h3>
-              <p class="text-sm text-slate-500">{{ template.name }}</p>
+              <p class="text-sm" :style="{ color: 'var(--ink-4)' }">{{ template.name }}</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <button
               type="button"
-              class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              class="btn-ghost btn-sm"
               @click="previewTemplate(template)"
             >
               <Eye class="mr-1 inline-block size-4" />
@@ -49,7 +45,7 @@
             </button>
             <button
               type="button"
-              class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              class="btn-ghost btn-sm"
               @click="resetTemplate(template)"
             >
               <RotateCcw class="mr-1 inline-block size-4" />
@@ -61,45 +57,45 @@
         <div class="grid gap-4 lg:grid-cols-2">
           <div class="space-y-4">
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">
+              <label class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.messageTemplates.fields.header') }}
               </label>
               <input
                 v-model="template.headerTemplate"
                 type="text"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="form-input w-full"
                 :placeholder="t('settings.messageTemplates.fields.header')"
               />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">
+              <label class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.messageTemplates.fields.body') }}
               </label>
               <textarea
                 v-model="template.bodyTemplate"
                 rows="6"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="form-input w-full"
                 :placeholder="t('settings.messageTemplates.fields.body')"
               />
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-slate-700">
+              <label class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.messageTemplates.fields.footer') }}
               </label>
               <input
                 v-model="template.footerTemplate"
                 type="text"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="form-input w-full"
                 :placeholder="t('settings.messageTemplates.fields.footer')"
               />
             </div>
           </div>
 
           <div class="space-y-4">
-            <div class="rounded-lg bg-slate-50 p-4">
-              <h4 class="mb-2 text-sm font-medium text-slate-700">
+            <div class="rounded-lg p-4" :style="{ background: 'var(--surface-2)' }">
+              <h4 class="mb-2 text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.messageTemplates.variables.title') }}
               </h4>
               <div class="flex flex-wrap gap-2">
@@ -107,19 +103,25 @@
                   v-for="variable in variables"
                   :key="variable.key"
                   type="button"
-                  class="rounded-md bg-white px-2 py-1 text-xs font-mono text-slate-600 shadow-sm transition hover:bg-teal-50 hover:text-teal-700"
+                  class="rounded-md px-2 py-1 text-xs font-mono shadow-sm transition"
+                  :style="{
+                    background: 'var(--surface)',
+                    color: 'var(--ink-3)'
+                  }"
                   @click="insertVariable(template, variable.key)"
+                  @mouseover="$event.currentTarget.style.background = 'var(--primary-tint)'; $event.currentTarget.style.color = 'var(--primary)'"
+                  @mouseleave="$event.currentTarget.style.background = 'var(--surface)'; $event.currentTarget.style.color = 'var(--ink-3)'"
                 >
                   <span v-text="'{{' + variable.key + '}}'"></span>
                 </button>
               </div>
-              <p class="mt-2 text-xs text-slate-500">
-                Değişkene tıklayarak mesaj içeriğine ekleyebilirsiniz.
+              <p class="mt-2 text-xs" :style="{ color: 'var(--ink-4)' }">
+                {{ t('settings.messageTemplates.variables.hint') }}
               </p>
             </div>
 
             <div v-if="hasButtons(template)" class="space-y-3">
-              <h4 class="text-sm font-medium text-slate-700">
+              <h4 class="text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.messageTemplates.fields.buttons') }}
               </h4>
 
@@ -128,15 +130,15 @@
                   <input
                     v-model="template.showConfirmButton"
                     type="checkbox"
-                    class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                    class="checkbox-input"
                   />
-                  <span class="text-sm text-slate-600">{{ t('settings.messageTemplates.fields.confirmButton') }}</span>
+                  <span class="text-sm" :style="{ color: 'var(--ink-3)' }">{{ t('settings.messageTemplates.fields.confirmButton') }}</span>
                 </label>
                 <input
                   v-if="template.showConfirmButton"
                   v-model="template.confirmButtonText"
                   type="text"
-                  class="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-teal-500 focus:outline-none"
+                  class="form-input flex-1"
                   maxlength="20"
                 />
               </div>
@@ -146,15 +148,15 @@
                   <input
                     v-model="template.showCancelButton"
                     type="checkbox"
-                    class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                    class="checkbox-input"
                   />
-                  <span class="text-sm text-slate-600">{{ t('settings.messageTemplates.fields.cancelButton') }}</span>
+                  <span class="text-sm" :style="{ color: 'var(--ink-3)' }">{{ t('settings.messageTemplates.fields.cancelButton') }}</span>
                 </label>
                 <input
                   v-if="template.showCancelButton"
                   v-model="template.cancelButtonText"
                   type="text"
-                  class="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-teal-500 focus:outline-none"
+                  class="form-input flex-1"
                   maxlength="20"
                 />
               </div>
@@ -164,32 +166,33 @@
                   <input
                     v-model="template.showRescheduleButton"
                     type="checkbox"
-                    class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                    class="checkbox-input"
                   />
-                  <span class="text-sm text-slate-600">{{ t('settings.messageTemplates.fields.rescheduleButton') }}</span>
+                  <span class="text-sm" :style="{ color: 'var(--ink-3)' }">{{ t('settings.messageTemplates.fields.rescheduleButton') }}</span>
                 </label>
                 <input
                   v-if="template.showRescheduleButton"
                   v-model="template.rescheduleButtonText"
                   type="text"
-                  class="flex-1 rounded-lg border border-slate-300 px-2 py-1 text-sm focus:border-teal-500 focus:outline-none"
+                  class="form-input flex-1"
                   maxlength="20"
                 />
               </div>
             </div>
 
-            <button
-              type="button"
-              class="w-full rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 disabled:opacity-50"
+            <AppButton
+              variant="primary"
+              size="md"
+              class="w-full"
               :disabled="saving === template.id"
               @click="saveTemplate(template)"
             >
               <span v-if="saving === template.id" class="flex items-center justify-center gap-2">
                 <div class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Kaydediliyor...
+                {{ t('settings.messageTemplates.messages.savingButton') }}
               </span>
               <span v-else>{{ t('settings.messageTemplates.actions.save') }}</span>
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -210,6 +213,8 @@ import { Bell, CheckCircle, XCircle, Clock, Eye, RotateCcw } from 'lucide-vue-ne
 import { useToast } from '@/composables/useToast'
 import { messageTemplateApi, type MessageTemplate } from '@/api/messageTemplate'
 import PreviewModal from '@/components/settings/MessageTemplatePreviewModal.vue'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -221,14 +226,14 @@ const templates = ref<MessageTemplate[]>([])
 const previewVisible = ref(false)
 const previewingTemplate = ref<MessageTemplate | null>(null)
 
-const variables = [
-  { key: 'customer_name', label: 'Müşteri adı' },
-  { key: 'business_name', label: 'İşletme adı' },
-  { key: 'service_name', label: 'Hizmet adı' },
-  { key: 'date', label: 'Tarih' },
-  { key: 'time', label: 'Saat' },
-  { key: 'price', label: 'Fiyat' }
-]
+const variables = computed(() => [
+  { key: 'customer_name', label: t('settings.messageTemplates.variables.customer_name') },
+  { key: 'business_name', label: t('settings.messageTemplates.variables.business_name') },
+  { key: 'service_name', label: t('settings.messageTemplates.variables.service_name') },
+  { key: 'date', label: t('settings.messageTemplates.variables.date') },
+  { key: 'time', label: t('settings.messageTemplates.variables.time') },
+  { key: 'price', label: t('settings.messageTemplates.variables.price') }
+])
 
 const getTemplateIcon = (type: string) => {
   switch (type) {
@@ -240,13 +245,13 @@ const getTemplateIcon = (type: string) => {
   }
 }
 
-const getTemplateIconBg = (type: string) => {
+const getTemplateBgColor = (type: string) => {
   switch (type) {
-    case 'APPOINTMENT_REMINDER': return 'bg-blue-500'
-    case 'APPOINTMENT_CONFIRMATION': return 'bg-green-500'
-    case 'APPOINTMENT_CANCELLED': return 'bg-red-500'
-    case 'RESCHEDULE_REQUEST_RECEIVED': return 'bg-amber-500'
-    default: return 'bg-slate-500'
+    case 'APPOINTMENT_REMINDER': return 'var(--primary)'
+    case 'APPOINTMENT_CONFIRMATION': return 'var(--success)'
+    case 'APPOINTMENT_CANCELLED': return 'var(--danger)'
+    case 'RESCHEDULE_REQUEST_RECEIVED': return 'var(--warning)'
+    default: return 'var(--ink-3)'
   }
 }
 
@@ -265,7 +270,7 @@ const loadTemplates = async () => {
     const response = await messageTemplateApi.getAll()
     templates.value = response.data.data || []
   } catch (e) {
-    error.value = 'Şablonlar yüklenemedi'
+    error.value = t('settings.messageTemplates.messages.loadError')
     console.error(e)
   } finally {
     loading.value = false
@@ -308,7 +313,7 @@ const resetTemplate = async (template: MessageTemplate) => {
     }
     toast.success(t('settings.messageTemplates.messages.resetSuccess'))
   } catch (e) {
-    toast.error('Şablon sıfırlanamadı')
+    toast.error(t('settings.messageTemplates.messages.resetError'))
     console.error(e)
   } finally {
     saving.value = null
@@ -322,3 +327,54 @@ const previewTemplate = (template: MessageTemplate) => {
 
 onMounted(loadTemplates)
 </script>
+
+<style scoped>
+.form-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-1);
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.checkbox-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.btn-ghost {
+  padding: 0.375rem 0.75rem;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--r-md);
+  color: var(--ink-3);
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 13px;
+}
+</style>

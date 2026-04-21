@@ -1,143 +1,84 @@
 <template>
-  <div v-if="hideChrome" class="min-h-screen bg-slate-100 text-slate-900">
+  <div v-if="hideChrome" class="min-h-screen bg-[var(--bg)] text-[var(--ink-1)]">
     <router-view />
   </div>
-  <div v-else class="flex min-h-screen bg-slate-100 text-slate-900">
+  <div v-else class="admin-shell">
     <div
       v-if="sidebarOpen"
-      class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+      class="admin-shell__overlay"
       aria-hidden="true"
       @click="sidebarOpen = false"
     />
 
-    <aside
-      class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-800 bg-slate-900 text-slate-200 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
-      :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-      :aria-label="t('admin.breadcrumb')"
-    >
-      <div class="flex items-center gap-2 border-b border-slate-800 px-4 py-4">
-        <a
-          :href="brandHomeHref"
-          class="flex items-center gap-2 transition hover:opacity-80"
-        >
-          <div class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
-            <CalendarDays class="size-4" />
-          </div>
-          <span class="flex-1 truncate font-semibold tracking-tight text-white">{{ t('admin.brand') }}</span>
-        </a>
-        <button
-          type="button"
-          class="flex size-9 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"
-          :aria-label="t('admin.menuClose')"
-          @click="sidebarOpen = false"
-        >
-          <X class="size-5" aria-hidden="true" />
-        </button>
-      </div>
+    <AppSidebar
+      :open="sidebarOpen"
+      :role="sidebarRole"
+      :business-label="businessLabel"
+      :show-upgrade="showUpgrade"
+      :public-booking-url="publicBookUrl"
+      :brand-home-to="brandHomeRoute"
+      :upgrade-cta-href="upgradeHref"
+      @navigate="onNavigate"
+    />
 
-      <nav class="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3" aria-label="Admin">
-        <RouterLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white"
-          :class="isNavActive(item) ? 'bg-slate-800 text-white' : ''"
-          @click="sidebarOpen = false"
-        >
-          <component :is="item.icon" class="size-5 shrink-0 opacity-90" aria-hidden="true" />
-          {{ item.label }}
-        </RouterLink>
-      </nav>
+    <div class="admin-shell__main">
+      <AppTopbar
+        :page-title="breadcrumbLabel"
+        :sidebar-open="sidebarOpen"
+        :user-display-name="userDisplayName"
+        :user-role-label="userRoleLabel"
+        :has-notifications="hasNotifications"
+        @toggle-sidebar="sidebarOpen = !sidebarOpen"
+        @logout="logout"
+      />
 
-      <div class="border-t border-slate-800 p-3">
-        <a
-          :href="publicBookUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-800 hover:text-slate-200"
-        >
-          <ExternalLink class="size-4 shrink-0" aria-hidden="true" />
-          {{ t('admin.publicBookingPage') }}
-        </a>
-      </div>
-    </aside>
-
-    <div class="flex min-w-0 flex-1 flex-col">
-      <header
-        class="sticky top-0 z-20 flex h-14 shrink-0 items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6"
-      >
-        <div class="flex min-w-0 flex-1 items-center gap-3">
-          <button
-            type="button"
-            class="flex size-10 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 lg:hidden"
-            :aria-expanded="sidebarOpen"
-            :aria-label="t('admin.menuOpen')"
-            @click="sidebarOpen = true"
-          >
-            <Menu class="size-5" aria-hidden="true" />
-          </button>
-          <nav class="flex min-w-0 items-center gap-1.5 text-sm text-slate-500" aria-label="Breadcrumb">
-            <span class="hidden sm:inline">{{ t('admin.breadcrumb') }}</span>
-            <span v-if="breadcrumbLabel" class="hidden sm:inline" aria-hidden="true">/</span>
-            <span class="truncate font-semibold text-slate-900">{{ breadcrumbLabel }}</span>
-          </nav>
-        </div>
-        <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-          <span class="hidden max-w-[10rem] truncate text-xs text-slate-500 sm:inline" :title="auth.user?.email ?? ''">
-            {{ auth.user?.name ?? auth.user?.email }}
-          </span>
-          <button
-            type="button"
-            class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
-            @click="logout"
-          >
-            {{ t('admin.logout') }}
-          </button>
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-auto">
+      <main class="admin-shell__content">
         <div class="admin-content">
           <router-view />
         </div>
       </main>
     </div>
+
+    <!-- Global Command Palette (Teleport to body) -->
+    <CommandPalette />
+
+    <NotificationsDrawer />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import {
-  LayoutDashboard,
-  CalendarCheck,
-  CalendarDays,
-  Users,
-  UserCircle,
-  List,
-  Package,
-  Settings,
-  Menu,
-  X,
-  ExternalLink,
-} from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { resolveLandingOrigin } from '@/config/siteOrigins'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
+import { useNotifications } from '@/composables/useNotifications'
+import AppSidebar from '@/components/shell/AppSidebar.vue'
+import AppTopbar from '@/components/shell/AppTopbar.vue'
+import NotificationsDrawer from '@/components/shell/NotificationsDrawer.vue'
+import CommandPalette from '@/components/shell/CommandPalette.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const { unreadCount } = useNotifications()
 const sidebarOpen = ref(false)
 
 const hideChrome = computed(() => route.meta.hideChrome === true)
 
+watch(
+  () => route.fullPath,
+  () => {
+    sidebarOpen.value = false
+  },
+)
+
 const landingUrl = resolveLandingOrigin()
 
-const brandHomeHref = computed(() =>
-  auth.isAuthenticated ? '/admin' : landingUrl || '/',
+const brandHomeRoute = computed(() =>
+  auth.isAuthenticated ? { path: '/admin' } : { path: '/' },
 )
 
 const publicBookUrl = computed(() => {
@@ -146,23 +87,30 @@ const publicBookUrl = computed(() => {
   return buildPublicBookingUrl(slug)
 })
 
-const navItems = computed(() => [
-  { to: '/admin', label: t('nav.dashboard'), icon: LayoutDashboard, exact: true },
-  { to: '/admin/appointments', label: t('nav.appointments'), icon: CalendarCheck, exact: false },
-  { to: '/admin/customers', label: t('nav.customers'), icon: Users, exact: false },
-  { to: '/admin/employees', label: t('nav.employees'), icon: UserCircle, exact: false },
-  { to: '/admin/services', label: t('nav.services'), icon: List, exact: false },
-  { to: '/admin/packages', label: t('nav.packages'), icon: Package, exact: false },
-  { to: '/admin/settings', label: t('nav.settings'), icon: Settings, exact: false },
-])
+const sidebarRole = computed<'business' | 'employee'>(() =>
+  auth.isEmployee ? 'employee' : 'business',
+)
 
-function isNavActive(item: { to: string; exact?: boolean }) {
-  if (item.exact) return route.path === item.to
-  if (item.to === '/admin/settings') {
-    return route.path === '/admin/settings' || route.path.startsWith('/admin/settings/')
-  }
-  return route.path === item.to || route.path.startsWith(`${item.to}/`)
-}
+const showUpgrade = computed(() => sidebarRole.value === 'business')
+
+const upgradeHref = computed(() => '/admin/settings/plan')
+
+const businessLabel = computed(() => {
+  const u = auth.user
+  if (!u) return ''
+  if (u.businessSlug) return u.businessSlug
+  return ''
+})
+
+const userDisplayName = computed(() => auth.user?.name ?? auth.user?.email ?? '')
+
+const userRoleLabel = computed(() => {
+  if (auth.isEmployee) return t('admin.roleLabel.employee')
+  if (auth.isBusinessOwner) return t('admin.roleLabel.owner')
+  if (auth.isAdmin) return t('admin.roleLabel.admin')
+  if (auth.isSuperAdmin) return t('admin.roleLabel.superAdmin')
+  return ''
+})
 
 const breadcrumbLabel = computed(() => {
   const p = route.path
@@ -179,8 +127,63 @@ const breadcrumbLabel = computed(() => {
   return t('pageTitles.default')
 })
 
+const hasNotifications = computed(() => unreadCount.value > 0)
+
+function onNavigate() {
+  sidebarOpen.value = false
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && sidebarOpen.value) {
+    sidebarOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
+
 async function logout() {
   await auth.logout()
   await router.replace({ name: 'Login' })
 }
 </script>
+
+<style scoped>
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink-1);
+}
+
+.admin-shell__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: var(--scrim-soft);
+  backdrop-filter: blur(2px);
+}
+
+@media (min-width: 1024px) {
+  .admin-shell__overlay {
+    display: none;
+  }
+}
+
+.admin-shell__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-shell__content {
+  flex: 1;
+  min-width: 0;
+}
+</style>

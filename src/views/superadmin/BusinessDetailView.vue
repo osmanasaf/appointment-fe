@@ -148,10 +148,9 @@
                 v-model="selectedPlan"
                 class="rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
               >
-                <option value="STARTER">STARTER</option>
+                <option value="SOLO">SOLO</option>
                 <option value="PRO">PRO</option>
-                <option value="BUSINESS">BUSINESS</option>
-                <option value="PREMIUM">PREMIUM</option>
+                <option value="ENTERPRISE">ENTERPRISE</option>
               </select>
             </div>
             <div>

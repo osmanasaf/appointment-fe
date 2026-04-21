@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center gap-2">
+  <div class="otp-container">
     <input
       v-for="(_, index) in digits"
       :key="index"
@@ -8,10 +8,10 @@
       type="text"
       inputmode="numeric"
       maxlength="1"
-      class="size-12 rounded-lg border-2 text-center text-xl font-bold transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 sm:size-14 sm:text-2xl"
+      class="otp-digit"
       :class="[
-        error ? 'border-red-300 bg-red-50' : 'border-slate-300 bg-white',
-        disabled ? 'cursor-not-allowed opacity-50' : ''
+        error ? 'otp-digit--error' : '',
+        disabled ? 'otp-digit--disabled' : ''
       ]"
       :disabled="disabled"
       @input="handleInput(index)"
@@ -116,3 +116,53 @@ onMounted(() => {
 
 defineExpose({ clear })
 </script>
+
+<style scoped>
+.otp-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.otp-digit {
+  width: 3rem;
+  height: 3rem;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink-1);
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+@media (min-width: 640px) {
+  .otp-digit {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+.otp-digit:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.otp-digit--error {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.otp-digit--error:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent);
+}
+
+.otp-digit--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+</style>

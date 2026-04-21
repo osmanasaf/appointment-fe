@@ -1,94 +1,96 @@
 <template>
   <div class="space-y-6">
-    <header>
-      <h2 class="text-lg font-semibold text-slate-900">
-        {{ t('settings.notifications.title') }}
-      </h2>
-      <p class="mt-1 text-sm text-slate-500">
-        {{ t('settings.notifications.subtitle') }}
-      </p>
-    </header>
+    <SectionHeader
+      :title="t('settings.notifications.title')"
+      :subtitle="t('settings.notifications.subtitle')"
+    />
 
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-12">
-      <div class="size-8 animate-spin rounded-full border-4 border-teal-500 border-t-transparent" />
+      <div class="size-8 animate-spin rounded-full" :style="{ border: '4px solid var(--primary)', borderTopColor: 'transparent' }" />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-      <p class="text-red-600">{{ error }}</p>
-      <button
-        class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+    <div v-else-if="error" class="card p-6 text-center" role="alert" :style="{ border: '1px solid var(--danger)' }">
+      <p :style="{ color: 'var(--danger)' }">{{ error }}</p>
+      <AppButton
+        variant="primary"
+        size="md"
+        class="mt-4"
         @click="loadSettings"
       >
-        Tekrar Dene
-      </button>
+        {{ t('settings.notifications.retryButton') }}
+      </AppButton>
     </div>
 
     <template v-else>
       <!-- Kullanım Kotası -->
-      <div class="rounded-xl border border-slate-200 bg-gradient-to-r from-teal-50 to-cyan-50 p-6 shadow-sm">
-        <h3 class="mb-4 font-medium text-slate-900">Aylık Kullanım</h3>
+      <div class="card p-6" :style="{ background: 'var(--primary-tint)' }">
+        <h3 class="mb-4 font-medium" :style="{ color: 'var(--ink-1)' }">{{ t('settings.notifications.monthlyUsage') }}</h3>
         <div class="grid gap-4 sm:grid-cols-2">
           <!-- WhatsApp Kotası -->
-          <div class="rounded-lg bg-white p-4 shadow-sm">
+          <div class="rounded-lg p-4 shadow-sm" :style="{ background: 'var(--surface)' }">
             <div class="mb-2 flex items-center justify-between">
-              <span class="text-sm font-medium text-slate-700">WhatsApp Mesajları</span>
-              <span class="text-sm text-slate-500">
-                {{ settings.whatsappLimit < 0 ? 'Sınırsız' : `${settings.whatsappUsed} / ${settings.whatsappLimit}` }}
+              <span class="text-sm font-medium" :style="{ color: 'var(--ink-2)' }">{{ t('settings.notifications.whatsapp.subtitle') }}</span>
+              <span class="text-sm" :style="{ color: 'var(--ink-4)' }">
+                {{ settings.whatsappLimit < 0 ? t('settings.notifications.unlimited') : `${settings.whatsappUsed} / ${settings.whatsappLimit}` }}
               </span>
             </div>
-            <div v-if="settings.whatsappLimit >= 0" class="h-2 overflow-hidden rounded-full bg-slate-200">
+            <div v-if="settings.whatsappLimit >= 0" class="h-2 overflow-hidden rounded-full" :style="{ background: 'var(--surface-2)' }">
               <div
                 class="h-full rounded-full transition-all"
-                :class="whatsappUsagePercent > 90 ? 'bg-red-500' : whatsappUsagePercent > 70 ? 'bg-yellow-500' : 'bg-green-500'"
-                :style="{ width: `${Math.min(whatsappUsagePercent, 100)}%` }"
+                :style="{
+                  width: `${Math.min(whatsappUsagePercent, 100)}%`,
+                  background: whatsappUsagePercent > 90 ? 'var(--danger)' : whatsappUsagePercent > 70 ? 'var(--warning)' : 'var(--success)'
+                }"
               />
             </div>
-            <p v-if="settings.whatsappLimit >= 0" class="mt-1 text-xs text-slate-500">
-              {{ settings.whatsappRemaining }} mesaj kaldı
+            <p v-if="settings.whatsappLimit >= 0" class="mt-1 text-xs" :style="{ color: 'var(--ink-4)' }">
+              {{ t('settings.notifications.messagesRemaining', { n: settings.whatsappRemaining }) }}
             </p>
           </div>
 
           <!-- SMS Kotası -->
-          <div class="rounded-lg bg-white p-4 shadow-sm">
+          <div class="rounded-lg p-4 shadow-sm" :style="{ background: 'var(--surface)' }">
             <div class="mb-2 flex items-center justify-between">
-              <span class="text-sm font-medium text-slate-700">SMS</span>
-              <span class="text-sm text-slate-500">
+              <span class="text-sm font-medium" :style="{ color: 'var(--ink-2)' }">{{ t('settings.notifications.sms.subtitle') }}</span>
+              <span class="text-sm" :style="{ color: 'var(--ink-4)' }">
                 <template v-if="!settings.smsAvailable">
-                  <span class="text-amber-600">Plan yükseltme gerekli</span>
+                  <span :style="{ color: 'var(--warning)' }">{{ t('settings.notifications.planUpgradeRequired') }}</span>
                 </template>
                 <template v-else>
-                  {{ settings.smsLimit < 0 ? 'Sınırsız' : `${settings.smsUsed} / ${settings.smsLimit}` }}
+                  {{ settings.smsLimit < 0 ? t('settings.notifications.unlimited') : `${settings.smsUsed} / ${settings.smsLimit}` }}
                 </template>
               </span>
             </div>
-            <div v-if="settings.smsAvailable && settings.smsLimit >= 0" class="h-2 overflow-hidden rounded-full bg-slate-200">
+            <div v-if="settings.smsAvailable && settings.smsLimit >= 0" class="h-2 overflow-hidden rounded-full" :style="{ background: 'var(--surface-2)' }">
               <div
                 class="h-full rounded-full transition-all"
-                :class="smsUsagePercent > 90 ? 'bg-red-500' : smsUsagePercent > 70 ? 'bg-yellow-500' : 'bg-blue-500'"
-                :style="{ width: `${Math.min(smsUsagePercent, 100)}%` }"
+                :style="{
+                  width: `${Math.min(smsUsagePercent, 100)}%`,
+                  background: smsUsagePercent > 90 ? 'var(--danger)' : smsUsagePercent > 70 ? 'var(--warning)' : 'var(--primary)'
+                }"
               />
             </div>
-            <p v-if="settings.smsAvailable && settings.smsLimit >= 0" class="mt-1 text-xs text-slate-500">
-              {{ settings.smsRemaining }} SMS kaldı
+            <p v-if="settings.smsAvailable && settings.smsLimit >= 0" class="mt-1 text-xs" :style="{ color: 'var(--ink-4)' }">
+              {{ t('settings.notifications.smsRemaining', { n: settings.smsRemaining }) }}
             </p>
           </div>
         </div>
       </div>
 
       <!-- WhatsApp Ayarları -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card p-6">
         <div class="mb-4 flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-lg bg-green-500">
+          <div class="flex size-10 items-center justify-center rounded-lg" :style="{ background: 'var(--success)' }">
             <MessageCircle class="size-5 text-white" />
           </div>
           <div>
-            <h3 class="font-medium text-slate-900">
+            <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
               {{ t('settings.notifications.whatsapp.title') }}
             </h3>
-            <p v-if="!settings.whatsappAvailable" class="text-xs text-amber-600">
-              Bu özellik için planınızı yükseltmeniz gerekiyor
+            <p v-if="!settings.whatsappAvailable" class="text-xs" :style="{ color: 'var(--warning)' }">
+              {{ t('settings.notifications.whatsapp.planUpgradeNote') }}
             </p>
           </div>
         </div>
@@ -99,65 +101,64 @@
               v-model="form.whatsappEnabled"
               type="checkbox"
               :disabled="!settings.whatsappAvailable"
-              class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="checkbox-input"
             />
-            <span class="text-sm text-slate-700" :class="{ 'opacity-50': !settings.whatsappAvailable }">
+            <span class="text-sm" :style="{ color: !settings.whatsappAvailable ? 'var(--ink-4)' : 'var(--ink-2)' }">
               {{ t('settings.notifications.whatsapp.enabled') }}
             </span>
           </label>
 
-          <div v-if="form.whatsappEnabled && settings.whatsappAvailable" class="ml-7 space-y-4 border-l-2 border-slate-100 pl-4">
+          <div v-if="form.whatsappEnabled && settings.whatsappAvailable" class="ml-7 space-y-4 border-l-2 pl-4" :style="{ borderColor: 'color-mix(in oklab, var(--hairline) 60%, transparent)' }">
             <label class="flex items-center gap-3">
               <input
                 v-model="form.whatsappReminderEnabled"
                 type="checkbox"
-                class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                class="checkbox-input"
               />
-              <span class="text-sm text-slate-700">
+              <span class="text-sm" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.notifications.whatsapp.sendReminders') }}
               </span>
             </label>
 
             <div v-if="form.whatsappReminderEnabled" class="flex flex-wrap items-center gap-3">
-              <label class="text-sm text-slate-700">
+              <label class="text-sm" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.notifications.whatsapp.reminderHours') }}
               </label>
               <select
                 v-model.number="form.reminderHoursBefore"
-                class="app-select app-select--compact w-auto min-w-[10rem]"
+                class="select-input"
               >
-                <option :value="1">1 saat</option>
-                <option :value="2">2 saat</option>
-                <option :value="4">4 saat</option>
-                <option :value="12">12 saat</option>
-                <option :value="24">24 saat (1 gün)</option>
-                <option :value="48">48 saat (2 gün)</option>
+                <option :value="1">{{ t('settings.notifications.reminderOptions.h1') }}</option>
+                <option :value="2">{{ t('settings.notifications.reminderOptions.h2') }}</option>
+                <option :value="4">{{ t('settings.notifications.reminderOptions.h4') }}</option>
+                <option :value="12">{{ t('settings.notifications.reminderOptions.h12') }}</option>
+                <option :value="24">{{ t('settings.notifications.reminderOptions.h24') }}</option>
+                <option :value="48">{{ t('settings.notifications.reminderOptions.h48') }}</option>
               </select>
             </div>
 
-            <!-- İkinci Hatırlatma -->
             <label class="flex items-center gap-3">
               <input
                 v-model="form.secondReminderEnabled"
                 type="checkbox"
-                class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                class="checkbox-input"
               />
-              <span class="text-sm text-slate-700">
-                İkinci hatırlatma gönder
+              <span class="text-sm" :style="{ color: 'var(--ink-2)' }">
+                {{ t('settings.notifications.secondReminder.label') }}
               </span>
             </label>
 
             <div v-if="form.secondReminderEnabled" class="flex flex-wrap items-center gap-3">
-              <label class="text-sm text-slate-700">
-                İkinci hatırlatma zamanı:
+              <label class="text-sm" :style="{ color: 'var(--ink-2)' }">
+                {{ t('settings.notifications.secondReminder.timeLabel') }}
               </label>
               <select
                 v-model.number="form.secondReminderHoursBefore"
-                class="app-select app-select--compact w-auto min-w-[10rem]"
+                class="select-input"
               >
-                <option :value="1">1 saat önce</option>
-                <option :value="2">2 saat önce</option>
-                <option :value="4">4 saat önce</option>
+                <option :value="1">{{ t('settings.notifications.secondReminder.h1') }}</option>
+                <option :value="2">{{ t('settings.notifications.secondReminder.h2') }}</option>
+                <option :value="4">{{ t('settings.notifications.secondReminder.h4') }}</option>
               </select>
             </div>
 
@@ -165,9 +166,9 @@
               <input
                 v-model="form.whatsappConfirmationEnabled"
                 type="checkbox"
-                class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                class="checkbox-input"
               />
-              <span class="text-sm text-slate-700">
+              <span class="text-sm" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.notifications.whatsapp.sendConfirmations') }}
               </span>
             </label>
@@ -176,9 +177,9 @@
               <input
                 v-model="form.whatsappCancellationEnabled"
                 type="checkbox"
-                class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                class="checkbox-input"
               />
-              <span class="text-sm text-slate-700">
+              <span class="text-sm" :style="{ color: 'var(--ink-2)' }">
                 {{ t('settings.notifications.whatsapp.sendCancellations') }}
               </span>
             </label>
@@ -187,17 +188,17 @@
       </div>
 
       <!-- SMS Ayarları -->
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card p-6">
         <div class="mb-4 flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-lg bg-blue-500">
+          <div class="flex size-10 items-center justify-center rounded-lg" :style="{ background: 'var(--primary)' }">
             <Smartphone class="size-5 text-white" />
           </div>
           <div>
-            <h3 class="font-medium text-slate-900">
+            <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
               {{ t('settings.notifications.sms.title') }}
             </h3>
-            <p v-if="!settings.smsAvailable" class="text-xs text-amber-600">
-              SMS bildirimleri Business ve üzeri planlarda kullanılabilir
+            <p v-if="!settings.smsAvailable" class="text-xs" :style="{ color: 'var(--warning)' }">
+              {{ t('settings.notifications.sms.planNote') }}
             </p>
           </div>
         </div>
@@ -208,10 +209,10 @@
               v-model="form.smsEnabled"
               type="checkbox"
               :disabled="!settings.smsAvailable"
-              class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="checkbox-input"
             />
-            <span class="text-sm text-slate-700" :class="{ 'opacity-50': !settings.smsAvailable }">
-              SMS bildirimlerini etkinleştir
+            <span class="text-sm" :style="{ color: !settings.smsAvailable ? 'var(--ink-4)' : 'var(--ink-2)' }">
+              {{ t('settings.notifications.sms.enabled') }}
             </span>
           </label>
 
@@ -220,9 +221,9 @@
               v-model="form.smsFallbackEnabled"
               type="checkbox"
               :disabled="!settings.smsAvailable"
-              class="size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="checkbox-input"
             />
-            <span class="text-sm text-slate-700" :class="{ 'opacity-50': !settings.smsAvailable }">
+            <span class="text-sm" :style="{ color: !settings.smsAvailable ? 'var(--ink-4)' : 'var(--ink-2)' }">
               {{ t('settings.notifications.sms.fallback') }}
             </span>
           </label>
@@ -231,20 +232,20 @@
 
       <!-- Kaydet Butonu -->
       <div class="flex items-center gap-4">
-        <button
-          type="button"
-          class="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700 disabled:opacity-50"
+        <AppButton
+          variant="primary"
+          size="md"
           :disabled="saving || !hasChanges"
           @click="saveSettings"
         >
           <span v-if="saving" class="flex items-center gap-2">
             <div class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            Kaydediliyor...
+            {{ t('settings.notifications.savingButton') }}
           </span>
-          <span v-else>Kaydet</span>
-        </button>
-        <span v-if="hasChanges" class="text-sm text-amber-600">
-          Kaydedilmemiş değişiklikler var
+          <span v-else>{{ t('common.save') }}</span>
+        </AppButton>
+        <span v-if="hasChanges" class="text-sm" :style="{ color: 'var(--warning)' }">
+          {{ t('settings.notifications.unsavedChanges') }}
         </span>
       </div>
     </template>
@@ -257,6 +258,9 @@ import { useI18n } from 'vue-i18n'
 import { MessageCircle, Smartphone } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
 import { notificationSettingsApi, type NotificationSettings } from '@/api/notificationSettings'
+import { extractApiError } from '@/utils/apiError'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -329,7 +333,6 @@ const loadSettings = async () => {
     const data = response.data.data
     settings.value = data
     
-    // Form'u güncelle
     form.whatsappEnabled = data.whatsappEnabled
     form.whatsappReminderEnabled = data.whatsappReminderEnabled
     form.whatsappConfirmationEnabled = data.whatsappConfirmationEnabled
@@ -339,8 +342,8 @@ const loadSettings = async () => {
     form.reminderHoursBefore = data.reminderHoursBefore
     form.secondReminderEnabled = data.secondReminderEnabled
     form.secondReminderHoursBefore = data.secondReminderHoursBefore
-  } catch (e: any) {
-    error.value = e.response?.data?.message || 'Ayarlar yüklenemedi'
+  } catch (e: unknown) {
+    error.value = extractApiError(e, t('settings.notifications.toast.loadError'))
     console.error('Failed to load notification settings:', e)
   } finally {
     loading.value = false
@@ -363,9 +366,9 @@ const saveSettings = async () => {
     })
     
     settings.value = response.data.data
-    toast.success('Bildirim ayarları kaydedildi')
-  } catch (e: any) {
-    const message = e.response?.data?.message || 'Ayarlar kaydedilemedi'
+    toast.success(t('settings.notifications.toast.success'))
+  } catch (e: unknown) {
+    const message = extractApiError(e, t('settings.notifications.toast.error'))
     toast.error(message)
     console.error('Failed to save notification settings:', e)
   } finally {
@@ -377,3 +380,41 @@ onMounted(() => {
   loadSettings()
 })
 </script>
+
+<style scoped>
+.checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.checkbox-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.checkbox-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.select-input {
+  padding: 0.375rem 0.75rem;
+  font-size: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-1);
+  min-width: 10rem;
+  cursor: pointer;
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+</style>

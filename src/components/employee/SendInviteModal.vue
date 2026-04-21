@@ -2,53 +2,68 @@
   <AppModal
     v-model:visible="localVisible"
     :title="t('employees.sendInviteTitle')"
-    max-width="500px"
+    :dialog-style="{ width: 'min(32rem, 95vw)' }"
   >
     <form @submit.prevent="handleSubmit" class="space-y-4">
-      <div class="form-group">
-        <label class="label">{{ t('employees.employeeName') }}</label>
-        <input
-          type="text"
-          :value="employee?.name"
-          disabled
-          class="input-disabled"
-        />
+      <div v-if="lockedEmployee" class="space-y-1">
+        <label class="form-label">{{ t('employees.employeeName') }}</label>
+        <div class="locked-employee">
+          <div class="locked-employee__avatar">{{ employeeInitials }}</div>
+          <div class="locked-employee__name">{{ lockedEmployee.name }}</div>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="email" class="label">{{ t('auth.email') }}</label>
+      <div v-else class="space-y-1">
+        <label class="form-label" for="emp-select">{{ t('employees.selectEmployee') }}</label>
+        <select
+          id="emp-select"
+          v-model="selectedEmployeeId"
+          class="form-input"
+          required
+        >
+          <option v-if="activeEmployees.length === 0" :value="null" disabled>
+            {{ t('employees.noActiveEmployees') }}
+          </option>
+          <option
+            v-for="emp in activeEmployees"
+            :key="emp.id"
+            :value="emp.id"
+          >
+            {{ emp.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label for="email" class="form-label">{{ t('employees.email') }}</label>
         <input
           id="email"
           v-model="form.email"
           type="email"
-          class="input"
-          :placeholder="t('auth.email')"
+          class="form-input"
+          :class="{ 'form-input-error': errors.email }"
+          :placeholder="t('employees.emailPlaceholder')"
           required
         />
-        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+        <p v-if="errors.email" class="form-error">{{ errors.email }}</p>
       </div>
 
-      <p v-if="submitError" class="error-box">{{ submitError }}</p>
-      <p v-if="successMessage" class="success-box">{{ successMessage }}</p>
-
-      <div class="flex justify-end gap-2">
-        <button
-          type="button"
-          @click="localVisible = false"
-          class="btn-secondary"
-          :disabled="loading"
-        >
-          {{ t('common.cancel') }}
-        </button>
-        <button
-          type="submit"
-          :disabled="loading"
-          class="btn-primary"
-        >
-          {{ loading ? t('employees.sendingInvite') : t('employees.sendInvite') }}
-        </button>
-      </div>
+      <p v-if="submitError" class="text-sm" :style="{ color: 'var(--danger)' }" role="alert">
+        {{ submitError }}
+      </p>
+      <p v-if="successMessage" class="text-sm" :style="{ color: 'var(--success)' }" role="alert">
+        {{ successMessage }}
+      </p>
     </form>
+
+    <template #footer>
+      <AppButton variant="secondary" @click="localVisible = false" :disabled="loading">
+        {{ t('common.cancel') }}
+      </AppButton>
+      <AppButton variant="primary" :loading="loading" @click="handleSubmit">
+        {{ t('employees.sendInvite') }}
+      </AppButton>
+    </template>
   </AppModal>
 </template>
 
@@ -56,14 +71,18 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppModal from '../ui/AppModal.vue'
+import AppButton from '../ui/AppButton.vue'
 import { employeeInviteApi } from '@/api/employeeInvite'
+import { useToast } from '@/composables/useToast'
 import type { EmployeeResponse } from '@/api/employee'
 
 const { t } = useI18n()
+const toast = useToast()
 
 const props = defineProps<{
   visible: boolean
   employee: EmployeeResponse | null
+  employees?: EmployeeResponse[]
 }>()
 
 const emit = defineEmits<{
@@ -76,6 +95,8 @@ const localVisible = computed({
   set: (val) => emit('update:visible', val),
 })
 
+const selectedEmployeeId = ref<number | null>(null)
+
 const form = ref({
   email: '',
 })
@@ -85,12 +106,38 @@ const loading = ref(false)
 const submitError = ref<string | null>(null)
 const successMessage = ref<string | null>(null)
 
-watch(() => props.visible, (visible) => {
-  if (visible && props.employee) {
-    form.value.email = props.employee.email || ''
+const activeEmployees = computed(() =>
+  (props.employees ?? []).filter((e) => e.status === 'ACTIVE'),
+)
+
+const lockedEmployee = computed(() => props.employee)
+
+const employeeInitials = computed(() => {
+  const name = props.employee?.name?.trim() ?? ''
+  if (!name) return '?'
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
+})
+
+watch([() => props.visible, () => props.employee, () => props.employees], ([visible, employee, employees]) => {
+  if (visible) {
+    const actives = (employees ?? []).filter((e) => e.status === 'ACTIVE')
+    selectedEmployeeId.value = employee?.id ?? (actives[0]?.id ?? null)
+    form.value.email = employee?.email ?? actives.find(e => e.id === selectedEmployeeId.value)?.email ?? ''
     errors.value = {}
     submitError.value = null
     successMessage.value = null
+  }
+}, { immediate: true })
+
+watch(selectedEmployeeId, (empId) => {
+  if (!empId || !props.visible) return
+  const emp = activeEmployees.value.find(e => e.id === empId)
+  if (emp) {
+    form.value.email = emp.email || ''
   }
 })
 
@@ -98,14 +145,14 @@ function validateForm(): boolean {
   errors.value = {}
   
   if (!form.value.email || !/\S+@\S+\.\S+/.test(form.value.email)) {
-    errors.value.email = t('auth.emailInvalid')
+    errors.value.email = t('employees.emailInvalid')
   }
   
   return Object.keys(errors.value).length === 0
 }
 
 async function handleSubmit() {
-  if (!validateForm() || !props.employee) return
+  if (!validateForm() || !selectedEmployeeId.value) return
   
   loading.value = true
   submitError.value = null
@@ -113,12 +160,13 @@ async function handleSubmit() {
   
   try {
     const { data } = await employeeInviteApi.create({
-      employeeId: props.employee.id,
+      employeeId: selectedEmployeeId.value,
       email: form.value.email,
     })
     
     if (data.success) {
       successMessage.value = t('employees.inviteSent')
+      toast.success(t('employees.inviteSent'))
       emit('invited')
       setTimeout(() => {
         localVisible.value = false
@@ -133,98 +181,96 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.label {
+.form-label {
+  display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--ink-2);
+  margin-bottom: 0.25rem;
 }
 
-.input,
-.input-disabled {
-  padding: 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+.form-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-1);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: border-color 0.12s, box-shadow 0.12s;
 }
 
-.input:focus {
+.form-input::placeholder {
+  color: var(--ink-4);
+}
+
+.form-input:hover:not(:disabled) {
+  border-color: var(--ink-3);
+}
+
+.form-input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
 }
 
-.input-disabled {
-  background: #f3f4f6;
-  color: #6b7280;
-  cursor: not-allowed;
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
 }
 
-.error {
-  font-size: 0.75rem;
-  color: #ef4444;
+.locked-employee {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--surface) 50%, var(--surface-hover, #f8fafc));
 }
 
-.error-box {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+.locked-employee__avatar {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
 }
 
-.success-box {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+.locked-employee__name {
+  font-size: 0.9375rem;
   font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: var(--ink-1);
 }
 
-.btn-primary {
-  background: #6366f1;
-  color: white;
-  border: none;
+.form-input-error {
+  border-color: var(--danger) !important;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: #4f46e5;
+.form-input-error:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 12%, transparent) !important;
 }
 
-.btn-primary:disabled {
-  opacity: 0.6;
+.form-input:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
+  background: var(--surface-2);
 }
 
-.btn-secondary {
-  background: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #f9fafb;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.form-error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--danger);
 }
 </style>

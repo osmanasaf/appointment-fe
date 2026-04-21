@@ -333,6 +333,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse, type BusinessResponse, type UpdateBusinessRequest } from '@/api/business'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
+import { businessProfileValidationSchema } from '@/validation/schemas'
 import AppButton from '@/components/ui/AppButton.vue'
 
 const auth = useAuthStore()
@@ -404,11 +405,20 @@ function validate(): boolean {
   errors.phoneNumber = ''
   errors.email = ''
   if (!form.category.trim()) { errors.category = 'Bir kategori seçiniz'; return false }
-  if (!form.name.trim()) { errors.name = 'İşletme adı giriniz'; return false }
-  if (form.name.trim().length < 2) { errors.name = 'İşletme adı en az 2 karakter olmalıdır'; return false }
-  if (!form.phoneNumber.trim()) { errors.phoneNumber = 'Telefon giriniz'; return false }
-  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Geçerli bir e-posta giriniz'; return false
+  const phoneDigits = form.phoneNumber.replaceAll(/\D/g, '')
+  const result = businessProfileValidationSchema.safeParse({
+    name: form.name.trim(),
+    phoneNumber: phoneDigits,
+    email: form.email.trim() || undefined,
+  })
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const key = issue.path[0]
+      if (key === 'name' || key === 'phoneNumber' || key === 'email') {
+        if (!errors[key]) errors[key] = issue.message
+      }
+    }
+    return false
   }
   return true
 }

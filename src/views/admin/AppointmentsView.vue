@@ -1,897 +1,770 @@
 <template>
   <div class="space-y-4">
     <!-- ── Header ─────────────────────────────────────────────────────── -->
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <h1 class="page-title">Randevular</h1>
-        <p v-if="filteredTotal > 0 || !loading" class="mt-1 text-sm text-slate-500">
-          {{ filteredTotal }} randevu<span v-if="view === 'list' && periodLabel"> · {{ periodLabel }}</span>
-        </p>
-      </div>
-      <div class="flex shrink-0 items-center gap-2">
-        <div
-          class="flex items-center gap-0.5 rounded-xl border border-slate-200 bg-white p-1 shadow-sm"
-          role="tablist"
-          aria-label="Görünüm"
-        >
-          <button
-            v-for="v in VIEWS"
-            :key="v.value"
-            role="tab"
-            :aria-selected="view === v.value"
-            class="flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 sm:gap-1.5 sm:px-3"
-            :class="view === v.value ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100'"
-            @click="switchView(v.value)"
-          >
-            <component :is="v.icon" class="size-4" aria-hidden="true" />
-            <span class="hidden xs:inline sm:inline">{{ v.label }}</span>
-          </button>
-        </div>
+    <SectionHeader
+      :title="t('appointmentsView.title')"
+      :subtitle="headerSubtitle"
+    >
+      <template #actions>
         <AppButton variant="primary" @click="openCreate">
           <Plus class="size-4" aria-hidden="true" />
-          <span class="hidden sm:inline">Yeni randevu</span>
-          <span class="sm:hidden">Yeni</span>
+          <span class="hidden sm:inline">{{ t('appointmentsView.newAppointment') }}</span>
+          <span class="sm:hidden">{{ t('appointmentsView.newShort') }}</span>
         </AppButton>
-      </div>
-    </header>
+      </template>
+    </SectionHeader>
 
     <div
       v-if="!businessId"
-      class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      class="card"
+      :style="{ background: 'var(--warning-tint)', borderColor: 'var(--warning)' }"
     >
-      İşletme bilgisi bulunamadı.
+      {{ t('appointmentsView.noBusiness') }}
     </div>
 
     <template v-else>
       <!-- ── Hata bandı ─────────────────────────────────────────────── -->
       <div
         v-if="listError"
-        class="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        class="card flex items-center justify-between"
+        :style="{ background: 'var(--danger-tint)', borderColor: 'var(--danger)', color: 'var(--danger)' }"
         role="alert"
       >
         <span>{{ listError }}</span>
-        <AppButton variant="secondary" size="sm" @click="manualRefresh">Yeniden dene</AppButton>
+        <AppButton variant="secondary" size="sm" @click="manualRefresh">{{ t('common.retry') }}</AppButton>
       </div>
 
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <!-- TAKVİM GÖRÜNÜMÜ                                               -->
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <div v-if="view === 'calendar'" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-
-        <!-- Toolbar - Mobil için yeniden düzenlendi -->
-        <div class="flex flex-col gap-2 border-b border-slate-100 px-3 py-2.5 sm:flex-row sm:flex-wrap sm:items-center">
-          <!-- Üst satır: Navigasyon + Başlık -->
-          <div class="flex items-center gap-2">
-            <!-- Navigasyon -->
-            <div class="flex shrink-0 items-center gap-0.5">
-              <button
-                aria-label="Önceki"
-                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
-                @click="calPrev"
-              >
-                <ChevronLeft class="size-4" aria-hidden="true" />
-              </button>
-              <button
-                class="rounded-lg border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
-                @click="calToday"
-              >
-                Bugün
-              </button>
-              <button
-                aria-label="Sonraki"
-                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
-                @click="calNext"
-              >
-                <ChevronRight class="size-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <!-- Başlık -->
-            <span class="min-w-0 flex-1 truncate text-sm font-semibold capitalize text-slate-800 sm:text-center">
-              {{ calendarTitle }}
-            </span>
-          </div>
-
-          <!-- Alt satır: Filtreler -->
-          <div class="flex items-center gap-2 sm:ml-auto">
-            <!-- Durum filtresi -->
-            <select
-              v-model="filterStatus"
-              class="app-select app-select--compact min-w-0 flex-1 text-xs font-medium text-slate-600 sm:max-w-[11rem] sm:flex-none"
-            >
-              <option value="">Tüm durumlar</option>
-              <option value="PENDING">Beklemede</option>
-              <option value="CONFIRMED">Onaylı</option>
-              <option value="RISKY">Riskli</option>
-              <option value="COMPLETED">Tamamlandı</option>
-              <option value="CANCELLED">İptal</option>
-              <option value="NO_SHOW">Gelmedi</option>
-            </select>
-
-            <!-- Ay / Hafta / Gün -->
-            <div
-              class="flex shrink-0 items-center gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5"
-              role="tablist"
-            >
-              <button
-                v-for="cv in CALENDAR_VIEWS"
-                :key="cv.value"
-                role="tab"
-                :aria-selected="calendarView === cv.value"
-                class="rounded-md px-2 py-1 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 sm:px-2.5"
-                :class="calendarView === cv.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-700'"
-                @click="setCalView(cv.value)"
-              >
-                {{ cv.label }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Çalışan satırı - Mobil scroll iyileştirmesi -->
-        <div
-          v-if="employees.length"
-          class="-mx-3 flex items-center gap-1.5 overflow-x-auto border-b border-slate-100 px-3 py-2 scrollbar-thin sm:mx-0"
-          role="group"
-          aria-label="Çalışana göre filtrele"
+      <!-- ── Status Filter Chips (Prototype: Hepsi · Bekliyor · Onaylı · Riskli · İptal · Tamamlandı) ── -->
+      <div
+        ref="statusFilterRef"
+        class="status-chip-row"
+        role="group"
+        :aria-label="t('appointmentsView.filter.statusGroupLabel')"
+      >
+        <button
+          v-for="chip in statusChips"
+          :key="chip.value"
+          type="button"
+          class="status-chip"
+          :class="{ 'status-chip--active': filterStatus === chip.value }"
+          :aria-pressed="filterStatus === chip.value"
+          @click="filterStatus = chip.value"
         >
-          <!-- Tümü -->
-          <button
-            class="flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold transition sm:gap-1.5 sm:px-2.5"
-            :class="filterEmployee === '' ? 'border-teal-400 bg-teal-50 text-teal-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
-            @click="filterEmployee = ''"
-          >
-            <Users class="size-3.5" aria-hidden="true" />
-            <span class="hidden sm:inline">Tümü</span>
-            <span
-              class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-bold tabular-nums"
-              :class="filterEmployee === '' ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-500'"
-            >{{ appointments.length }}</span>
-          </button>
+          <span>{{ chip.label }}</span>
+          <span class="status-chip__count">{{ chip.count }}</span>
+        </button>
 
-          <!-- Per employee -->
-          <button
-            v-for="emp in employees"
-            :key="emp.id"
-            class="flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold transition sm:gap-1.5 sm:px-2.5"
-            :class="filterEmployee === emp.id ? 'border-transparent' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
-            :style="filterEmployee === emp.id ? { backgroundColor: employeeColor(emp.id) + '18', borderColor: employeeColor(emp.id), color: employeeColor(emp.id) } : {}"
-            @click="filterEmployee = filterEmployee === emp.id ? '' : emp.id"
-          >
-            <span
-              class="flex size-4 shrink-0 items-center justify-center rounded-full text-[0.6rem] font-bold text-white"
-              :style="{ backgroundColor: employeeColor(emp.id) }"
-              aria-hidden="true"
-            >{{ emp.name.charAt(0) }}</span>
-            <span class="max-w-[4rem] truncate sm:max-w-none">{{ emp.name.split(' ')[0] }}</span>
-            <span
-              class="rounded-full px-1 text-[0.6rem] font-bold tabular-nums"
-              :style="filterEmployee === emp.id ? { backgroundColor: employeeColor(emp.id) + '30', color: employeeColor(emp.id) } : { backgroundColor: '#f1f5f9', color: '#94a3b8' }"
-            >{{ employeeAppointmentCounts.get(emp.id) ?? 0 }}</span>
-          </button>
-        </div>
+        <div class="status-chip-spacer" aria-hidden="true" />
 
-        <!-- Yükleniyor iskeleti (çalışanlar henüz gelmedi) -->
-        <div v-else-if="empLoading" class="flex gap-2 border-b border-slate-100 px-3 py-2">
-          <div v-for="i in 4" :key="i" class="h-6 w-20 animate-pulse rounded-full bg-slate-100" />
-        </div>
-
-        <!-- Takvim gövdesi — HER ZAMAN RENDER EDİLİR -->
-        <div class="relative">
-          <!-- Yükleme örtüsü (non-blocking) -->
-          <div
-            v-if="calendarLoading"
-            class="pointer-events-none absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden rounded-full bg-slate-100"
-          >
-            <div class="h-full w-1/2 animate-[slide_1.2s_ease-in-out_infinite] bg-teal-400" />
-          </div>
-          <!-- Mobilde yatay scroll için wrapper -->
-          <div class="overflow-x-auto">
-            <div class="min-w-[600px] sm:min-w-0">
-              <FullCalendar
-                ref="calendarRef"
-                class="calendar-shell px-2 pb-2 pt-1"
-                :options="calendarOptions"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <!-- LİSTE GÖRÜNÜMÜ                                                -->
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <template v-else>
-        <!-- Filtre çubuğu -->
-        <div class="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
-          <label class="flex min-w-[8rem] flex-col gap-1">
-            <span class="text-xs font-medium text-slate-500">Başlangıç</span>
+        <div class="status-chip-meta">
+          <label class="meta-field">
+            <span class="meta-field__label">{{ t('appointmentsView.filter.start') }}</span>
             <AppDateField v-model="filterStart" />
           </label>
-          <label class="flex min-w-[8rem] flex-col gap-1">
-            <span class="text-xs font-medium text-slate-500">Bitiş</span>
+          <label class="meta-field">
+            <span class="meta-field__label">{{ t('appointmentsView.filter.end') }}</span>
             <AppDateField v-model="filterEnd" />
           </label>
-          <label class="flex min-w-[9rem] flex-col gap-1">
-            <span class="text-xs font-medium text-slate-500">Durum</span>
-            <select
-              v-model="filterStatus"
-              class="app-select w-full min-w-[10rem]"
-            >
-              <option value="">Tüm durumlar</option>
-              <option value="PENDING">Beklemede</option>
-              <option value="CONFIRMED">Onaylı</option>
-              <option value="RISKY">Riskli</option>
-              <option value="COMPLETED">Tamamlandı</option>
-              <option value="CANCELLED">İptal</option>
-              <option value="NO_SHOW">Gelmedi</option>
-            </select>
-          </label>
-          <div class="ml-auto flex items-end gap-2">
-            <AppButton v-if="hasActiveFilters" variant="ghost" size="sm" @click="clearFilters">
-              <X class="size-3.5" aria-hidden="true" />
-              Temizle
-            </AppButton>
-            <AppButton variant="secondary" size="sm" :loading="listLoading" @click="manualRefresh">
-              <RefreshCw class="size-3.5" aria-hidden="true" />
-              Yenile
-            </AppButton>
-          </div>
-        </div>
-
-        <!-- Çalışan chip'leri -->
-        <div
-          v-if="employees.length"
-          class="flex flex-wrap gap-2"
-          role="group"
-          aria-label="Çalışana göre filtrele"
-        >
-          <button
-            class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition"
-            :class="filterEmployee === '' ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'"
-            @click="filterEmployee = ''"
-          >
-            <Users class="size-3.5" aria-hidden="true" />
-            Tüm çalışanlar
-            <span
-              v-if="filterEmployee === ''"
-              class="rounded-full bg-indigo-100 px-1.5 py-0.5 text-[0.6rem] font-bold text-indigo-600"
-            >{{ filteredAppointments.length }}</span>
-          </button>
-          <button
-            v-for="emp in employees"
-            :key="emp.id"
-            class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition"
-            :class="filterEmployee !== emp.id ? 'border-slate-200 bg-white text-slate-500 hover:border-slate-300' : 'border-transparent'"
-            :style="filterEmployee === emp.id ? { backgroundColor: employeeColor(emp.id) + '18', borderColor: employeeColor(emp.id), color: employeeColor(emp.id) } : {}"
-            @click="filterEmployee = filterEmployee === emp.id ? '' : emp.id"
-          >
-            <span
-              class="flex size-5 shrink-0 items-center justify-center rounded-full text-[0.6rem] font-bold text-white"
-              :style="{ backgroundColor: employeeColor(emp.id) }"
-              aria-hidden="true"
-            >{{ emp.name.charAt(0) }}</span>
-            {{ emp.name }}
-            <span
-              v-if="filterEmployee === emp.id"
-              class="rounded-full px-1.5 py-0.5 text-[0.6rem] font-bold"
-              :style="{ backgroundColor: employeeColor(emp.id) + '30', color: employeeColor(emp.id) }"
-            >{{ filteredAppointments.length }}</span>
-          </button>
-        </div>
-
-        <!-- Liste iskeleti -->
-        <div v-if="listLoading && appointments.length === 0" class="space-y-3">
-          <div v-for="i in 5" :key="i" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <AppSkeleton variant="line" width="30%" height="1rem" class="mb-2" />
-            <AppSkeleton variant="line" width="70%" height="0.875rem" class="mb-1.5" />
-            <AppSkeleton variant="line" width="50%" height="0.875rem" />
-          </div>
-        </div>
-
-        <!-- Boş durum -->
-        <div
-          v-else-if="!listLoading && filteredAppointments.length === 0"
-          class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-14 text-center"
-        >
-          <CalendarX2 class="mx-auto mb-3 size-10 text-slate-300" aria-hidden="true" />
-          <p class="font-medium text-slate-600">Bu aralıkta randevu bulunamadı</p>
-          <p class="mt-1 text-sm text-slate-400">Tarih aralığını veya filtreleri değiştirin.</p>
-          <AppButton class="mt-4" variant="secondary" size="sm" @click="openCreate">
-            <Plus class="size-4" aria-hidden="true" />
-            Randevu oluştur
+          <AppButton variant="secondary" size="sm" :loading="listLoading" @click="manualRefresh">
+            <RefreshCw class="size-3.5" aria-hidden="true" />
+            <span class="hidden sm:inline">{{ t('appointmentsView.filter.refresh') }}</span>
           </AppButton>
         </div>
+      </div>
 
-        <!-- Randevu listesi -->
-        <div v-else class="space-y-6">
-          <template v-for="(group, date) in groupedAppointments" :key="date">
-            <div>
-              <div class="mb-2 flex items-center gap-3">
-                <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  {{ formatDateGroupHeader(String(date)) }}
-                </span>
-                <span class="flex-1 border-t border-slate-100" />
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
-                  {{ group.length }}
-                </span>
-              </div>
-              <ul class="space-y-2">
-                <li
-                  v-for="a in group"
-                  :id="`appointment-${a.id}`"
-                  :key="a.id"
-                  class="rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-                  :class="cardBorderClass(a.status)"
-                >
-                  <div class="flex flex-wrap items-start gap-3">
-                    <div class="flex w-12 shrink-0 flex-col items-center">
-                      <span class="text-base font-bold tabular-nums text-slate-900">{{ formatTime(a.scheduledAt) }}</span>
-                      <span class="text-[0.65rem] text-slate-400">{{ a.durationMinutes }} dk</span>
-                    </div>
-                    <div
-                      class="flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                      :style="{ backgroundColor: employeeColor(a.employeeId) }"
-                      :title="resolveEmployeeName(a.employeeId)"
-                      aria-hidden="true"
-                    >
-                      {{ resolveEmployeeName(a.employeeId).charAt(0).toUpperCase() }}
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <div class="flex flex-wrap items-center gap-1.5">
-                        <span class="font-semibold text-slate-900">{{ resolveCustomerName(a.customerId) }}</span>
-                        <AppBadge :status="a.status" />
-                        <span v-if="a.risky" class="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-800">Riskli</span>
-                        <span v-if="customerNoShowMap.get(a.customerId)" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Onay zorunlu</span>
-                      </div>
-                      <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
-                        <span class="flex items-center gap-1">
-                          <UserCircle2 class="size-3.5" aria-hidden="true" />
-                          {{ resolveEmployeeName(a.employeeId) }}
-                        </span>
-                        <span class="flex items-center gap-1">
-                          <Scissors class="size-3.5" aria-hidden="true" />
-                          {{ resolveServiceName(a.serviceId) }}
-                        </span>
-                        <span v-if="a.source === 'PHONE'" class="flex items-center gap-1">
-                          <PhoneCall class="size-3.5" aria-hidden="true" />
-                          Telefon
-                        </span>
-                        <span v-else-if="a.source === 'WALK_IN'" class="flex items-center gap-1">
-                          <MapPin class="size-3.5" aria-hidden="true" />
-                          Yerinde
-                        </span>
-                        <span v-else-if="a.source === 'ONLINE'" class="flex items-center gap-1">
-                          <Globe class="size-3.5" aria-hidden="true" />
-                          Online
-                        </span>
-                      </div>
-                      <p v-if="a.notes" class="mt-1 truncate text-xs italic text-slate-400" :title="a.notes">{{ a.notes }}</p>
-                    </div>
-                  </div>
-                  <div v-if="canAct(a)" class="mt-3 flex flex-wrap gap-1.5 border-t border-slate-50 pt-3">
-                    <AppButton
-                      v-if="a.status === 'PENDING' || a.status === 'RISKY'"
-                      variant="primary" size="sm"
-                      :loading="actingId === a.id && actingAction === 'confirm'"
-                      @click="confirmAppointment(a.id)"
-                    >
-                      <Check class="size-3.5" aria-hidden="true" /> Onayla
-                    </AppButton>
-                    <AppButton
-                      v-if="['PENDING','CONFIRMED','RISKY'].includes(a.status)"
-                      variant="primary" size="sm"
-                      :loading="actingId === a.id && actingAction === 'complete'"
-                      @click="completeAppointment(a.id)"
-                    >
-                      <CheckCheck class="size-3.5" aria-hidden="true" /> Tamamla
-                    </AppButton>
-                    <AppButton
-                      v-if="['PENDING','CONFIRMED','RISKY'].includes(a.status)"
-                      variant="secondary" size="sm"
-                      @click="openCancel(a)"
-                    >
-                      <X class="size-3.5" aria-hidden="true" /> İptal
-                    </AppButton>
-                    <AppButton
-                      v-if="['PENDING','CONFIRMED','RISKY'].includes(a.status)"
-                      variant="danger" size="sm"
-                      :loading="actingId === a.id && actingAction === 'noshow'"
-                      @click="markNoShow(a)"
-                    >
-                      <UserMinus class="size-3.5" aria-hidden="true" /> Gelmedi
-                    </AppButton>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </template>
+      <!-- Çalışan filtresi (paylaşılan dropdown — büyük ekipler için ölçeklenir) -->
+      <EmployeeFilterDropdown
+        v-if="employees.length"
+        v-model="filterEmployee"
+        :employees="employees"
+        :counts="employeeAppointmentCounts"
+        :color-fn="employeeColor"
+        :aria-label="t('appointmentsView.filter.employeeGroupLabel')"
+      />
+
+      <!-- Liste iskeleti -->
+      <div v-if="listLoading && appointments.length === 0" class="space-y-3">
+        <div
+          v-for="i in 5"
+          :key="i"
+          class="rounded-xl p-4 shadow-sm"
+          style="border: 1px solid var(--hairline); background: var(--surface)"
+        >
+          <AppSkeleton variant="line" width="30%" height="1rem" class="mb-2" />
+          <AppSkeleton variant="line" width="70%" height="0.875rem" class="mb-1.5" />
+          <AppSkeleton variant="line" width="50%" height="0.875rem" />
         </div>
-      </template>
+      </div>
+
+      <!-- Boş durum -->
+      <div
+        v-else-if="!listLoading && filteredAppointments.length === 0"
+        class="rounded-xl border-dashed px-4 py-14 text-center"
+        style="border: 1px dashed var(--hairline); background: var(--surface-2)"
+      >
+        <CalendarX2 class="mx-auto mb-3 size-10" style="color: var(--ink-4)" aria-hidden="true" />
+        <p class="font-medium" style="color: var(--ink-2)">{{ t('appointmentsView.list.emptyTitle') }}</p>
+        <p class="mt-1 text-sm" style="color: var(--ink-4)">{{ t('appointmentsView.list.emptyHint') }}</p>
+        <AppButton class="mt-4" variant="secondary" size="sm" @click="openCreate">
+          <Plus class="size-4" aria-hidden="true" />
+          {{ t('appointmentsView.list.createCta') }}
+        </AppButton>
+      </div>
+
+      <!-- Master/Detail: Tablo + Sticky Detail Panel -->
+      <div v-else class="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_360px]">
+        <div class="appointment-table-card">
+          <div class="appointment-table-scroll">
+            <table class="appointment-table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ t('appointmentsView.table.time') }}</th>
+                  <th scope="col">{{ t('appointmentsView.table.customer') }}</th>
+                  <th scope="col">{{ t('appointmentsView.table.service') }}</th>
+                  <th scope="col">{{ t('appointmentsView.table.employee') }}</th>
+                  <th scope="col">{{ t('appointmentsView.table.status') }}</th>
+                  <th scope="col" class="appointment-table__th-right">{{ t('appointmentsView.table.duration') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="(group, date) in groupedAppointments" :key="date">
+                  <tr class="appointment-table__group">
+                    <td colspan="6">
+                      <span class="appointment-table__group-label">{{ formatDateGroupHeader(String(date)) }}</span>
+                      <span class="appointment-table__group-count">{{ t('appointmentsView.list.groupCount', { n: group.length }) }}</span>
+                    </td>
+                  </tr>
+                  <tr
+                    v-for="a in group"
+                    :id="`appointment-${a.id}`"
+                    :key="a.id"
+                    class="appointment-row"
+                    :class="{ 'appointment-row--selected': selectedAppointmentId === a.id }"
+                    tabindex="0"
+                    role="button"
+                    :aria-pressed="selectedAppointmentId === a.id"
+                    :aria-label="`${formatTime(a.scheduledAt)} · ${resolveCustomerName(a.customerId)} · ${resolveServiceName(a.serviceId)}`"
+                    @click="selectAppointment(a)"
+                    @keydown="handleMasterKeydown($event, a)"
+                  >
+                    <td>
+                      <div class="appointment-row__time">{{ formatTime(a.scheduledAt) }}</div>
+                      <div class="appointment-row__date-mini">{{ formatDateGroupHeader(a.scheduledAt.slice(0, 10)) }}</div>
+                    </td>
+                    <td>
+                      <div class="appointment-row__customer">
+                        <div
+                          class="appointment-row__avatar"
+                          :style="{ background: employeeColor(a.customerId) }"
+                          aria-hidden="true"
+                        >{{ resolveCustomerName(a.customerId).charAt(0).toUpperCase() }}</div>
+                        <div class="min-w-0">
+                          <div class="appointment-row__customer-name">{{ resolveCustomerName(a.customerId) }}</div>
+                          <div class="appointment-row__customer-phone">{{ customerPhoneOf(a.customerId) ?? '—' }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="appointment-row__service">{{ resolveServiceName(a.serviceId) }}</td>
+                    <td>
+                      <div class="appointment-row__employee">
+                        <span
+                          class="appointment-row__employee-dot"
+                          :style="{ background: employeeColor(a.employeeId) }"
+                          aria-hidden="true"
+                        />
+                        {{ resolveEmployeeName(a.employeeId) }}
+                      </div>
+                    </td>
+                    <td>
+                      <StatusPill :status="a.status" :label="t(`appointmentStatus.${a.status}`)" size="xs" />
+                    </td>
+                    <td class="appointment-row__duration">
+                      {{ t('appointmentsView.list.minutesShort', { n: a.durationMinutes }) }}
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Detail Panel (Desktop) -->
+        <div class="hidden lg:block sticky top-4 self-start">
+          <AppointmentDetailPanel
+            v-bind="detailProps"
+            @confirm="confirmAppointment"
+            @complete="completeAppointment"
+            @cancel="openCancel"
+            @no-show="markNoShow"
+            @close="selectedAppointmentId = null"
+          />
+        </div>
+      </div>
+
+      <!-- Detail Modal (Mobile) -->
+      <AppModal
+        v-model:visible="detailModalOpen"
+        :title="t('appointmentsView.detail.title')"
+        hide-footer
+        class="lg:hidden"
+      >
+        <AppointmentDetailPanel
+          v-bind="detailProps"
+          @confirm="confirmAppointment"
+          @complete="completeAppointment"
+          @cancel="openCancel"
+          @no-show="markNoShow"
+          @close="closeDetail"
+        />
+      </AppModal>
     </template>
 
     <!-- ── İptal Modal ───────────────────────────────────────────────── -->
-    <AppModal v-model:visible="showCancelModal" title="Randevuyu iptal et">
+    <AppModal v-model:visible="showCancelModal" :title="t('appointmentsView.cancelModal.title')">
       <div class="space-y-4">
-        <p v-if="cancelTarget" class="text-sm text-slate-600">
-          <span class="font-semibold">{{ formatDateTime(cancelTarget.scheduledAt) }}</span>
-          tarihli randevu iptal edilsin mi?
+        <p v-if="cancelTarget" class="text-sm" style="color: var(--ink-2)">
+          {{ t('appointmentsView.cancelModal.question', { datetime: formatDateTime(cancelTarget.scheduledAt) }) }}
         </p>
         <label class="flex flex-col gap-1.5">
-          <span class="text-sm font-medium text-slate-700">
-            İptal nedeni <span class="font-normal text-slate-400">(isteğe bağlı)</span>
+          <span class="text-sm font-medium" style="color: var(--ink-1)">
+            {{ t('appointmentsView.cancelModal.reasonLabel') }}
           </span>
           <input
             v-model="cancelReason" type="text"
-            class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            placeholder="Neden iptal ediyorsunuz?"
+            class="rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1"
+            style="border: 1px solid var(--hairline); color: var(--ink-1); background: var(--surface)"
+            :placeholder="t('appointmentsView.cancelModal.reasonPlaceholder')"
           />
         </label>
       </div>
       <template #footer>
-        <AppButton variant="secondary" @click="showCancelModal = false">Vazgeç</AppButton>
-        <AppButton variant="danger" :loading="cancelling" @click="doCancel">İptal et</AppButton>
+        <AppButton variant="secondary" @click="showCancelModal = false">{{ t('common.cancel') }}</AppButton>
+        <AppButton variant="danger" :loading="cancelling" @click="doCancel">{{ t('appointmentsView.cancelModal.submit') }}</AppButton>
       </template>
     </AppModal>
 
     <!-- ── Yeni Randevu Wizard Modal ───────────────────────────────────── -->
     <AppModal
       v-model:visible="showCreateModal"
-      :title="wizardTitles[wizardStep - 1]"
-      :dialog-style="{ width: 'min(40rem, 95vw)' }"
+      title="Yeni Randevu"
+      :dialog-style="{ width: 'min(48.75rem, 95vw)' }"
     >
-      <!-- Step indicators -->
-      <div class="mb-6 flex items-center gap-0">
-        <template v-for="(label, i) in wizardStepLabels" :key="i">
-          <div class="flex flex-col items-center gap-1">
-            <div
-              class="flex size-7 items-center justify-center rounded-full text-xs font-bold transition"
-              :class="wizardStep > i + 1
-                ? 'bg-indigo-600 text-white'
-                : wizardStep === i + 1
-                  ? 'bg-indigo-600 text-white ring-2 ring-indigo-200'
-                  : 'bg-slate-100 text-slate-400'"
-            >
-              <Check v-if="wizardStep > i + 1" class="size-3.5" />
-              <span v-else>{{ i + 1 }}</span>
-            </div>
-            <span class="hidden text-[0.65rem] font-medium sm:block" :class="wizardStep === i + 1 ? 'text-indigo-600' : 'text-slate-400'">{{ label }}</span>
-          </div>
-          <div v-if="i < wizardStepLabels.length - 1" class="mb-4 h-px flex-1 transition" :class="wizardStep > i + 1 ? 'bg-indigo-400' : 'bg-slate-200'" />
-        </template>
-      </div>
-
-      <!-- ── Adım 1: Çalışan + Hizmet ─────────────────────────────────── -->
-      <div v-if="wizardStep === 1" class="space-y-4">
-        <div v-if="empLoading" class="space-y-2">
-          <div v-for="i in 3" :key="i" class="h-10 animate-pulse rounded-lg bg-slate-100" />
-        </div>
-        <template v-else>
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-slate-700">Çalışan</label>
-            <div class="grid gap-2 sm:grid-cols-2">
-              <button
-                v-for="emp in employees"
-                :key="emp.id"
-                type="button"
-                class="flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm transition"
-                :class="wizardForm.employeeId === emp.id
-                  ? 'border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-300'
-                  : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
-                @click="selectEmployee(emp.id)"
-              >
-                <div
-                  class="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                  :style="{ backgroundColor: employeeColor(emp.id) }"
-                >{{ empInitials(emp.name) }}</div>
-                <div>
-                  <div class="font-medium">{{ emp.name }}</div>
-                  <div v-if="emp.title" class="text-xs text-slate-400">{{ emp.title }}</div>
-                </div>
-              </button>
-            </div>
-            <span v-if="wizardErrors.employeeId" class="text-xs text-red-600">{{ wizardErrors.employeeId }}</span>
-          </div>
-
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-slate-700">Hizmet</label>
-            <p v-if="wizardForm.employeeId === '' && capableServices.length === 0" class="text-xs text-slate-400 italic">Önce çalışan seçin</p>
-            <div class="grid gap-2 sm:grid-cols-2">
-              <button
-                v-for="svc in capableServices"
-                :key="svc.id"
-                type="button"
-                class="flex items-center justify-between rounded-xl border px-3 py-2.5 text-left text-sm transition"
-                :class="wizardForm.serviceId === svc.id
-                  ? 'border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-300'
-                  : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
-                @click="wizardForm.serviceId = svc.id"
-              >
-                <span class="font-medium">{{ svc.name }}</span>
-                <span class="text-xs text-slate-400">{{ svc.durationMinutes }} dk</span>
-              </button>
-            </div>
-            <span v-if="wizardErrors.serviceId" class="text-xs text-red-600">{{ wizardErrors.serviceId }}</span>
-          </div>
-        </template>
-      </div>
-
-      <!-- ── Adım 2: Tarih ──────────────────────────────────────────────── -->
-      <div v-else-if="wizardStep === 2" class="space-y-4">
-        <div v-if="datesLoading" class="flex justify-center py-8">
-          <div class="size-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-        </div>
-        <div v-else-if="availableDates.length === 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">
-          Önümüzdeki {{ maxAdvanceBookingDays }} gün içinde uygun tarih bulunamadı.
-        </div>
-        <template v-else>
-          <div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <!-- Month navigation -->
-            <div class="mb-3 flex items-center justify-between">
-              <button
-                type="button"
-                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-30"
-                :disabled="calMonthIndex === 0"
-                @click="calMonthIndex--"
-              >
-                <ChevronLeft class="size-4" aria-hidden="true" />
-              </button>
-              <span class="text-sm font-semibold capitalize text-slate-800">{{ currentCalMonthLabel }}</span>
-              <button
-                type="button"
-                class="flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-30"
-                :disabled="calMonthIndex >= availableMonths.length - 1"
-                @click="calMonthIndex++"
-              >
-                <ChevronRight class="size-4" aria-hidden="true" />
-              </button>
-            </div>
-
-            <!-- Day headers -->
-            <div class="mb-1 grid grid-cols-7 text-center text-[0.65rem] font-semibold uppercase tracking-wide text-slate-400">
-              <span v-for="d in ['Pt','Sa','Ça','Pe','Cu','Ct','Pz']" :key="d">{{ d }}</span>
-            </div>
-
-            <!-- Calendar cells -->
-            <div class="grid grid-cols-7 gap-1">
-              <template v-for="cell in calendarCells" :key="cell.iso ?? cell.index">
-                <div v-if="!cell.iso" />
-                <button
-                  v-else
-                  type="button"
-                  class="flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-sm font-medium transition"
-                  :class="cell.available
-                    ? wizardForm.date === cell.iso
-                      ? 'bg-indigo-600 text-white shadow-sm'
-                      : 'text-slate-800 hover:bg-indigo-50 hover:text-indigo-700'
-                    : 'cursor-not-allowed opacity-35'"
-                  :disabled="!cell.available"
-                  @click="wizardForm.date = cell.iso"
-                >
-                  <span>{{ cell.day }}</span>
-                  <span
-                    class="size-1 rounded-full"
-                    :class="cell.available
-                      ? wizardForm.date === cell.iso
-                        ? 'bg-white/70'
-                        : 'bg-indigo-400'
-                      : 'bg-transparent'"
-                  />
-                </button>
-              </template>
-            </div>
-          </div>
-
-          <!-- Selected date pill -->
-          <div v-if="wizardForm.date" class="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
-            <CalendarCheck class="size-4 shrink-0" aria-hidden="true" />
-            <span class="font-medium">{{ formatDateFull(wizardForm.date) }}</span>
-          </div>
-          <p v-else class="text-xs text-slate-400">
-            Yeşil tarihlerden birini seçin — {{ availableDates.length }} uygun gün bulundu.
-          </p>
-          <span v-if="wizardErrors.date" class="text-xs text-red-600">{{ wizardErrors.date }}</span>
-        </template>
-      </div>
-
-      <!-- ── Adım 3: Saat ───────────────────────────────────────────────── -->
-      <div v-else-if="wizardStep === 3" class="space-y-4">
-        <div v-if="slotsLoading" class="flex justify-center py-8">
-          <div class="size-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-        </div>
-        <div v-else-if="availableSlots.length === 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">
-          Bu tarihte uygun saat yok. Geri dönüp başka gün seçin.
-        </div>
-        <template v-else>
-          <!-- Date context -->
-          <div class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            <CalendarCheck class="size-3.5 shrink-0 text-indigo-500" aria-hidden="true" />
-            <span class="font-medium text-slate-700">{{ formatDateFull(wizardForm.date) }}</span>
-            <span class="text-slate-400">·</span>
-            <span>{{ availableSlots.length }} uygun saat</span>
-          </div>
-
-          <!-- Grouped slots -->
-          <div class="space-y-4">
-            <div v-for="group in slotGroups" :key="group.label" class="space-y-2">
-              <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ group.label }}</h3>
-              <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                <button
-                  v-for="slot in group.slots"
-                  :key="slot.startTime"
-                  type="button"
-                  class="flex flex-col items-center rounded-xl border px-2 py-2.5 text-center transition"
-                  :class="wizardForm.time === slot.startTime
-                    ? 'border-indigo-400 bg-indigo-600 text-white shadow-sm'
-                    : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700'"
-                  @click="wizardForm.time = slot.startTime"
-                >
-                  <span class="text-sm font-semibold tabular-nums">{{ slot.startTime.slice(11, 16) }}</span>
-                  <span
-                    class="mt-0.5 text-[0.65rem] tabular-nums"
-                    :class="wizardForm.time === slot.startTime ? 'text-indigo-200' : 'text-slate-400'"
-                  >→ {{ slot.endTime.slice(11, 16) }}</span>
-                  <span
-                    v-if="slot.instantConfirmation"
-                    class="mt-1 rounded-full px-1.5 py-0.5 text-[0.6rem] font-semibold"
-                    :class="wizardForm.time === slot.startTime ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'"
-                  >Anında</span>
-                </button>
+      <div class="wizard">
+        <!-- Stepper -->
+        <ol class="wizard-stepper" aria-label="Randevu oluşturma adımları">
+          <li
+            v-for="(step, i) in WIZARD_STEPS"
+            :key="step.key"
+            class="wizard-stepper__item"
+            :class="{
+              'wizard-stepper__item--done': wizardStep > i + 1,
+              'wizard-stepper__item--active': wizardStep === i + 1,
+            }"
+            :aria-current="wizardStep === i + 1 ? 'step' : undefined"
+          >
+            <div class="wizard-stepper__marker">
+              <div class="wizard-stepper__circle">
+                <Check v-if="wizardStep > i + 1" class="size-3.5" :stroke-width="2.6" aria-hidden="true" />
+                <span v-else>{{ i + 1 }}</span>
+              </div>
+              <div class="wizard-stepper__meta">
+                <span class="wizard-stepper__caption">Adım {{ i + 1 }}</span>
+                <span class="wizard-stepper__label">{{ step.caption }}</span>
               </div>
             </div>
-          </div>
-
-          <!-- Selected slot summary -->
-          <div v-if="wizardForm.time" class="flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
-            <Check class="size-4 shrink-0" aria-hidden="true" />
-            <span class="font-medium">{{ wizardForm.time.slice(11, 16) }} – {{ availableSlots.find(s => s.startTime === wizardForm.time)?.endTime.slice(11, 16) }}</span>
-            <span class="text-indigo-400">·</span>
-            <span class="text-indigo-500">{{ availableSlots.find(s => s.startTime === wizardForm.time)?.durationMinutes }} dk</span>
-          </div>
-
-          <span v-if="wizardErrors.time" class="text-xs text-red-600">{{ wizardErrors.time }}</span>
-        </template>
-      </div>
-
-      <!-- ── Adım 4: Müşteri ────────────────────────────────────────────── -->
-      <div v-else-if="wizardStep === 4" class="space-y-4">
-        <!-- Summary bar -->
-        <div class="flex flex-wrap gap-2 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600">
-          <span class="font-medium">{{ resolveEmployeeName(wizardForm.employeeId as number) }}</span>
-          <span class="text-slate-300">·</span>
-          <span>{{ resolveServiceName(wizardForm.serviceId as number) }}</span>
-          <span class="text-slate-300">·</span>
-          <span>{{ formatDateFull(wizardForm.date) }} {{ wizardForm.time.slice(11, 16) }}</span>
-        </div>
-
-        <!-- Mod seçimi: Mevcut / Yeni -->
-        <div class="flex gap-2">
-          <button
-            type="button"
-            class="flex-1 rounded-xl border py-2 text-sm font-medium transition"
-            :class="customerMode === 'existing'
-              ? 'border-indigo-400 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
-              : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
-            @click="customerMode = 'existing'"
-          >
-            Mevcut müşteri
-          </button>
-          <button
-            type="button"
-            class="flex-1 rounded-xl border py-2 text-sm font-medium transition"
-            :class="customerMode === 'new'
-              ? 'border-indigo-400 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
-              : 'border-slate-200 text-slate-500 hover:bg-slate-50'"
-            @click="customerMode = 'new'; clearExistingCustomer()"
-          >
-            Yeni müşteri
-          </button>
-        </div>
-
-        <!-- ── Mevcut müşteri seçimi ── -->
-        <template v-if="customerMode === 'existing'">
-          <!-- Arama -->
-          <div class="relative">
-            <input
-              v-model="customerSearch"
-              type="search"
-              placeholder="İsim veya telefon ara…"
-              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 pl-9 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            <span
+              v-if="i < WIZARD_STEPS.length - 1"
+              class="wizard-stepper__line"
+              :class="{ 'wizard-stepper__line--done': wizardStep > i + 1 }"
+              aria-hidden="true"
             />
-            <svg class="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          </div>
+          </li>
+        </ol>
 
-          <!-- Seçili müşteri -->
-          <div
-            v-if="selectedExistingCustomer"
-            class="flex items-center justify-between rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-3"
+        <!-- Summary chips (önceki adımlardan seçilenler) -->
+        <div v-if="wizardSummaryChips.length" class="wizard-summary" role="region" aria-label="Seçilenler">
+          <span
+            v-for="chip in wizardSummaryChips"
+            :key="chip.key"
+            class="wizard-summary__chip"
+            :data-tone="chip.tone"
           >
-            <div>
-              <p class="text-sm font-semibold text-indigo-800">{{ selectedExistingCustomer.name }}</p>
-              <p class="text-xs text-indigo-500">{{ selectedExistingCustomer.phoneNumber }}</p>
+            <component :is="chip.icon" class="size-3" aria-hidden="true" />
+            <span>{{ chip.label }}</span>
+          </span>
+        </div>
+
+        <!-- Adım başlığı -->
+        <div class="wizard-section__head">
+          <h2 class="wizard-section__title">{{ WIZARD_STEPS[wizardStep - 1].title }}</h2>
+          <p class="wizard-section__subtitle">{{ WIZARD_STEPS[wizardStep - 1].subtitle }}</p>
+        </div>
+
+        <!-- ── Adım 1: Çalışan + Hizmet ─────────────────────────────── -->
+        <div v-if="wizardStep === 1" class="wizard-body">
+          <div v-if="empLoading" class="wizard-skeleton">
+            <div v-for="i in 3" :key="i" class="wizard-skeleton__row" />
+          </div>
+          <template v-else>
+            <div class="wizard-field">
+              <span class="wizard-field__label">Çalışan</span>
+              <div class="wizard-pick-grid">
+                <button
+                  v-for="emp in employees"
+                  :key="emp.id"
+                  type="button"
+                  class="wizard-pick wizard-pick--employee"
+                  :class="{ 'wizard-pick--active': wizardForm.employeeId === emp.id }"
+                  @click="selectEmployee(emp.id)"
+                >
+                  <span
+                    class="wizard-pick__avatar"
+                    :style="{ backgroundColor: employeeColor(emp.id) }"
+                  >{{ empInitials(emp.name) }}</span>
+                  <span class="wizard-pick__body">
+                    <span class="wizard-pick__title">{{ emp.name }}</span>
+                    <span v-if="emp.title" class="wizard-pick__hint">{{ emp.title }}</span>
+                  </span>
+                  <Check
+                    v-if="wizardForm.employeeId === emp.id"
+                    class="wizard-pick__check size-4"
+                    :stroke-width="2.6"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+              <span v-if="wizardErrors.employeeId" class="wizard-field__error" role="alert">{{ wizardErrors.employeeId }}</span>
             </div>
+
+            <div class="wizard-field">
+              <span class="wizard-field__label">Hizmet</span>
+              <p v-if="wizardForm.employeeId === '' && capableServices.length === 0" class="wizard-field__hint wizard-field__hint--muted">
+                Önce çalışan seçin
+              </p>
+              <div v-else-if="capabilitiesLoading" class="wizard-skeleton">
+                <div v-for="i in 2" :key="i" class="wizard-skeleton__row wizard-skeleton__row--sm" />
+              </div>
+              <div v-else-if="capableServices.length === 0" class="wizard-field__cta">
+                <p class="wizard-field__hint wizard-field__hint--warning">
+                  {{ t('appointmentsView.wizard.bridge.empty') }}
+                </p>
+                <RouterLink
+                  :to="`/admin/services?focusEmployee=${wizardForm.employeeId}`"
+                  class="wizard-field__link"
+                >
+                  {{ t('appointmentsView.wizard.bridge.action') }} →
+                </RouterLink>
+              </div>
+              <div v-else class="wizard-pick-grid">
+                <button
+                  v-for="svc in capableServices"
+                  :key="svc.id"
+                  type="button"
+                  class="wizard-pick wizard-pick--service"
+                  :class="{ 'wizard-pick--active': wizardForm.serviceId === svc.id }"
+                  @click="wizardForm.serviceId = svc.id"
+                >
+                  <span class="wizard-pick__body">
+                    <span class="wizard-pick__title">{{ svc.name }}</span>
+                    <span class="wizard-pick__hint">{{ svc.durationMinutes }} dk</span>
+                  </span>
+                  <Check
+                    v-if="wizardForm.serviceId === svc.id"
+                    class="wizard-pick__check size-4"
+                    :stroke-width="2.6"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+              <span v-if="wizardErrors.serviceId" class="wizard-field__error" role="alert">{{ wizardErrors.serviceId }}</span>
+            </div>
+          </template>
+        </div>
+
+        <!-- ── Adım 2: Tarih ──────────────────────────────────────────── -->
+        <div v-else-if="wizardStep === 2" class="wizard-body">
+          <div v-if="datesLoading" class="wizard-center">
+            <div class="wizard-spinner" aria-label="Yükleniyor" />
+          </div>
+          <div v-else-if="availableDates.length === 0" class="wizard-alert">
+            Önümüzdeki {{ maxAdvanceBookingDays }} gün içinde uygun tarih bulunamadı.
+          </div>
+          <template v-else>
+            <div class="wizard-calendar">
+              <div class="wizard-calendar__nav">
+                <button
+                  type="button"
+                  class="wizard-calendar__nav-btn"
+                  :disabled="calMonthIndex === 0"
+                  aria-label="Önceki ay"
+                  @click="calMonthIndex--"
+                >
+                  <ChevronLeft class="size-4" aria-hidden="true" />
+                </button>
+                <span class="wizard-calendar__month">{{ currentCalMonthLabel }}</span>
+                <button
+                  type="button"
+                  class="wizard-calendar__nav-btn"
+                  :disabled="calMonthIndex >= availableMonths.length - 1"
+                  aria-label="Sonraki ay"
+                  @click="calMonthIndex++"
+                >
+                  <ChevronRight class="size-4" aria-hidden="true" />
+                </button>
+              </div>
+
+              <div class="wizard-calendar__days">
+                <span v-for="d in ['Pt','Sa','Ça','Pe','Cu','Ct','Pz']" :key="d">{{ d }}</span>
+              </div>
+
+              <div class="wizard-calendar__grid">
+                <template v-for="cell in calendarCells" :key="cell.iso ?? cell.index">
+                  <div v-if="!cell.iso" />
+                  <button
+                    v-else
+                    type="button"
+                    class="wizard-calendar__cell"
+                    :class="{
+                      'wizard-calendar__cell--available': cell.available,
+                      'wizard-calendar__cell--active': cell.available && wizardForm.date === cell.iso,
+                      'wizard-calendar__cell--disabled': !cell.available,
+                    }"
+                    :disabled="!cell.available"
+                    @click="wizardForm.date = cell.iso"
+                  >
+                    <span>{{ cell.day }}</span>
+                    <span v-if="cell.available" class="wizard-calendar__dot" />
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <div v-if="wizardForm.date" class="wizard-inline-confirm">
+              <CalendarCheck class="size-4 shrink-0" aria-hidden="true" />
+              <span>{{ formatDateFull(wizardForm.date) }}</span>
+            </div>
+            <p v-else class="wizard-field__hint wizard-field__hint--muted">
+              Yeşil noktalı günler müsait — {{ availableDates.length }} uygun gün bulundu.
+            </p>
+            <span v-if="wizardErrors.date" class="wizard-field__error" role="alert">{{ wizardErrors.date }}</span>
+          </template>
+        </div>
+
+        <!-- ── Adım 3: Saat ───────────────────────────────────────────── -->
+        <div v-else-if="wizardStep === 3" class="wizard-body">
+          <div v-if="slotsLoading" class="wizard-center">
+            <div class="wizard-spinner" aria-label="Yükleniyor" />
+          </div>
+          <div v-else-if="availableSlots.length === 0" class="wizard-alert">
+            Bu tarihte uygun saat yok. Geri dönüp başka gün seçin.
+          </div>
+          <template v-else>
+            <!-- Context bar -->
+            <div class="wizard-context">
+              <CalendarCheck class="size-3.5 shrink-0" aria-hidden="true" />
+              <span class="wizard-context__strong">{{ formatDateFull(wizardForm.date) }}</span>
+              <span class="wizard-context__sep">·</span>
+              <span>Stilist: {{ resolveEmployeeName(wizardForm.employeeId as number) }}</span>
+              <span v-if="selectedServiceForWizard" class="wizard-context__sep">·</span>
+              <span v-if="selectedServiceForWizard">Süre: {{ selectedServiceForWizard.durationMinutes }} dk</span>
+            </div>
+
+            <!-- Slot grid (tasarımdaki 6-col) -->
+            <div class="wizard-slots">
+              <button
+                v-for="slot in availableSlots"
+                :key="slot.startTime"
+                type="button"
+                class="wizard-slot"
+                :class="{ 'wizard-slot--active': wizardForm.time === slot.startTime }"
+                @click="wizardForm.time = slot.startTime"
+              >
+                {{ slot.startTime.slice(11, 16) }}
+              </button>
+            </div>
+
+            <!-- Bilgi kartları (paket + hatırlatma) -->
+            <div class="wizard-info-cards">
+              <div class="wizard-info-card">
+                <span class="wizard-info-card__icon wizard-info-card__icon--info" aria-hidden="true">
+                  <Bell class="size-4" />
+                </span>
+                <div class="wizard-info-card__body">
+                  <span class="wizard-info-card__title">Otomatik hatırlatma</span>
+                  <span class="wizard-info-card__hint">Randevudan 2 saat önce gönderilir</span>
+                </div>
+                <span class="wizard-info-card__badge">Varsayılan</span>
+              </div>
+              <div class="wizard-info-card">
+                <span class="wizard-info-card__icon wizard-info-card__icon--purple" aria-hidden="true">
+                  <PackageIcon class="size-4" />
+                </span>
+                <div class="wizard-info-card__body">
+                  <span class="wizard-info-card__title">Paketten düş</span>
+                  <span class="wizard-info-card__hint">Sonraki adımda müşteri seçilince kontrol edilir</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="wizardForm.time" class="wizard-inline-confirm">
+              <Check class="size-4 shrink-0" aria-hidden="true" />
+              <span>
+                {{ wizardForm.time.slice(11, 16) }}
+                –
+                {{ availableSlots.find(s => s.startTime === wizardForm.time)?.endTime.slice(11, 16) }}
+              </span>
+              <span v-if="selectedSlotDurationMinutes !== null" class="wizard-inline-confirm__sep">·</span>
+              <span v-if="selectedSlotDurationMinutes !== null">{{ selectedSlotDurationMinutes }} dk</span>
+            </div>
+
+            <span v-if="wizardErrors.time" class="wizard-field__error" role="alert">{{ wizardErrors.time }}</span>
+          </template>
+        </div>
+
+        <!-- ── Adım 4: Müşteri ────────────────────────────────────────── -->
+        <div v-else-if="wizardStep === 4" class="wizard-body">
+          <!-- Mod seçimi: Mevcut / Yeni -->
+          <div class="wizard-tabs" role="tablist" aria-label="Müşteri seçimi modu">
             <button
               type="button"
-              class="rounded-lg px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-100"
-              @click="clearExistingCustomer()"
+              class="wizard-tab"
+              :class="{ 'wizard-tab--active': customerMode === 'existing' }"
+              role="tab"
+              :aria-selected="customerMode === 'existing'"
+              @click="customerMode = 'existing'"
             >
-              Değiştir
+              Mevcut müşteri
+            </button>
+            <button
+              type="button"
+              class="wizard-tab"
+              :class="{ 'wizard-tab--active': customerMode === 'new' }"
+              role="tab"
+              :aria-selected="customerMode === 'new'"
+              @click="customerMode = 'new'; clearExistingCustomer()"
+            >
+              Yeni müşteri
             </button>
           </div>
 
-          <!-- Müşteri listesi -->
-          <ul v-else class="max-h-48 overflow-y-auto divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
-            <li v-if="filteredCustomersForWizard.length === 0" class="px-4 py-3 text-center text-sm text-slate-400">
-              Müşteri bulunamadı
-            </li>
-            <li
-              v-for="c in filteredCustomersForWizard"
-              :key="c.id"
-              class="flex cursor-pointer items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition"
-              @click="selectExistingCustomer(c)"
-            >
-              <div class="flex items-center gap-2.5">
-                <div
-                  class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                  :style="{ backgroundColor: employeeColor(c.id) }"
-                >{{ c.name.charAt(0).toUpperCase() }}</div>
+          <!-- Mevcut müşteri -->
+          <template v-if="customerMode === 'existing'">
+            <div class="wizard-search">
+              <Search class="size-4 wizard-search__icon" aria-hidden="true" />
+              <input
+                v-model="customerSearch"
+                type="search"
+                placeholder="İsim veya telefon ara…"
+                class="wizard-search__input"
+              />
+            </div>
+
+            <div v-if="selectedExistingCustomer" class="wizard-selected-customer">
+              <div class="wizard-selected-customer__body">
+                <span
+                  class="wizard-pick__avatar"
+                  :style="{ backgroundColor: employeeColor(selectedExistingCustomer.id) }"
+                >{{ selectedExistingCustomer.name.charAt(0).toUpperCase() }}</span>
                 <div>
-                  <p class="text-sm font-medium text-slate-800">{{ c.name }}</p>
-                  <p class="text-xs text-slate-400">{{ c.phoneNumber }}</p>
+                  <p class="wizard-selected-customer__name">{{ selectedExistingCustomer.name }}</p>
+                  <p class="wizard-selected-customer__phone">{{ selectedExistingCustomer.phoneNumber }}</p>
                 </div>
               </div>
-              <span v-if="c.blacklisted" class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-600">Kara liste</span>
-              <span v-else-if="c.noShowForcesManualApproval" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Onay zorunlu</span>
-            </li>
-          </ul>
-          <span v-if="wizardErrors.customer" class="text-xs text-red-600">{{ wizardErrors.customer }}</span>
-
-          <!-- Paket seans seçimi -->
-          <template v-if="selectedExistingCustomer">
-            <div v-if="packagesLoadingForWizard" class="flex items-center gap-2 text-xs text-slate-400">
-              <div class="size-3 animate-spin rounded-full border border-slate-300 border-t-indigo-400" />
-              Paketler yükleniyor…
+              <button
+                type="button"
+                class="wizard-selected-customer__change"
+                @click="clearExistingCustomer()"
+              >
+                Değiştir
+              </button>
             </div>
-            <div v-else-if="pendingSessionsForWizard.length > 0" class="space-y-2">
-              <p class="text-sm font-medium text-slate-700">Paket seansı ata <span class="font-normal text-slate-400">(isteğe bağlı)</span></p>
-              <div class="space-y-1.5">
-                <!-- "Atamasız" seçeneği -->
+
+            <ul v-else class="wizard-customer-list">
+              <li v-if="filteredCustomersForWizard.length === 0" class="wizard-customer-list__empty">
+                Müşteri bulunamadı
+              </li>
+              <li
+                v-for="c in filteredCustomersForWizard"
+                :key="c.id"
+                class="wizard-customer-list__item"
+                @click="selectExistingCustomer(c)"
+              >
+                <div class="wizard-customer-list__info">
+                  <span
+                    class="wizard-pick__avatar wizard-pick__avatar--sm"
+                    :style="{ backgroundColor: employeeColor(c.id) }"
+                  >{{ c.name.charAt(0).toUpperCase() }}</span>
+                  <div>
+                    <p class="wizard-customer-list__name">{{ c.name }}</p>
+                    <p class="wizard-customer-list__phone">{{ c.phoneNumber }}</p>
+                  </div>
+                </div>
+                <span v-if="c.blacklisted" class="wizard-tag wizard-tag--danger">Kara liste</span>
+                <span v-else-if="c.noShowForcesManualApproval" class="wizard-tag wizard-tag--warning">Onay zorunlu</span>
+              </li>
+            </ul>
+            <span v-if="wizardErrors.customer" class="wizard-field__error" role="alert">{{ wizardErrors.customer }}</span>
+
+            <!-- Paket seans seçimi -->
+            <template v-if="selectedExistingCustomer">
+              <div v-if="packagesLoadingForWizard" class="wizard-field__hint wizard-field__hint--muted">
+                Paketler yükleniyor…
+              </div>
+              <div v-else-if="pendingSessionsForWizard.length > 0" class="wizard-field">
+                <span class="wizard-field__label">
+                  Paket seansı ata
+                  <span class="wizard-field__label-hint">(isteğe bağlı)</span>
+                </span>
+                <div class="wizard-session-list">
+                  <label
+                    class="wizard-session"
+                    :class="{ 'wizard-session--active': selectedSessionId === null }"
+                  >
+                    <input v-model="selectedSessionId" type="radio" :value="null" class="sr-only" />
+                    <span class="wizard-session__radio">
+                      <span v-if="selectedSessionId === null" class="wizard-session__radio-dot" />
+                    </span>
+                    <span class="wizard-session__label">Seans atama (paketsiz randevu)</span>
+                  </label>
+                  <label
+                    v-for="{ pkg, session } in pendingSessionsForWizard"
+                    :key="session.id"
+                    class="wizard-session"
+                    :class="{ 'wizard-session--active': selectedSessionId === session.id }"
+                  >
+                    <input v-model="selectedSessionId" type="radio" :value="session.id" class="sr-only" />
+                    <span class="wizard-session__radio">
+                      <span v-if="selectedSessionId === session.id" class="wizard-session__radio-dot" />
+                    </span>
+                    <div class="wizard-session__info">
+                      <p class="wizard-session__title">{{ pkg.name }}</p>
+                      <p class="wizard-session__hint">Seans #{{ session.sessionNumber }} · {{ pkg.remainingSessions }} seans kaldı</p>
+                    </div>
+                    <span class="wizard-tag wizard-tag--info">Paket</span>
+                  </label>
+                </div>
+              </div>
+              <div
+                v-else-if="!packagesLoadingForWizard && eligiblePackages.length === 0 && customerPackagesForWizard.length > 0"
+                class="wizard-field__hint wizard-field__hint--muted"
+              >
+                Bu müşterinin bu hizmet için bekleyen paket seansı yok.
+              </div>
+            </template>
+
+            <label class="wizard-field">
+              <span class="wizard-field__label">
+                Not
+                <span class="wizard-field__label-hint">(isteğe bağlı)</span>
+              </span>
+              <textarea
+                v-model="wizardForm.notes"
+                rows="2"
+                maxlength="500"
+                placeholder="Varsa not…"
+                class="wizard-textarea"
+              />
+            </label>
+          </template>
+
+          <!-- Yeni müşteri formu -->
+          <template v-else>
+            <div class="wizard-form-grid">
+              <label class="wizard-field">
+                <span class="wizard-field__label">
+                  Müşteri adı
+                  <span class="wizard-field__required">*</span>
+                </span>
+                <input
+                  v-model="wizardForm.customerName"
+                  type="text"
+                  placeholder="Ad soyad…"
+                  class="wizard-input"
+                />
+                <span v-if="wizardErrors.customerName" class="wizard-field__error" role="alert">{{ wizardErrors.customerName }}</span>
+              </label>
+              <label class="wizard-field">
+                <span class="wizard-field__label">
+                  Telefon
+                  <span class="wizard-field__required">*</span>
+                </span>
+                <input
+                  v-model="wizardForm.phoneNumber"
+                  type="tel"
+                  placeholder="5XX XXX XX XX"
+                  class="wizard-input"
+                />
+                <span v-if="wizardErrors.phoneNumber" class="wizard-field__error" role="alert">{{ wizardErrors.phoneNumber }}</span>
+              </label>
+            </div>
+
+            <div class="wizard-field">
+              <span class="wizard-field__label">Kaynak</span>
+              <div class="wizard-source-row">
                 <label
-                  class="flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition"
-                  :class="selectedSessionId === null
-                    ? 'border-indigo-300 bg-indigo-50'
-                    : 'border-slate-200 hover:bg-slate-50'"
+                  v-for="src in SOURCES"
+                  :key="src.value"
+                  class="wizard-source"
+                  :class="{ 'wizard-source--active': wizardForm.source === src.value }"
                 >
-                  <input v-model="selectedSessionId" type="radio" :value="null" class="sr-only" />
-                  <div class="flex size-4 shrink-0 items-center justify-center rounded-full border-2"
-                    :class="selectedSessionId === null ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'">
-                    <div v-if="selectedSessionId === null" class="size-1.5 rounded-full bg-white" />
-                  </div>
-                  <span class="text-sm text-slate-600">Seans atama (paketsiz randevu)</span>
-                </label>
-                <!-- Seans seçenekleri -->
-                <label
-                  v-for="{ pkg, session } in pendingSessionsForWizard"
-                  :key="session.id"
-                  class="flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition"
-                  :class="selectedSessionId === session.id
-                    ? 'border-indigo-300 bg-indigo-50'
-                    : 'border-slate-200 hover:bg-slate-50'"
-                >
-                  <input v-model="selectedSessionId" type="radio" :value="session.id" class="sr-only" />
-                  <div class="flex size-4 shrink-0 items-center justify-center rounded-full border-2"
-                    :class="selectedSessionId === session.id ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'">
-                    <div v-if="selectedSessionId === session.id" class="size-1.5 rounded-full bg-white" />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-slate-800">{{ pkg.name }}</p>
-                    <p class="text-xs text-slate-400">Seans #{{ session.sessionNumber }} · {{ pkg.remainingSessions }} seans kaldı</p>
-                  </div>
-                  <span class="shrink-0 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600">Paket</span>
+                  <input v-model="wizardForm.source" type="radio" :value="src.value" class="sr-only" />
+                  <component :is="src.icon" class="size-4" aria-hidden="true" />
+                  {{ src.label }}
                 </label>
               </div>
             </div>
-            <div v-else-if="!packagesLoadingForWizard && eligiblePackages.length === 0 && customerPackagesForWizard.length > 0" class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
-              Bu müşterinin bu hizmet için bekleyen paket seansı bulunmuyor.
-            </div>
+
+            <label class="wizard-field">
+              <span class="wizard-field__label">
+                Not
+                <span class="wizard-field__label-hint">(isteğe bağlı)</span>
+              </span>
+              <textarea
+                v-model="wizardForm.notes"
+                rows="2"
+                maxlength="500"
+                placeholder="Varsa not…"
+                class="wizard-textarea"
+              />
+            </label>
           </template>
 
-          <!-- Not -->
-          <label class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-slate-700">Not <span class="font-normal text-slate-400">(isteğe bağlı)</span></span>
-            <textarea
-              v-model="wizardForm.notes"
-              rows="2"
-              maxlength="500"
-              placeholder="Varsa not…"
-              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
-          </label>
-        </template>
-
-        <!-- ── Yeni müşteri formu ── -->
-        <template v-else>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-slate-700">Müşteri adı <span class="text-red-500">*</span></span>
-              <input
-                v-model="wizardForm.customerName"
-                type="text"
-                placeholder="Ad soyad…"
-                class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-              />
-              <span v-if="wizardErrors.customerName" class="text-xs text-red-600">{{ wizardErrors.customerName }}</span>
-            </label>
-            <label class="flex flex-col gap-1.5">
-              <span class="text-sm font-medium text-slate-700">Telefon <span class="text-red-500">*</span></span>
-              <input
-                v-model="wizardForm.phoneNumber"
-                type="tel"
-                placeholder="5XX XXX XX XX"
-                class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-              />
-              <span v-if="wizardErrors.phoneNumber" class="text-xs text-red-600">{{ wizardErrors.phoneNumber }}</span>
-            </label>
-          </div>
-
-          <div>
-            <span class="mb-1.5 block text-sm font-medium text-slate-700">Kaynak</span>
-            <div class="flex gap-2">
-              <label
-                v-for="src in SOURCES"
-                :key="src.value"
-                class="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition"
-                :class="wizardForm.source === src.value ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'"
-              >
-                <input v-model="wizardForm.source" type="radio" :value="src.value" class="sr-only" />
-                <component :is="src.icon" class="size-4" aria-hidden="true" />
-                {{ src.label }}
-              </label>
-            </div>
-          </div>
-
-          <label class="flex flex-col gap-1.5">
-            <span class="text-sm font-medium text-slate-700">Not <span class="font-normal text-slate-400">(isteğe bağlı)</span></span>
-            <textarea
-              v-model="wizardForm.notes"
-              rows="2"
-              maxlength="500"
-              placeholder="Varsa not…"
-              class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
-            />
-          </label>
-        </template>
-
-        <p v-if="createSubmitError" class="text-xs text-red-600" role="alert">{{ createSubmitError }}</p>
+          <p v-if="createSubmitError" class="wizard-field__error" role="alert">{{ createSubmitError }}</p>
+        </div>
       </div>
 
       <template #footer>
-        <AppButton variant="secondary" @click="wizardBack">
-          {{ wizardStep === 1 ? 'Vazgeç' : '← Geri' }}
-        </AppButton>
-        <AppButton
-          v-if="wizardStep < 4"
-          variant="primary"
-          :disabled="datesLoading || slotsLoading"
-          @click="wizardNext"
-        >
-          Devam →
-        </AppButton>
-        <AppButton
-          v-else
-          variant="primary"
-          :loading="createSaving"
-          @click="submitCreate"
-        >
-          Randevu oluştur
-        </AppButton>
+        <div class="wizard-footer">
+          <AppButton variant="secondary" @click="wizardBack">
+            {{ wizardStep === 1 ? 'Vazgeç' : '← Geri' }}
+          </AppButton>
+          <span class="wizard-footer__counter">{{ wizardStep }} / {{ WIZARD_STEPS.length }} adım</span>
+          <AppButton
+            v-if="wizardStep < 4"
+            variant="primary"
+            :disabled="wizardContinueDisabled"
+            @click="wizardNext"
+          >
+            Devam Et →
+          </AppButton>
+          <AppButton
+            v-else
+            variant="primary"
+            :loading="createSaving"
+            @click="submitCreate"
+          >
+            Randevu oluştur
+          </AppButton>
+        </div>
       </template>
     </AppModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { fetchAllPageContent, type ApiResponse } from '@/api/client'
 import { appointmentApi, type AppointmentResponse, type AppointmentStatus } from '@/api/appointment'
@@ -902,22 +775,28 @@ import { packageApi } from '@/api/customerPackage'
 import { packageSessionApi, type PackageSessionResponse } from '@/api/packageSession'
 import { publicApi, type AvailableSlotResponse } from '@/api/public'
 import { businessApi } from '@/api/business'
-import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import trLocale from '@fullcalendar/core/locales/tr'
 import {
-  List, Calendar, Plus, X, RefreshCw, Users,
-  Check, CheckCheck, UserMinus, UserCircle2,
-  Scissors, PhoneCall, MapPin, Globe, CalendarX2,
+  Plus, X, RefreshCw,
+  Check,
+  PhoneCall, MapPin, CalendarX2,
   ChevronLeft, ChevronRight, CalendarCheck,
+  User as UserIcon, Scissors, Clock as ClockIcon,
+  Bell, Package as PackageIcon, Search,
 } from 'lucide-vue-next'
+import type { Component } from 'vue'
 import AppButton from '@/components/ui/AppButton.vue'
-import AppBadge from '@/components/ui/AppBadge.vue'
 import AppSkeleton from '@/components/ui/AppSkeleton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppDateField from '@/components/ui/AppDateField.vue'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
+import StatusPill from '@/components/ui/StatusPill.vue'
+import AppointmentDetailPanel from '@/components/appointments/AppointmentDetailPanel.vue'
+import EmployeeFilterDropdown from '@/components/filters/EmployeeFilterDropdown.vue'
+import { createStaffAppointmentSchema } from '@/validation/schemas'
+
+const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
 const auth = useAuthStore()
 const businessId = computed(() => auth.user?.businessId ?? null)
@@ -926,15 +805,6 @@ const maxAdvanceBookingDays = ref(60)
 
 // ─── Sabitler ───────────────────────────────────────────────────────────────
 
-const VIEWS = [
-  { value: 'list' as const, label: 'Liste', icon: List },
-  { value: 'calendar' as const, label: 'Takvim', icon: Calendar },
-]
-const CALENDAR_VIEWS = [
-  { value: 'dayGridMonth', label: 'Ay' },
-  { value: 'timeGridWeek', label: 'Hafta' },
-  { value: 'timeGridDay', label: 'Gün' },
-]
 const SOURCES = [
   { value: 'PHONE' as const, label: 'Telefon', icon: PhoneCall },
   { value: 'WALK_IN' as const, label: 'Yerinde', icon: MapPin },
@@ -943,22 +813,19 @@ const EMPLOYEE_COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
   '#10b981', '#3b82f6', '#ef4444', '#06b6d4',
 ]
+const STATUS_FILTER_VALUES: Array<AppointmentStatus | ''> = [
+  '', 'PENDING', 'CONFIRMED', 'RISKY', 'COMPLETED', 'CANCELLED', 'NO_SHOW',
+]
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
-const view = ref<'list' | 'calendar'>('calendar')
-const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null)
-const calendarTitle = ref('')
 const isMobile = ref(window.innerWidth < 640)
-const calendarView = ref(isMobile.value ? 'timeGridDay' : 'timeGridWeek')
-const calendarLoadedKey = ref('')
 
-// Ayrı loading state'leri — örtüşme olmasın
-const calendarLoading = ref(false)
 const listLoading = ref(false)
 const empLoading = ref(true)
 
-const loading = computed(() => listLoading.value || calendarLoading.value || empLoading.value)
+const loading = computed(() => listLoading.value || empLoading.value)
+const statusFilterRef = ref<HTMLDivElement | null>(null)
 
 const appointments = ref<AppointmentResponse[]>([])
 const employees = ref<EmployeeResponse[]>([])
@@ -970,6 +837,31 @@ const filterStart = ref('')
 const filterEnd = ref('')
 const filterStatus = ref<AppointmentStatus | ''>('')
 const filterEmployee = ref<number | ''>('')
+
+// ─── Master/Detail State ────────────────────────────────────────────────────
+
+const selectedAppointmentId = ref<number | null>(null)
+const detailModalOpen = ref(false)
+
+const selectedAppointment = computed(() =>
+  appointments.value.find((a) => a.id === selectedAppointmentId.value) ?? null,
+)
+
+const detailProps = computed(() => {
+  const a = selectedAppointment.value
+  if (!a) return { appointment: null, customerName: '', employeeName: '', serviceName: '' }
+  return {
+    appointment: a,
+    customerName: resolveCustomerName(a.customerId),
+    employeeName: resolveEmployeeName(a.employeeId),
+    serviceName: resolveServiceName(a.serviceId),
+    customerPhone: customerPhoneOf(a.customerId),
+    employeeColor: employeeColor(a.employeeId),
+    actingId: actingId.value,
+    actingAction: actingAction.value,
+    customerHasNoShow: customerNoShowMap.value.get(a.customerId) ?? false,
+  }
+})
 
 // ─── Türetilen ──────────────────────────────────────────────────────────────
 
@@ -1036,72 +928,46 @@ const groupedAppointments = computed(() => {
   return groups
 })
 
-const calendarEvents = computed(() =>
-  filteredAppointments.value.map((a) => ({
-    id: String(a.id),
-    title: customerMap.value.get(a.customerId) ?? `Müşteri #${a.customerId}`,
-    start: a.scheduledAt,
-    end: a.endAt,
-    backgroundColor: employeeColor(a.employeeId),
-    borderColor: employeeColor(a.employeeId),
-    textColor: '#ffffff',
-  })),
+// ─── Status chip count'ları (prototype) ──────────────────────────────────────
+
+const statusBaseCounts = computed(() => {
+  const counts = new Map<AppointmentStatus, number>()
+  let allCount = 0
+  let base = appointments.value
+  if (filterEmployee.value !== '') base = base.filter((a) => a.employeeId === filterEmployee.value)
+  for (const a of base) {
+    counts.set(a.status, (counts.get(a.status) ?? 0) + 1)
+    allCount++
+  }
+  return { counts, allCount }
+})
+
+const statusChips = computed(() =>
+  STATUS_FILTER_VALUES.map((value) => {
+    const count =
+      value === ''
+        ? statusBaseCounts.value.allCount
+        : statusBaseCounts.value.counts.get(value) ?? 0
+    const labelKey = value === '' ? 'appointmentsView.filter.statusAll' : `appointmentStatus.${value}`
+    return { value, label: t(labelKey), count }
+  }),
 )
 
-// ─── Takvim seçenekleri — headerToolbar kapalı ───────────────────────────────
-
-const calendarOptions = computed(() => ({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  locale: trLocale,
-  initialView: isMobile.value ? 'timeGridDay' : 'timeGridWeek',
-  headerToolbar: false as const,
-  slotMinTime: '07:00:00',
-  slotMaxTime: '22:00:00',
-  allDaySlot: false,
-  height: 'auto',
-  editable: false,
-  selectable: true,
-  nowIndicator: true,
-  events: calendarEvents.value,
-  datesSet(info: { startStr: string; endStr: string; view: { title: string; type: string } }) {
-    calendarTitle.value = info.view.title
-    calendarView.value = info.view.type
-    loadCalendarRange(info.startStr.slice(0, 10), info.endStr.slice(0, 10))
-  },
-  dateClick(info: { dateStr: string }) {
-    openCreate()
-  },
-  eventClick(info: { event: { id: string } }) {
-    const id = Number(info.event.id)
-    switchView('list')
-    nextTick(() => {
-      document.getElementById(`appointment-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+const headerSubtitle = computed(() => {
+  if (loading.value && filteredTotal.value === 0) return ''
+  if (periodLabel.value) {
+    return t('appointmentsView.summaryWithPeriod', {
+      count: filteredTotal.value,
+      period: periodLabel.value,
     })
-  },
-}))
-
-// ─── Takvim API ──────────────────────────────────────────────────────────────
-
-function calPrev() { calendarRef.value?.getApi().prev() }
-function calNext() { calendarRef.value?.getApi().next() }
-function calToday() { calendarRef.value?.getApi().today() }
-function setCalView(v: string) {
-  calendarView.value = v
-  calendarRef.value?.getApi().changeView(v)
-}
+  }
+  return t('appointmentsView.summary', { count: filteredTotal.value })
+})
 
 // ─── Yardımcılar ─────────────────────────────────────────────────────────────
 
 function employeeColor(id: number): string {
   return EMPLOYEE_COLORS[id % EMPLOYEE_COLORS.length]
-}
-function cardBorderClass(status: AppointmentStatus): string {
-  const map: Record<AppointmentStatus, string> = {
-    PENDING: 'border-amber-200', CONFIRMED: 'border-indigo-200',
-    RISKY: 'border-orange-200', COMPLETED: 'border-emerald-200',
-    CANCELLED: 'border-slate-200 opacity-60', NO_SHOW: 'border-red-200 opacity-70',
-  }
-  return map[status] ?? 'border-slate-200'
 }
 function resolveEmployeeName(id: number): string { return employeeMap.value.get(id) ?? `Çalışan #${id}` }
 function resolveServiceName(id: number): string { return serviceMap.value.get(id) ?? `Hizmet #${id}` }
@@ -1123,6 +989,53 @@ function formatDateGroupHeader(iso: string): string {
   if (diff === -1) return 'Dün'
   return new Intl.DateTimeFormat('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }).format(d)
 }
+
+function selectAppointment(a: AppointmentResponse) {
+  selectedAppointmentId.value = a.id
+  if (isMobile.value) detailModalOpen.value = true
+}
+
+function closeDetail() {
+  detailModalOpen.value = false
+  if (isMobile.value) selectedAppointmentId.value = null
+}
+
+function customerPhoneOf(id: number): string | null {
+  return customers.value.find((c) => c.id === id)?.phoneNumber ?? null
+}
+
+function handleMasterKeydown(event: KeyboardEvent, a: AppointmentResponse) {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    selectAppointment(a)
+  }
+}
+
+const MOBILE_BREAKPOINT_PX = 640
+function syncIsMobile() {
+  isMobile.value = window.innerWidth < MOBILE_BREAKPOINT_PX
+}
+
+onMounted(() => {
+  window.addEventListener('resize', syncIsMobile)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', syncIsMobile)
+})
+
+watch(detailModalOpen, (open) => {
+  if (!open && isMobile.value) selectedAppointmentId.value = null
+})
+
+watch(filteredAppointments, (list) => {
+  if (
+    selectedAppointmentId.value !== null &&
+    !list.some((a) => a.id === selectedAppointmentId.value)
+  ) {
+    selectedAppointmentId.value = null
+    detailModalOpen.value = false
+  }
+})
 
 // ─── Veri yükleme ────────────────────────────────────────────────────────────
 
@@ -1152,26 +1065,9 @@ async function reloadList() {
           )
         : await fetchAllPageContent((page, size) => appointmentApi.list({ page, size }))
   } catch {
-    listError.value = 'Randevular yüklenemedi.'
+    listError.value = t('appointmentsView.errorLoad')
   } finally {
     listLoading.value = false
-  }
-}
-
-async function loadCalendarRange(start: string, end: string) {
-  const key = `${start}|${end}`
-  if (calendarLoadedKey.value === key) return
-  calendarLoadedKey.value = key
-  if (!businessId.value) return
-  calendarLoading.value = true
-  try {
-    appointments.value = await fetchAllPageContent((page, size) =>
-      appointmentApi.list({ startDate: start, endDate: end, page, size }),
-    )
-  } catch {
-    listError.value = 'Randevular yüklenemedi.'
-  } finally {
-    calendarLoading.value = false
   }
 }
 
@@ -1193,44 +1089,18 @@ async function loadEmployeesAndServices() {
       maxAdvanceBookingDays.value = bizRes.data.data.maxAdvanceBookingDays
     }
   } catch {
-    listError.value = 'Çalışan ve hizmet listesi yüklenemedi.'
+    listError.value = t('appointmentsView.errorRefs')
   } finally {
     empLoading.value = false
   }
 }
 
 async function manualRefresh() {
-  if (view.value === 'calendar') {
-    const fcApi = calendarRef.value?.getApi()
-    if (fcApi) {
-      calendarLoadedKey.value = ''
-      const start = fcApi.view.currentStart.toISOString().slice(0, 10)
-      const end = fcApi.view.currentEnd.toISOString().slice(0, 10)
-      await loadCalendarRange(start, end)
-    }
-  } else {
-    await reloadList()
-  }
-}
-
-function switchView(v: 'list' | 'calendar') {
-  if (v === view.value) return
-  if (v === 'list' && calendarLoadedKey.value) {
-    const [start, end] = calendarLoadedKey.value.split('|')
-    filterStart.value = start
-    filterEnd.value = end
-    if (!appointments.value.length) reloadList()
-  }
-  view.value = v
-}
-
-function clearFilters() {
-  filterStatus.value = ''
-  filterEmployee.value = ''
+  await reloadList()
 }
 
 watch([filterStart, filterEnd], () => {
-  if (businessId.value && view.value === 'list') reloadList()
+  if (businessId.value) reloadList()
 })
 
 // ─── Aksiyonlar ──────────────────────────────────────────────────────────────
@@ -1241,13 +1111,13 @@ const actingAction = ref('')
 async function confirmAppointment(id: number) {
   actingId.value = id; actingAction.value = 'confirm'
   try { await appointmentApi.confirm(id); await reloadList() }
-  catch { listError.value = 'Onaylanamadı.' }
+  catch { listError.value = t('appointmentsView.errorConfirm') }
   finally { actingId.value = null; actingAction.value = '' }
 }
 async function completeAppointment(id: number) {
   actingId.value = id; actingAction.value = 'complete'
   try { await appointmentApi.complete(id); await reloadList() }
-  catch { listError.value = 'Tamamlanamadı.' }
+  catch { listError.value = t('appointmentsView.errorComplete') }
   finally { actingId.value = null; actingAction.value = '' }
 }
 async function markNoShow(a: AppointmentResponse) {
@@ -1258,7 +1128,7 @@ async function markNoShow(a: AppointmentResponse) {
     if (businessId.value) {
       customers.value = await fetchAllPageContent((page, size) => customerApi.list({ page, size }))
     }
-  } catch { listError.value = 'İşaretlenemedi.' }
+  } catch { listError.value = t('appointmentsView.errorNoShow') }
   finally { actingId.value = null; actingAction.value = '' }
 }
 
@@ -1274,14 +1144,33 @@ async function doCancel() {
   if (!cancelTarget.value) return
   cancelling.value = true
   try { await appointmentApi.cancel(cancelTarget.value.id, cancelReason.value || undefined); showCancelModal.value = false; await reloadList() }
-  catch { listError.value = 'İptal edilemedi.' }
+  catch { listError.value = t('appointmentsView.errorCancel') }
   finally { cancelling.value = false }
 }
 
 // ─── Wizard — Yeni Randevu ───────────────────────────────────────────────────
 
-const wizardTitles = ['Çalışan & Hizmet', 'Tarih Seç', 'Saat Seç', 'Müşteri Bilgileri']
-const wizardStepLabels = ['Çalışan', 'Tarih', 'Saat', 'Müşteri']
+interface WizardStepConfig {
+  key: 'team' | 'date' | 'time' | 'customer'
+  caption: string
+  title: string
+  subtitle: string
+}
+
+const WIZARD_STEPS: WizardStepConfig[] = [
+  { key: 'team', caption: 'Çalışan & Hizmet', title: 'Çalışan ve hizmet seç', subtitle: 'Önce çalışanı, sonra sunduğu hizmeti seçin.' },
+  { key: 'date', caption: 'Tarih', title: 'Uygun tarihi seç', subtitle: 'Yeşil işaretli günler müsait. İstediğiniz günü seçin.' },
+  { key: 'time', caption: 'Saat', title: 'Müsait saat seç', subtitle: 'Seçtiğiniz günde dolu saatler çizik görünür.' },
+  { key: 'customer', caption: 'Müşteri', title: 'Müşteri ve detaylar', subtitle: 'Mevcut bir müşteriyi seç ya da yeni müşteri oluştur.' },
+]
+
+type WizardChipTone = 'primary' | 'success' | 'info'
+interface WizardSummaryChip {
+  key: string
+  icon: Component
+  label: string
+  tone: WizardChipTone
+}
 
 const showCreateModal = ref(false)
 const wizardStep = ref(1)
@@ -1439,23 +1328,6 @@ const calendarCells = computed(() => {
   return cells
 })
 
-const slotGroups = computed(() => {
-  const morning: AvailableSlotResponse[] = []
-  const afternoon: AvailableSlotResponse[] = []
-  const evening: AvailableSlotResponse[] = []
-  for (const slot of availableSlots.value) {
-    const hour = Number(slot.startTime.slice(11, 13))
-    if (hour < 12) morning.push(slot)
-    else if (hour < 17) afternoon.push(slot)
-    else evening.push(slot)
-  }
-  return [
-    { label: 'Sabah', slots: morning },
-    { label: 'Öğleden Sonra', slots: afternoon },
-    { label: 'Akşam', slots: evening },
-  ].filter((g) => g.slots.length > 0)
-})
-
 function empInitials(name: string | null | undefined): string {
   if (!name?.trim()) return '?'
   return name
@@ -1559,11 +1431,72 @@ function wizardBack() {
   }
 }
 
-function openCreate() {
+const selectedServiceForWizard = computed(() => {
+  if (wizardForm.serviceId === '') return null
+  return services.value.find((s) => s.id === Number(wizardForm.serviceId)) ?? null
+})
+
+const selectedSlotDurationMinutes = computed(() => {
+  if (!wizardForm.time) return null
+  const slot = availableSlots.value.find((s) => s.startTime === wizardForm.time)
+  return slot?.durationMinutes ?? null
+})
+
+function formatShortDate(iso: string): string {
+  if (!iso) return ''
+  return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'short' }).format(new Date(iso + 'T00:00:00'))
+}
+
+const wizardSummaryChips = computed<WizardSummaryChip[]>(() => {
+  const chips: WizardSummaryChip[] = []
+  if (wizardStep.value >= 2 && wizardForm.employeeId !== '') {
+    chips.push({
+      key: 'employee',
+      icon: UserIcon,
+      label: resolveEmployeeName(Number(wizardForm.employeeId)),
+      tone: 'success',
+    })
+  }
+  if (wizardStep.value >= 2 && wizardForm.serviceId !== '') {
+    chips.push({
+      key: 'service',
+      icon: Scissors,
+      label: resolveServiceName(Number(wizardForm.serviceId)),
+      tone: 'success',
+    })
+  }
+  if (wizardStep.value >= 3 && wizardForm.date) {
+    chips.push({
+      key: 'date',
+      icon: CalendarCheck,
+      label: formatShortDate(wizardForm.date),
+      tone: 'success',
+    })
+  }
+  if (wizardStep.value >= 4 && wizardForm.time) {
+    chips.push({
+      key: 'time',
+      icon: ClockIcon,
+      label: wizardForm.time.slice(11, 16),
+      tone: 'success',
+    })
+  }
+  return chips
+})
+
+const wizardContinueDisabled = computed(() => {
+  if (datesLoading.value || slotsLoading.value) return true
+  if (wizardStep.value === 1) return wizardForm.employeeId === '' || wizardForm.serviceId === ''
+  if (wizardStep.value === 2) return !wizardForm.date
+  if (wizardStep.value === 3) return !wizardForm.time
+  return false
+})
+
+function openCreate(opts: { date?: string } = {}) {
   wizardStep.value = 1
   wizardForm.employeeId = ''
   wizardForm.serviceId = ''
-  wizardForm.date = ''
+  wizardForm.date = opts.date && /^\d{4}-\d{2}-\d{2}$/.test(opts.date) ? opts.date : ''
   wizardForm.time = ''
   wizardForm.customerName = ''
   wizardForm.phoneNumber = ''
@@ -1603,9 +1536,20 @@ async function submitCreate() {
       return
     }
   } else {
-    if (!wizardForm.customerName.trim()) { wizardErrors.value.customerName = 'Müşteri adı girin'; return }
-    if (!wizardForm.phoneNumber.trim()) { wizardErrors.value.phoneNumber = 'Telefon girin'; return }
-    if (wizardForm.phoneNumber.replaceAll(/\D/g, '').length < 10) { wizardErrors.value.phoneNumber = 'Geçerli telefon girin'; return }
+    const phoneDigits = wizardForm.phoneNumber.replaceAll(/\D/g, '')
+    const result = createStaffAppointmentSchema.pick({ customerName: true, phoneNumber: true }).safeParse({
+      customerName: wizardForm.customerName.trim(),
+      phoneNumber: phoneDigits,
+    })
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const key = issue.path[0]
+        if (key === 'customerName' || key === 'phoneNumber') {
+          if (!wizardErrors.value[key]) wizardErrors.value[key] = issue.message
+        }
+      }
+      return
+    }
   }
 
   createSaving.value = true
@@ -1650,12 +1594,7 @@ async function submitCreate() {
     }
 
     showCreateModal.value = false
-    if (view.value === 'list') {
-      await reloadList()
-    } else {
-      calendarLoadedKey.value = ''
-      await manualRefresh()
-    }
+    await reloadList()
   } catch (e: unknown) {
     const data = (e as { response?: { data?: ApiResponse<unknown> } }).response?.data
     createSubmitError.value = data?.error?.message ?? (e instanceof Error ? e.message : 'Randevu oluşturulamadı.')
@@ -1664,92 +1603,1361 @@ async function submitCreate() {
   }
 }
 
-// ─── Mount ───────────────────────────────────────────────────────────────────
+// ─── Mount + Query Param Handling ───────────────────────────────────────────
 
-watch(view, (v) => {
-  if (v === 'list' && businessId.value && appointments.value.length === 0) reloadList()
-})
+function applyQueryParams() {
+  const q = route.query
+  const focus = typeof q.focus === 'string' ? q.focus : null
+  const newAppt = typeof q.new === 'string' ? q.new : null
+  const dateParam = typeof q.date === 'string' ? q.date : null
+  const statusParam = typeof q.status === 'string' ? q.status.toUpperCase() : null
 
-onMounted(() => {
+  if (statusParam && (STATUS_FILTER_VALUES as string[]).includes(statusParam)) {
+    filterStatus.value = statusParam as AppointmentStatus
+  }
+
+  if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+    filterStart.value = dateParam
+    filterEnd.value = dateParam
+  }
+
+  if (newAppt === '1') {
+    openCreate({ date: dateParam ?? undefined })
+  }
+
+  if (focus === 'filter') {
+    setTimeout(() => statusFilterRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50)
+  }
+
+  if (focus || newAppt || dateParam || statusParam) {
+    void router.replace({ path: route.path, query: {} })
+  }
+}
+
+onMounted(async () => {
   if (businessId.value) {
     setDefaultWeekRange()
-    loadEmployeesAndServices()
+    await loadEmployeesAndServices()
+    await reloadList()
+    applyQueryParams()
   }
 })
 </script>
 
 <style scoped>
-.calendar-shell :deep(.fc) {
-  --fc-border-color: #f1f5f9;
-  --fc-today-bg-color: #f0fdfa;
-  --fc-now-indicator-color: #f43f5e;
-  --fc-page-bg-color: transparent;
-  font-size: 0.8125rem;
+/* ─── Status filter chips (prototype) ──────────────────────────────────── */
+.status-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* Mobil için daha küçük font */
-@media (max-width: 640px) {
-  .calendar-shell :deep(.fc) {
-    font-size: 0.7rem;
-  }
-  .calendar-shell :deep(.fc-timegrid-slot-label) {
-    font-size: 0.65rem;
-  }
-  .calendar-shell :deep(.fc-col-header-cell-cushion) {
-    font-size: 0.7rem;
-    padding: 4px 2px;
-  }
-}
-
-.calendar-shell :deep(.fc-col-header-cell-cushion),
-.calendar-shell :deep(.fc-daygrid-day-number) {
-  color: #475569;
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12.5px;
   font-weight: 600;
-  text-decoration: none;
-}
-.calendar-shell :deep(.fc-event) {
-  border: none !important;
-  border-radius: 5px;
-  font-size: 0.72rem;
-  padding: 2px 5px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  min-height: 32px;
 }
 
-@media (max-width: 640px) {
-  .calendar-shell :deep(.fc-event) {
-    font-size: 0.6rem;
-    padding: 1px 3px;
-    border-radius: 3px;
+.status-chip:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.status-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.status-chip--active {
+  background: var(--primary-tint);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.status-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  border-radius: var(--r-full);
+}
+
+.status-chip--active .status-chip__count {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+}
+
+.status-chip-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+.status-chip-meta {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-field__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Appointment table (prototype) ───────────────────────────────────── */
+.appointment-table-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+.appointment-table-scroll {
+  overflow-x: auto;
+}
+
+.appointment-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.appointment-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--hairline);
+  white-space: nowrap;
+}
+
+.appointment-table__th-right {
+  text-align: right;
+}
+
+.appointment-table__group td {
+  padding: 14px 16px 6px;
+  background: var(--surface);
+  border-top: 1px solid var(--hairline);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.appointment-table__group:first-child td {
+  border-top: 0;
+}
+
+.appointment-table__group-label {
+  margin-right: 12px;
+}
+
+.appointment-table__group-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.appointment-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.appointment-row:hover {
+  background: var(--surface-2);
+}
+
+.appointment-row--selected {
+  background: var(--primary-tint);
+}
+
+.appointment-row:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.appointment-row td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--hairline);
+  vertical-align: middle;
+}
+
+.appointment-row__time {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  color: var(--ink-1);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.appointment-row__date-mini {
+  font-size: 10.5px;
+  color: var(--ink-4);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.appointment-row__customer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appointment-row__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.appointment-row__customer-name {
+  font-weight: 600;
+  color: var(--ink-1);
+  line-height: 1.2;
+}
+
+.appointment-row__customer-phone {
+  font-size: 11px;
+  color: var(--ink-4);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.appointment-row__service {
+  color: var(--ink-2);
+}
+
+.appointment-row__employee {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-3);
+}
+
+.appointment-row__employee-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.appointment-row__duration {
+  text-align: right;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .appointment-table thead th,
+  .appointment-row td,
+  .appointment-table__group td {
+    padding: 10px 12px;
+  }
+
+  .status-chip-meta {
+    width: 100%;
   }
 }
 
-.calendar-shell :deep(.fc-event:hover) {
-  filter: brightness(1.08);
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
-}
-.calendar-shell :deep(.fc-timegrid-now-indicator-line) { border-color: #f43f5e; }
-.calendar-shell :deep(.fc-timegrid-now-indicator-arrow) { border-color: #f43f5e; }
+/* ═══════════════════════════════════════════════════════════════════════ */
+/*  Wizard — Yeni Randevu                                                  */
+/* ═══════════════════════════════════════════════════════════════════════ */
 
-/* Scrollbar stilleri */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+.wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-.scrollbar-thin::-webkit-scrollbar {
-  height: 4px;
+
+/* ─ Stepper ─ */
+.wizard-stepper {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  border-bottom: 1px solid var(--hairline);
 }
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
+
+.wizard-stepper__item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+
+.wizard-stepper__marker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wizard-stepper__circle {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--ink-4);
+  border: 1px solid var(--hairline);
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.wizard-stepper__item--active .wizard-stepper__circle {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.wizard-stepper__item--done .wizard-stepper__circle {
+  background: var(--success);
+  color: #fff;
+  border-color: var(--success);
+}
+
+.wizard-stepper__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.wizard-stepper__caption {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wizard-stepper__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-3);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-stepper__item--active .wizard-stepper__label,
+.wizard-stepper__item--done .wizard-stepper__label {
+  color: var(--ink-1);
+}
+
+.wizard-stepper__line {
+  flex: 1;
+  height: 2px;
+  background: var(--hairline);
   border-radius: 2px;
+  min-width: 12px;
 }
 
-@keyframes slide {
-  0%   { transform: translateX(-100%); }
-  50%  { transform: translateX(100%); }
-  100% { transform: translateX(300%); }
+.wizard-stepper__line--done {
+  background: var(--success);
+}
+
+/* ─ Summary chips ─ */
+.wizard-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wizard-summary__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  max-width: 100%;
+}
+
+.wizard-summary__chip[data-tone="success"] {
+  background: var(--success-tint);
+  color: var(--success);
+}
+
+.wizard-summary__chip[data-tone="primary"] {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.wizard-summary__chip[data-tone="info"] {
+  background: var(--info-tint, color-mix(in srgb, var(--primary) 10%, transparent));
+  color: var(--primary);
+}
+
+.wizard-summary__chip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─ Section head ─ */
+.wizard-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wizard-section__title {
+  font-family: var(--font-display, inherit);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink-1);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.wizard-section__subtitle {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+/* ─ Body ─ */
+.wizard-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.wizard-center {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.wizard-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  border: 2px solid var(--hairline);
+  border-top-color: var(--primary);
+  animation: wizard-spin 0.7s linear infinite;
+}
+
+@keyframes wizard-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wizard-alert {
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
+  background: var(--warning-tint);
+  color: var(--warning);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ─ Field ─ */
+.wizard-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wizard-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.wizard-field__label-hint {
+  font-weight: 400;
+  color: var(--ink-4);
+  margin-left: 4px;
+}
+
+.wizard-field__required {
+  color: var(--danger);
+}
+
+.wizard-field__hint {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.wizard-field__hint--muted {
+  color: var(--ink-4);
+}
+
+.wizard-field__hint--warning {
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+
+.wizard-field__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  align-items: flex-start;
+}
+
+.wizard-field__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.wizard-field__link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.wizard-field__error {
+  font-size: 12px;
+  color: var(--danger);
+}
+
+/* ─ Skeleton ─ */
+.wizard-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wizard-skeleton__row {
+  height: 44px;
+  background: var(--surface-2);
+  border-radius: var(--r-md);
+  animation: wizard-pulse 1.4s ease-in-out infinite;
+}
+
+.wizard-skeleton__row--sm {
+  height: 36px;
+}
+
+@keyframes wizard-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* ─ Pick grid (employee + service) ─ */
+.wizard-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .wizard-pick-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wizard-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-2);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 52px;
+}
+
+.wizard-pick:hover {
+  border-color: var(--hairline-strong);
+  background: var(--surface-2);
+}
+
+.wizard-pick:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.wizard-pick--active {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--ink-1);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.wizard-pick__avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
+.wizard-pick__avatar--sm {
+  width: 30px;
+  height: 30px;
+  font-size: 11.5px;
+}
+
+.wizard-pick__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wizard-pick__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-pick__hint {
+  font-size: 11.5px;
+  color: var(--ink-4);
+}
+
+.wizard-pick--active .wizard-pick__hint {
+  color: var(--primary);
+}
+
+.wizard-pick__check {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+/* ─ Calendar ─ */
+.wizard-calendar {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  box-shadow: var(--shadow-1);
+}
+
+.wizard-calendar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.wizard-calendar__nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-calendar__nav-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.wizard-calendar__nav-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.wizard-calendar__nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.wizard-calendar__month {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-1);
+  text-transform: capitalize;
+}
+
+.wizard-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 4px;
+}
+
+.wizard-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.wizard-calendar__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-calendar__cell--disabled {
+  color: var(--ink-4);
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.wizard-calendar__cell--available:hover {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.wizard-calendar__cell--active,
+.wizard-calendar__cell--active:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-1);
+}
+
+.wizard-calendar__cell:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.wizard-calendar__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--success);
+}
+
+.wizard-calendar__cell--active .wizard-calendar__dot {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* ─ Inline confirm + context ─ */
+.wizard-inline-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.wizard-inline-confirm__sep {
+  color: var(--ink-4);
+  font-weight: 400;
+}
+
+.wizard-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
+
+.wizard-context__strong {
+  color: var(--ink-1);
+  font-weight: 600;
+}
+
+.wizard-context__sep {
+  color: var(--ink-4);
+}
+
+/* ─ Slot grid (6-col like prototype) ─ */
+.wizard-slots {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .wizard-slots {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.wizard-slot {
+  padding: 10px 0;
+  text-align: center;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline-strong);
+  background: var(--surface);
+  color: var(--ink-1);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-slot:hover {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+.wizard-slot--active,
+.wizard-slot--active:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-1);
+}
+
+.wizard-slot:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ─ Info cards ─ */
+.wizard-info-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .wizard-info-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wizard-info-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+}
+
+.wizard-info-card__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+}
+
+.wizard-info-card__icon--info {
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
+  color: #3b82f6;
+}
+
+.wizard-info-card__icon--purple {
+  background: color-mix(in srgb, #8b5cf6 14%, transparent);
+  color: #8b5cf6;
+}
+
+.wizard-info-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wizard-info-card__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+
+.wizard-info-card__hint {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.wizard-info-card__badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ─ Tabs ─ */
+.wizard-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.wizard-tab {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-tab:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.wizard-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.wizard-tab--active,
+.wizard-tab--active:hover {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+/* ─ Search ─ */
+.wizard-search {
+  position: relative;
+}
+
+.wizard-search__icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-4);
+  pointer-events: none;
+}
+
+.wizard-search__input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-1);
+  font-size: 13.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wizard-search__input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+/* ─ Selected customer + list ─ */
+.wizard-selected-customer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--primary);
+  background: var(--primary-tint);
+}
+
+.wizard-selected-customer__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wizard-selected-customer__name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-1);
+  margin: 0;
+}
+
+.wizard-selected-customer__phone {
+  font-size: 12px;
+  color: var(--primary);
+  margin: 2px 0 0;
+}
+
+.wizard-selected-customer__change {
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  background: transparent;
+  border: 0;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wizard-selected-customer__change:hover {
+  background: var(--surface);
+}
+
+.wizard-customer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.wizard-customer-list__empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--ink-4);
+  font-size: 13px;
+}
+
+.wizard-customer-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-top: 1px solid var(--hairline);
+  transition: background-color 0.12s ease;
+}
+
+.wizard-customer-list__item:first-child {
+  border-top: 0;
+}
+
+.wizard-customer-list__item:hover {
+  background: var(--surface-2);
+}
+
+.wizard-customer-list__info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.wizard-customer-list__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-1);
+  margin: 0;
+}
+
+.wizard-customer-list__phone {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  margin: 2px 0 0;
+}
+
+.wizard-tag {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wizard-tag--danger {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+.wizard-tag--warning {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+
+.wizard-tag--info {
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+/* ─ Session list ─ */
+.wizard-session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wizard-session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.wizard-session:hover {
+  background: var(--surface-2);
+}
+
+.wizard-session--active {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+}
+
+.wizard-session__radio {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-full);
+  border: 2px solid var(--hairline-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wizard-session--active .wizard-session__radio {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.wizard-session__radio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: #fff;
+}
+
+.wizard-session__label {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.wizard-session__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wizard-session__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+  margin: 0;
+}
+
+.wizard-session__hint {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  margin: 2px 0 0;
+}
+
+/* ─ Forms ─ */
+.wizard-form-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .wizard-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wizard-input,
+.wizard-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-1);
+  font-size: 13.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+
+.wizard-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.wizard-input:focus,
+.wizard-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.wizard-source-row {
+  display: flex;
+  gap: 8px;
+}
+
+.wizard-source {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.wizard-source:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.wizard-source--active,
+.wizard-source--active:hover {
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  color: var(--primary);
+}
+
+/* ─ Footer ─ */
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.wizard-footer__counter {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+  .wizard-stepper {
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .wizard-stepper__meta {
+    display: none;
+  }
+
+  .wizard-stepper__item {
+    flex: 0 0 auto;
+    gap: 6px;
+  }
+
+  .wizard-stepper__line {
+    min-width: 24px;
+  }
+
+  .wizard-footer__counter {
+    display: none;
+  }
 }
 </style>

@@ -1,12 +1,7 @@
 <template>
   <div class="employees-page space-y-6 p-4 sm:p-6">
-    <!-- Header -->
-    <div class="flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">{{ t('pageTitles.employees') }}</h1>
-        <p class="mt-1 text-sm text-slate-500">{{ t('employees.lead') }}</p>
-      </div>
-      <div class="flex gap-2">
+    <SectionHeader :title="t('pageTitles.employees')" :subtitle="t('employees.lead')">
+      <template #actions>
         <AppButton
           v-if="businessId && !loading && !listError"
           variant="secondary"
@@ -19,69 +14,88 @@
           variant="primary"
           @click="openCreate"
         >
-          + {{ t('employees.add') }}
+          {{ t('employees.add') }}
         </AppButton>
-      </div>
-    </div>
+      </template>
+    </SectionHeader>
 
-    <div v-if="!businessId" class="rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
+    <div
+      v-if="!businessId"
+      class="card p-8 text-center text-sm"
+      :style="{ color: 'var(--ink-3)' }"
+    >
       {{ t('employees.noBusiness') }}
     </div>
 
     <template v-else>
       <!-- Filters -->
-      <div v-if="!loading && !listError && employees.length > 0" class="flex flex-wrap gap-3">
+      <div v-if="!loading && !listError && employees.length > 0" class="flex flex-wrap items-center gap-3">
         <input
           v-model="search"
           type="search"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-64"
+          class="employees-search w-full px-3 py-2 text-sm sm:w-64"
+          style="border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--surface); color: var(--ink-1)"
           :placeholder="t('employees.searchPlaceholder')"
         />
-        <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm">
-          <button
+        <div class="flex flex-wrap gap-2">
+          <FilterChip
             v-for="opt in STATUS_FILTER_OPTIONS"
             :key="opt.value"
-            type="button"
-            class="px-3 py-2 transition"
-            :class="statusFilter === opt.value
-              ? 'bg-indigo-500 text-white'
-              : 'bg-white text-slate-600 hover:bg-slate-50'"
+            :label="t(opt.labelKey)"
+            :active="statusFilter === opt.value"
             @click="statusFilter = opt.value"
-          >
-            {{ t(opt.labelKey) }}
-          </button>
+          />
         </div>
       </div>
 
       <!-- Loading skeleton -->
       <div v-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="i in 6" :key="i" class="h-48 animate-pulse rounded-xl bg-slate-100" />
+        <div
+          v-for="i in 6"
+          :key="i"
+          class="h-48 animate-pulse rounded-xl"
+          style="background: var(--surface-2)"
+        />
       </div>
 
       <!-- Error -->
-      <div v-else-if="listError" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
-        <p class="text-sm text-red-600">{{ listError }}</p>
+      <div
+        v-else-if="listError"
+        class="card flex flex-col items-center p-6 text-center"
+        role="alert"
+        :style="{ background: 'var(--danger-tint)', borderColor: 'var(--danger)', color: 'var(--danger)' }"
+      >
+        <p class="text-sm">{{ listError }}</p>
         <AppButton variant="secondary" size="sm" class="mt-3" @click="loadList">{{ t('common.retry') }}</AppButton>
       </div>
 
       <!-- Empty state -->
       <div
         v-else-if="employees.length === 0"
-        class="flex flex-col items-center rounded-xl border border-slate-200 bg-white py-16 text-center"
+        class="card flex flex-col items-center py-16 text-center"
       >
-        <div class="mb-4 flex size-16 items-center justify-center rounded-full bg-slate-100 text-3xl">👥</div>
-        <p class="font-semibold text-slate-800">{{ t('employees.emptyTitle') }}</p>
-        <p class="mt-1 text-sm text-slate-500">{{ t('employees.emptyDesc') }}</p>
-        <AppButton variant="primary" size="sm" class="mt-4" @click="openCreate">+ {{ t('employees.add') }}</AppButton>
+        <div
+          class="mb-4 flex size-16 items-center justify-center rounded-full text-3xl"
+          style="background: var(--surface-2)"
+        >
+          👥
+        </div>
+        <p class="font-semibold" :style="{ color: 'var(--ink-2)' }">{{ t('employees.emptyTitle') }}</p>
+        <p class="mt-1 text-sm" :style="{ color: 'var(--ink-3)' }">{{ t('employees.emptyDesc') }}</p>
+        <AppButton variant="primary" size="sm" class="mt-4" @click="openCreate">{{ t('employees.add') }}</AppButton>
       </div>
 
       <!-- Filter empty -->
-      <div v-else-if="filteredEmployees.length === 0" class="py-10 text-center text-sm text-slate-400">
+      <div
+        v-else-if="filteredEmployees.length === 0"
+        class="py-10 text-center text-sm"
+        :style="{ color: 'var(--ink-4)' }"
+      >
         {{ t('employees.noFilterResults') }}
       </div>
 
       <!-- Card grid -->
-      <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div v-else class="grid gap-4 sm:grid-cols-2">
         <EmployeeCard
           v-for="emp in filteredEmployees"
           :key="emp.id"
@@ -119,6 +133,7 @@
     <!-- Invite List Modal -->
     <InviteListModal
       v-model:visible="inviteListModalVisible"
+      :employees="employees"
     />
 
     <!-- Delete confirm -->
@@ -126,7 +141,7 @@
       v-model:visible="deleteModalVisible"
       :title="t('employees.deleteTitle')"
     >
-      <p class="text-sm text-slate-700">
+      <p class="text-sm" :style="{ color: 'var(--ink-2)' }">
         {{ t('employees.deleteConfirm', { name: toDelete?.name ?? '' }) }}
       </p>
       <template #footer>
@@ -142,18 +157,39 @@
       :dialog-style="{ width: 'min(36rem, 95vw)' }"
     >
       <div class="space-y-4">
-        <div v-if="offboardLoading" class="py-6 text-center text-sm text-slate-400">{{ t('common.loading') }}</div>
+        <div
+          v-if="offboardLoading"
+          class="py-6 text-center text-sm"
+          :style="{ color: 'var(--ink-4)' }"
+        >
+          {{ t('common.loading') }}
+        </div>
         <template v-else>
-          <p v-if="affectedAppointments.length === 0" class="text-sm text-slate-500">{{ t('employees.offboardNone') }}</p>
+          <p
+            v-if="affectedAppointments.length === 0"
+            class="text-sm"
+            :style="{ color: 'var(--ink-3)' }"
+          >
+            {{ t('employees.offboardNone') }}
+          </p>
           <template v-else>
-            <p class="text-sm text-slate-700">{{ t('employees.offboardIntro', { count: affectedAppointments.length }) }}</p>
-            <ul class="divide-y divide-slate-100 rounded-xl border border-slate-200 text-sm">
-              <li v-for="a in affectedAppointments" :key="a.id" class="px-3 py-2 text-slate-700">
+            <p class="text-sm" :style="{ color: 'var(--ink-2)' }">
+              {{ t('employees.offboardIntro', { count: affectedAppointments.length }) }}
+            </p>
+            <ul
+              class="divide-y divide-[color:var(--hairline)] rounded-xl border text-sm"
+              :style="{ borderColor: 'var(--hairline)', color: 'var(--ink-2)' }"
+            >
+              <li
+                v-for="a in affectedAppointments"
+                :key="a.id"
+                class="px-3 py-2"
+              >
                 {{ formatApptLine(a) }}
               </li>
             </ul>
             <div v-if="affectedAppointments.length" class="space-y-2">
-              <p class="text-sm font-medium text-slate-700">{{ t('employees.offboardAction') }}</p>
+              <p class="text-sm font-medium" :style="{ color: 'var(--ink-2)' }">{{ t('employees.offboardAction') }}</p>
               <AppRadioRow v-model="offboardAction" name="offboard-action" option-value="CANCEL_ALL">
                 {{ t('employees.cancelAll') }}
               </AppRadioRow>
@@ -161,7 +197,7 @@
                 {{ t('employees.reassignAll') }}
               </AppRadioRow>
               <div v-if="offboardAction === 'REASSIGN_ALL'" class="space-y-1">
-                <label class="block text-sm font-medium text-slate-700">{{ t('employees.selectEmployee') }}</label>
+                <label class="block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">{{ t('employees.selectEmployee') }}</label>
                 <select v-model.number="offboardNewEmployeeId" class="app-select w-full">
                   <option :value="0">{{ t('employees.selectEmployee') }}</option>
                   <option v-for="o in offboardTargetOptions" :key="o.id" :value="o.id">{{ o.name }}</option>
@@ -169,7 +205,7 @@
               </div>
             </div>
           </template>
-          <p v-if="offboardError" class="text-sm text-red-500" role="alert">{{ offboardError }}</p>
+          <p v-if="offboardError" class="text-sm" role="alert" :style="{ color: 'var(--danger)' }">{{ offboardError }}</p>
         </template>
       </div>
       <template #footer>
@@ -202,7 +238,9 @@ import { useAuthStore } from '@/stores/auth'
 import { fetchAllPageContent } from '@/api/client'
 import { employeeApi, type AffectedAppointmentResponse, type EmployeeCapabilityResponse, type EmployeeResponse } from '@/api/employee'
 import AppButton from '@/components/ui/AppButton.vue'
+import FilterChip from '@/components/ui/FilterChip.vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
 import AppRadioRow from '@/components/ui/AppRadioRow.vue'
 import EmployeeCard from '@/components/employee/EmployeeCard.vue'
 import EmployeeFormModal from '@/components/employee/EmployeeFormModal.vue'
@@ -427,4 +465,19 @@ function formatApptLine(a: AffectedAppointmentResponse) {
   return d.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' })
 }
 </script>
+
+<style scoped>
+.employees-search::placeholder {
+  color: var(--ink-4);
+}
+
+.employees-search:focus {
+  outline: none;
+}
+
+.employees-search:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary-tint);
+  border-color: var(--primary);
+}
+</style>
 

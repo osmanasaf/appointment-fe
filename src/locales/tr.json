@@ -1,5 +1,133 @@
 {
+  "filters": {
+    "employee": {
+      "groupLabel": "Çalışana göre filtrele",
+      "all": "Tüm çalışanlar",
+      "searchPlaceholder": "Çalışan ara…",
+      "noResults": "Eşleşen çalışan yok",
+      "clear": "Çalışan filtresini temizle"
+    },
+    "status": {
+      "groupLabel": "Duruma göre filtrele",
+      "all": "Tüm durumlar",
+      "clear": "Durum filtresini temizle"
+    }
+  },
   "auth": {
+    "brand": {
+      "name": "Randevum",
+      "tagline": "PRO PANEL"
+    },
+    "hero": {
+      "title": "Randevunu ayarla,\nişine odaklan",
+      "subtitle": "Randevularınızı, personelinizi ve müşterilerinizi tek panelden kolayca yönetin.",
+      "features": [
+        "Online randevu ve takvim yönetimi",
+        "Müşteri ve personel takibi",
+        "Hizmet & paket yönetimi",
+        "Anlık bildirimler ve hatırlatmalar"
+      ],
+      "footerTitle": "Zamanınızı akıllıca yönetin,\nişinizi büyütün.",
+      "footerSubtitle": "Her randevu, bir fırsat.",
+      "trialTitle": "14 gün ücretsiz deneyin",
+      "trialSubtitleNoCreditCard": "Kart bilgisi gerekmez."
+    },
+    "login": {
+      "title": "Giriş",
+      "subtitle": "Randevu panelinize giriş yapın",
+      "emailLabel": "E-posta",
+      "passwordLabel": "Şifre",
+      "submit": "Giriş yap",
+      "forgot": "Şifremi unuttum",
+      "noAccount": "Hesabınız yok mu?",
+      "signupLink": "Kayıt olun",
+      "orDivider": "veya",
+      "inviteSignIn": "Çalışan davetiyle giriş"
+    },
+    "register": {
+      "title": "Kayıt",
+      "subtitle": "Yeni işletme hesabı oluşturun",
+      "steps": {
+        "account": "Hesap",
+        "business": "İşletme",
+        "labels": [
+          "E-posta ve şifrenizi girin",
+          "İşletme bilgilerini ekleyin"
+        ]
+      },
+      "emailLabel": "E-posta",
+      "passwordLabel": "Şifre",
+      "nameLabel": "Ad soyad",
+      "phoneLabel": "Telefon (isteğe bağlı)",
+      "categoryLabel": "İşletme kategorisi",
+      "businessNameLabel": "İşletme adı",
+      "businessNamePlaceholder": "İşletmenizin adı",
+      "submit": "Kayıt ol",
+      "haveAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yapın",
+      "passwordStrength": {
+        "weak": "Zayıf şifre",
+        "medium": "Orta şifre",
+        "good": "İyi şifre",
+        "strong": "Güçlü şifre"
+      }
+    },
+    "registerEmployee": {
+      "title": "Çalışan Kaydı",
+      "subtitle": "Davet ile işletmeye katılın"
+    },
+    "forgot": {
+      "title": "Şifremi unuttum",
+      "subtitle": "E-postana bir bağlantı göndereceğiz. Gelen kutunu kontrol etmeyi unutma.",
+      "emailLabel": "E-posta",
+      "submit": "Bağlantı gönder",
+      "submitCodeStep": "Kod Gönder",
+      "otpTitle": "Doğrulama Kodu",
+      "otpSubtitle": "{email} adresine gönderilen 6 haneli kodu girin.",
+      "verifying": "Doğrulanıyor...",
+      "verifyButton": "Doğrula",
+      "resetTitle": "Yeni Şifre Belirle",
+      "resetSubtitle": "Hesabınız için yeni bir şifre oluşturun.",
+      "passwordLabel": "Yeni Şifre",
+      "confirmPasswordLabel": "Şifre Tekrar",
+      "resetButton": "Şifreyi Değiştir",
+      "saving": "Kaydediliyor...",
+      "submitting": "Gönderiliyor…",
+      "successTitle": "Şifreniz Değiştirildi",
+      "successSubtitle": "Artık yeni şifrenizle giriş yapabilirsiniz.",
+      "successButton": "Giriş Yap",
+      "resendCountdown": "Kod gelmedi mi? {seconds}s sonra tekrar gönderebilirsiniz",
+      "resendButton": "Kodu tekrar gönder",
+      "backButton": "← Farklı email kullan",
+      "backToLogin": "Giriş sayfasına dön",
+      "passwordMinError": "Şifre en az 6 karakter olmalı",
+      "passwordMismatchError": "Şifreler eşleşmiyor",
+      "resetFailedError": "Şifre değiştirilemedi",
+      "verificationFailedError": "Doğrulama başarısız",
+      "invalidCodeError": "Doğrulama kodu geçersiz",
+      "resendFailedError": "Kod gönderilemedi"
+    },
+    "emailVerificationPending": {
+      "title": "E-postanızı kontrol edin",
+      "subtitle": "Kaydınız alındı. Hesabınızı etkinleştirmek için gelen kutunuza gönderdiğimiz doğrulama bağlantısına tıklayın.",
+      "emailSentTo": "Doğrulama kodu gönderildi:",
+      "otpLabel": "Doğrulama kodunu girin",
+      "resendCountdown": "Kod gelmedi mi? {seconds}s sonra tekrar gönderebilirsiniz",
+      "resendButton": "Kodu tekrar gönder",
+      "verifying": "Doğrulanıyor...",
+      "verifyButton": "Doğrula ve Giriş Yap",
+      "resend": "Doğrulama e-postasını tekrar gönder",
+      "checkInbox": "Gelen kutunu kontrol et",
+      "verificationFailedError": "Doğrulama başarısız",
+      "invalidCodeError": "Doğrulama kodu geçersiz",
+      "resendFailedError": "Kod gönderilemedi",
+      "resendSuccess": "Yeni doğrulama kodu gönderildi"
+    },
+    "emailVerified": {
+      "title": "E-posta doğrulandı",
+      "subtitle": "Artık giriş yaparak panelinizi kullanabilirsiniz.",
+      "continue": "Giriş yap"
+    },
     "loginTitle": "Giriş",
     "loginSubtitle": "Randevu panelinize giriş yapın",
     "registerTitle": "Kayıt",
@@ -31,7 +159,12 @@
     "emailRequired": "E-posta giriniz",
     "emailInvalid": "Geçerli bir e-posta giriniz",
     "passwordRequired": "Şifre giriniz",
-    "passwordMin": "Şifre en az 6 karakter olmalıdır",
+    "passwordMin": "Şifre en az 8 karakter olmalıdır",
+    "passwordHint": "En az 8 karakter, 1 büyük harf ve 1 rakam",
+    "phoneInvalid": "Geçerli bir telefon numarası giriniz (örn: 5321234567)",
+    "phoneOptionalHint": "İsteğe bağlı; uluslararası format için +90 ekleyin",
+    "confirmPasswordRequired": "Şifre tekrarı zorunludur",
+    "confirmPasswordMismatch": "Şifreler eşleşmiyor",
     "nameRequired": "Ad soyad giriniz",
     "nameMin": "En az 2 karakter",
     "businessRequired": "İşletme adı giriniz",
@@ -57,10 +190,14 @@
     "resendVerificationLink": "Doğrulama e-postasını tekrar gönder",
     "forgotPassword": "Şifremi unuttum",
     "termsAgreement": "Kullanım Koşulları ve Gizlilik Politikası'nı okudum, kabul ediyorum.",
+    "termsAgreementFull": "{terms} ve {privacy}'nı okudum, kabul ediyorum.",
     "termsRequired": "Devam etmek için koşulları kabul etmelisiniz.",
     "termsLink": "Kullanım Koşulları",
     "privacyLink": "Gizlilik Politikası",
-    "kvkkLink": "KVKK Aydınlatma Metni"
+    "kvkkLink": "KVKK Aydınlatma Metni",
+    "hidePassword": "Şifreyi gizle",
+    "showPassword": "Şifreyi göster",
+    "togglePasswordVisibility": "Şifre görünürlüğünü değiştir"
   },
   "landing": {
     "documentTitle": "Randevum — Online randevu ve müşteri yönetimi.",
@@ -238,6 +375,7 @@
     "loading": "Yükleniyor…",
     "error": "Bir hata oluştu",
     "errorOccurred": "Bir hata oluştu",
+    "sending": "Gönderiliyor...",
     "retry": "Yeniden dene",
     "save": "Kaydet",
     "cancel": "İptal",
@@ -245,13 +383,23 @@
     "delete": "Sil",
     "edit": "Düzenle",
     "close": "Kapat",
+    "increment": "Arttır",
+    "decrement": "Azalt",
     "all": "Tümü",
+    "yes": "Evet",
+    "no": "Hayır",
+    "moreActions": "Daha fazla işlem",
     "preview": "Önizle",
     "copyLink": "Linki kopyala",
     "copied": "Kopyalandı ✓",
     "logout": "Çıkış",
     "previous": "Önceki",
-    "next": "Sonraki"
+    "next": "Sonraki",
+    "customerFallback": "Müşteri #{id}",
+    "serviceFallback": "Hizmet #{id}",
+    "employeeFallback": "Çalışan #{id}",
+    "packageNameSuffix": "{name} Paketi",
+    "notSpecified": "Belirtilmedi"
   },
   "admin": {
     "brand": "Randevum",
@@ -259,7 +407,29 @@
     "menuOpen": "Menüyü aç",
     "menuClose": "Menüyü kapat",
     "publicBookingPage": "Randevu sayfası",
-    "breadcrumb": "Yönetim"
+    "breadcrumb": "Yönetim",
+    "sidebarLabel": "Ana gezinme",
+    "searchPlaceholder": "Müşteri, randevu, hizmet ara…",
+    "notifications": "Bildirimler",
+    "themeDark": "Koyu temaya geç",
+    "themeLight": "Açık temaya geç",
+    "navGroup": {
+      "general": "Genel",
+      "business": "İşletme",
+      "account": "Hesap",
+      "today": "Günüm"
+    },
+    "roleLabel": {
+      "owner": "İşletme sahibi",
+      "employee": "Çalışan",
+      "admin": "Yönetici",
+      "superAdmin": "Süper yönetici"
+    },
+    "upgradePromo": {
+      "title": "Pro deneyin",
+      "desc": "WhatsApp hatırlatmaları, çoklu lokasyon ve sınırsız paket.",
+      "cta": "Planı yükselt"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -271,6 +441,52 @@
     "packages": "Paketler",
     "settings": "Ayarlar",
     "onboarding": "Başlangıç rehberi"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "empty": "Yeni bildirim yok",
+    "markAllRead": "Tümünü okundu işaretle",
+    "viewAll": "Tüm bildirimleri gör",
+    "filters": {
+      "all": "Tümü",
+      "unread": "Okunmamış"
+    },
+    "unreadBadge": "{n} okunmamış",
+    "dismissAria": "Bildirimi kaldır",
+    "closeAria": "Bildirim panelini kapat",
+    "relativeTime": {
+      "minutes": "{n} dk önce",
+      "hours": "{n} sa önce",
+      "yesterday": "Dün",
+      "daysAgo": "{n} gün önce",
+      "justNow": "Az önce"
+    },
+    "kinds": {
+      "appointment_created": {
+        "title": "Yeni randevu",
+        "body": "{customer} {time} için randevu aldı"
+      },
+      "appointment_cancelled": {
+        "title": "Randevu iptali",
+        "body": "{customer} randevusunu iptal etti"
+      },
+      "reminder_sent": {
+        "title": "Hatırlatma gönderildi",
+        "body": "{count} müşteriye hatırlatma SMS gönderildi"
+      },
+      "payment_received": {
+        "title": "Ödeme alındı",
+        "body": "{customer} {amount} ödedi"
+      },
+      "system": {
+        "title": "Sistem güncellemesi",
+        "body": "{message}"
+      }
+    },
+    "actions": {
+      "viewAppointment": "Randevuya git",
+      "viewCustomer": "Müşteriye git"
+    }
   },
   "pageTitles": {
     "dashboard": "Dashboard",
@@ -297,7 +513,12 @@
       "label": "Dönem",
       "daily": "Günlük",
       "weekly": "Haftalık",
-      "monthly": "Aylık"
+      "monthly": "Aylık",
+      "lead": {
+        "daily": "Bugün",
+        "weekly": "Bu hafta",
+        "monthly": "Bu ay"
+      }
     },
     "kpi": {
       "total": "Toplam randevu",
@@ -309,14 +530,72 @@
       "occupancy": "Doluluk",
       "occupancyHint": "Analitik API ile güncellenecek",
       "noShowRate": "No-show oranı",
-      "pendingBadge": "{count} bekliyor"
+      "pendingBadge": "{count} bekliyor",
+      "servicesActive": "Hizmet sayısı",
+      "activeCustomers": "Aktif müşteri"
+    },
+    "heroNext": {
+      "title": "Sıradaki randevu",
+      "empty": "Bugün için planlı randevu yok"
+    },
+    "appointmentCount": "{n} randevu",
+    "topServices": {
+      "title": "En çok randevu alan hizmetler",
+      "empty": "Bu dönemde veri yok"
+    },
+    "customerStats": {
+      "title": "Müşteri istatistikleri",
+      "total": "Toplam müşteri",
+      "newInPeriod": "{lead} yeni",
+      "returnRate": "Geri dönüş oranı",
+      "blacklisted": "Kara liste",
+      "topCustomers": "En sık gelenler",
+      "empty": "Veri bulunamadı"
+    },
+    "packageAlerts": {
+      "title": "Dikkat gerektiren paketler",
+      "lowSession": "Düşük seans",
+      "expiring": "7 günde bitiyor",
+      "activeTotal": "Aktif paket",
+      "sessionsShort": "{remaining}/{total} seans",
+      "expiringTag": "Bitiyor",
+      "lowTag": "Düşük",
+      "viewAll": "Tüm paketleri gör →"
     },
     "stats": {
       "services": "Hizmet",
       "customers": "Müşteri",
       "employees": "Çalışan"
     },
-    "todaySection": "Bugünkü randevular",
+    "downloadReport": "Rapor indir",
+    "newAppointment": "Yeni Randevu",
+    "report": {
+      "filenamePrefix": "rapor",
+      "kpiSection": "Özet",
+      "todaySection": "Bugünkü randevular",
+      "topServicesSection": "En çok tercih edilen hizmetler",
+      "customerStatsSection": "Müşteri istatistikleri",
+      "headers": {
+        "metric": "Metrik",
+        "value": "Değer",
+        "time": "Saat",
+        "customer": "Müşteri",
+        "service": "Hizmet",
+        "employee": "Çalışan",
+        "status": "Durum",
+        "rank": "Sıra",
+        "appointments": "Randevu",
+        "completionRate": "Tamamlanma %",
+        "revenue": "Gelir"
+      }
+    },
+    "todaySection": "Bugünün akışı",
+    "todayMeta": "{count} randevu · {employees} aktif çalışan",
+    "todayMetaSingular": "{count} randevu · {employees} aktif çalışan",
+    "gotoCalendar": "Takvime git",
+    "appointmentDuration": "{minutes} dk",
+    "appointmentDurationHours": "{hours}s {minutes}d",
+    "openAppointment": "Randevu detayını aç",
     "priceList": "Fiyat listesi",
     "noAppointmentsToday": "Bugün randevu yok.",
     "createAppointment": "Randevu oluştur",
@@ -324,6 +603,8 @@
     "addService": "Hizmet ekle",
     "moreAppointments": "+{count} daha…",
     "seeAll": "Tümünü gör",
+    "employeeFallback": "Çalışan #{id}",
+    "serviceFallback": "Hizmet #{id}",
     "bookingPageTitle": "Randevu sayfanız",
     "bookingPageDesc": "Müşterileriniz bu linkten randevu alabilir.",
     "minutesShort": "{n} dk",
@@ -350,12 +631,72 @@
   },
   "calendar": {
     "title": "Takvim",
-    "emptyTitle": "Takvim yakında",
-    "emptyDescription": "Sürükle-bırak ve çalışan filtresi bu görünümde kullanılabilir olacak.",
-    "loadError": "Takvim verisi yüklenemedi.",
-    "filterEmployee": "Çalışan",
-    "allEmployees": "Tümü",
-    "hint": "Haftalık görünüm; sürükle-bırak için API güncellemesi gerekir."
+    "subtitle": "Tüm çalışanların randevuları tek yerde. Kırmızı çizgi şu anı gösterir.",
+    "today": "Bugün",
+    "view": {
+      "day": "Gün",
+      "week": "Hafta",
+      "month": "Ay"
+    },
+    "viewSelector": "Takvim görünümü",
+    "filter": "Filtre",
+    "newAppointment": "Randevu",
+    "filterPanel": {
+      "title": "Filtreler",
+      "statusLabel": "Durum",
+      "employeeLabel": "Çalışan",
+      "clear": "Temizle",
+      "status": {
+        "all": "Hepsi",
+        "pending": "Bekliyor",
+        "confirmed": "Onaylı",
+        "risky": "Riskli",
+        "cancelled": "İptal",
+        "completed": "Tamamlandı",
+        "no_show": "Gelmedi"
+      }
+    },
+    "loading": "Takvim yükleniyor...",
+    "empty": "Bu görünümde randevu yok.",
+    "error": "Takvim yüklenemedi.",
+    "retry": "Yeniden dene",
+    "nav": {
+      "previous": {
+        "day": "Önceki gün",
+        "week": "Önceki hafta",
+        "month": "Önceki ay"
+      },
+      "next": {
+        "day": "Sonraki gün",
+        "week": "Sonraki hafta",
+        "month": "Sonraki ay"
+      }
+    },
+    "appointmentCard": {
+      "aria": "{time} · {customer} · {service} · {status}"
+    },
+    "day": {
+      "active": "Aktif",
+      "appointmentCount": "{count} randevu",
+      "now": "Şimdi",
+      "noEmployees": "Bu işletmede henüz çalışan tanımlı değil."
+    },
+    "week": {
+      "title": "Hafta yoğunluğu",
+      "subtitle": "Saatlik randevu sayıları",
+      "intensity": {
+        "low": "Az",
+        "high": "Çok"
+      },
+      "legendAria": "Yoğunluk göstergesi",
+      "cellAria": "{day} {hour}: {count} randevu"
+    },
+    "month": {
+      "moreCount": "+{n} daha",
+      "moreCountAria": "{n} ek randevu daha",
+      "weekdaysShort": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
+      "dayAria": "{date} · {count} randevu"
+    }
   },
   "settings": {
     "tabs": {
@@ -363,7 +704,8 @@
       "notifications": "Bildirimler",
       "messageTemplates": "Mesaj Şablonları",
       "plan": "Plan ve Kullanım",
-      "security": "Güvenlik"
+      "security": "Güvenlik",
+      "appearance": "Görünüm"
     },
     "messageTemplates": {
       "title": "Mesaj Şablonları",
@@ -387,6 +729,7 @@
       },
       "variables": {
         "title": "Kullanılabilir Değişkenler",
+        "hint": "Değişkene tıklayarak mesaj içeriğine ekleyebilirsiniz.",
         "customer_name": "Müşteri adı",
         "business_name": "İşletme adı",
         "service_name": "Hizmet adı",
@@ -400,36 +743,116 @@
         "preview": "Önizleme"
       },
       "messages": {
+        "loadError": "Şablonlar yüklenemedi",
         "saveSuccess": "Şablon kaydedildi",
         "saveError": "Şablon kaydedilemedi",
         "resetSuccess": "Şablon varsayılana döndürüldü",
-        "resetConfirm": "Bu şablonu varsayılan haline döndürmek istediğinize emin misiniz?"
+        "resetError": "Şablon sıfırlanamadı",
+        "resetConfirm": "Bu şablonu varsayılan haline döndürmek istediğinize emin misiniz?",
+        "savingButton": "Kaydediliyor..."
       }
     },
     "notifications": {
       "title": "Bildirim Ayarları",
       "subtitle": "Randevu bildirimleri ve hatırlatma tercihlerinizi yönetin.",
+      "monthlyUsage": "Aylık Kullanım",
+      "unlimited": "Sınırsız",
+      "messagesRemaining": "{n} mesaj kaldı",
+      "smsRemaining": "{n} SMS kaldı",
+      "planUpgradeRequired": "Plan yükseltme gerekli",
+      "unsavedChanges": "Kaydedilmemiş değişiklikler var",
+      "retryButton": "Tekrar Dene",
+      "savingButton": "Kaydediliyor...",
       "whatsapp": {
         "title": "WhatsApp Bildirimleri",
+        "subtitle": "WhatsApp Mesajları",
         "enabled": "WhatsApp bildirimleri aktif",
         "sendReminders": "Randevu hatırlatması gönder",
         "reminderHours": "Hatırlatma zamanı (saat önce)",
         "sendConfirmations": "Onay mesajı gönder",
-        "sendCancellations": "İptal mesajı gönder"
+        "sendCancellations": "İptal mesajı gönder",
+        "planUpgradeNote": "Bu özellik için planınızı yükseltmeniz gerekiyor"
       },
       "sms": {
         "title": "SMS Bildirimleri",
-        "enabled": "SMS bildirimleri aktif (WhatsApp başarısız olursa)",
-        "fallback": "WhatsApp başarısız olursa SMS gönder"
+        "subtitle": "SMS",
+        "enabled": "SMS bildirimlerini etkinleştir",
+        "fallback": "WhatsApp başarısız olursa SMS gönder",
+        "planNote": "SMS bildirimleri Business ve üzeri planlarda kullanılabilir"
+      },
+      "reminderOptions": {
+        "h1": "1 saat",
+        "h2": "2 saat",
+        "h4": "4 saat",
+        "h12": "12 saat",
+        "h24": "24 saat (1 gün)",
+        "h48": "48 saat (2 gün)"
+      },
+      "secondReminder": {
+        "label": "İkinci hatırlatma gönder",
+        "timeLabel": "İkinci hatırlatma zamanı:",
+        "h1": "1 saat önce",
+        "h2": "2 saat önce",
+        "h4": "4 saat önce"
+      },
+      "toast": {
+        "loadError": "Ayarlar yüklenemedi",
+        "success": "Bildirim ayarları kaydedildi",
+        "error": "Ayarlar kaydedilemedi"
       }
     },
     "security": {
       "title": "Güvenlik Ayarları",
       "subtitle": "Hesap güvenliği ve erişim ayarlarınızı yönetin.",
       "changePassword": "Şifre Değiştir",
+      "changePasswordSubtitle": "Hesap şifrenizi değiştirin",
       "twoFactor": "İki Faktörlü Doğrulama",
-      "sessions": "Aktif Oturumlar"
+      "twoFactorSubtitle": "Hesabınızı daha güvenli hale getirin",
+      "twoFactorComingSoon": "İki faktörlü doğrulama yakında kullanıma sunulacak.",
+      "sessions": "Aktif Oturumlar",
+      "sessionsSubtitle": "Aktif oturumlarınızı yönetin",
+      "thisDevice": "Bu cihaz",
+      "thisDevicePlatform": "Windows · Chrome",
+      "activeStatus": "Aktif",
+      "newPasswordHint": "En az 8 karakter olmalıdır.",
+      "fields": {
+        "currentPassword": "Mevcut Şifre",
+        "newPassword": "Yeni Şifre",
+        "confirmPassword": "Yeni Şifre (Tekrar)"
+      },
+      "errors": {
+        "currentRequired": "Mevcut şifre zorunludur.",
+        "newRequired": "Yeni şifre zorunludur.",
+        "newTooShort": "Yeni şifre en az {min} karakter olmalıdır.",
+        "confirmMismatch": "Yeni şifreler eşleşmiyor."
+      },
+      "button": {
+        "change": "Şifreyi Değiştir"
+      },
+      "toast": {
+        "success": "Şifre değiştirildi",
+        "error": "Şifre değiştirilemedi"
+      }
     }
+  },
+  "appearance": {
+    "title": "Görünüm",
+    "lead": "Tema tercihi ve ekran görünümünü kişiselleştirin.",
+    "option": {
+      "light": {
+        "label": "Açık",
+        "desc": "Aydınlık ortamlar için klasik tema."
+      },
+      "dark": {
+        "label": "Koyu",
+        "desc": "Düşük ışıkta gözlerinizi yormaz."
+      },
+      "system": {
+        "label": "Sistem",
+        "desc": "İşletim sistemi tercihinize göre otomatik ayarlanır."
+      }
+    },
+    "note": "Tercih bu cihazda saklanır."
   },
   "plan": {
     "title": "Abonelik planları",
@@ -449,8 +872,23 @@
     "matrixHint": "Hücreler planda ilgili özelliğin listelenip listelenmediğini gösterir.",
     "upgrade": "Yükselt",
     "currentPlan": "Mevcut plan",
+    "inUse": "Kullanımda",
     "contactUs": "Bizimle iletişime geçin",
-    "upgradeMessage": "Paket yükseltmek için lütfen bizimle iletişime geçin."
+    "upgradeMessage": "Paket yükseltmek için lütfen bizimle iletişime geçin.",
+    "upgradeModalBody": "{plan} paketine yükseltmek istiyorsunuz.",
+    "plans": {
+      "SOLO": "Solo",
+      "PRO": "Profesyonel",
+      "ENTERPRISE": "Kurumsal"
+    },
+    "subscriptionStatus": {
+      "TRIAL": "Deneme",
+      "ACTIVE": "Aktif",
+      "EXPIRED": "Süresi dolmuş",
+      "SUSPENDED": "Askıya alınmış"
+    },
+    "emailSubject": "Paket Yükseltme Talebi - {code}",
+    "emailBody": "Merhaba,\n\n{plan} paketine geçmek istiyorum.\n\nTeşekkürler."
   },
   "onboarding": {
     "title": "İşletme kurulum sihirbazı",
@@ -603,6 +1041,7 @@
     "linkCopied": "Link kopyalandı",
     "linkCopyFailed": "Link kopyalanamadı",
     "cancelInviteConfirm": "{email} için daveti iptal etmek istediğinize emin misiniz?",
+    "inviteCancelled": "Davet iptal edildi",
     "inviteStatus": {
       "PENDING": "Beklemede",
       "USED": "Kullanıldı",
@@ -642,6 +1081,7 @@
     "nameRequired": "Çalışan adı giriniz",
     "nameMin": "En az 2 karakter olmalıdır",
     "emailInvalid": "Geçerli bir e-posta giriniz",
+    "emailPlaceholder": "ornek{'@'}mail.com",
     "onboardingTitle": "Çalışan kurulumu — {name}",
     "stepCapabilities": "Hizmet yetkinlikleri",
     "stepSchedule": "Çalışma saatleri (isteğe bağlı)",
@@ -705,7 +1145,12 @@
     "service": "Hizmet",
     "selectService": "Hizmet seçin",
     "selectSkillLevel": "Seviye seçin",
-    "assign": "Ata"
+    "assign": "Ata",
+    "stats": {
+      "todayAppointments": "Bugünkü",
+      "services": "Hizmet",
+      "status": "Durum"
+    }
   },
   "leave": {
     "newLeave": "Yeni izin",
@@ -756,5 +1201,678 @@
     "completeSuccess": "Randevu tamamlandı",
     "cancelSuccess": "Randevu iptal edildi",
     "cancelConfirm": "Bu randevuyu iptal etmek istediğinize emin misiniz?"
+  },
+  "appointmentsView": {
+    "title": "Randevular",
+    "summary": "{count} randevu",
+    "summaryWithPeriod": "{count} randevu · {period}",
+    "newAppointment": "Yeni randevu",
+    "newShort": "Yeni",
+    "viewLabel": "Görünüm",
+    "view": {
+      "list": "Liste",
+      "calendar": "Takvim"
+    },
+    "filter": {
+      "start": "Başlangıç",
+      "end": "Bitiş",
+      "status": "Durum",
+      "statusAll": "Hepsi",
+      "statusGroupLabel": "Duruma göre filtrele",
+      "allStatuses": "Tüm durumlar",
+      "clear": "Temizle",
+      "refresh": "Yenile",
+      "employeeAll": "Tüm çalışanlar",
+      "employeeGroupLabel": "Çalışana göre filtrele",
+      "employeeSearchPlaceholder": "Çalışan ara…",
+      "employeeNoResults": "Eşleşen çalışan yok"
+    },
+    "table": {
+      "time": "Saat",
+      "customer": "Müşteri",
+      "service": "Hizmet",
+      "employee": "Çalışan",
+      "status": "Durum",
+      "duration": "Süre"
+    },
+    "noBusiness": "İşletme bilgisi bulunamadı.",
+    "errorLoad": "Randevular yüklenemedi.",
+    "errorRefs": "Çalışan ve hizmet listesi yüklenemedi.",
+    "errorConfirm": "Onaylanamadı.",
+    "errorComplete": "Tamamlanamadı.",
+    "errorNoShow": "İşaretlenemedi.",
+    "errorCancel": "İptal edilemedi.",
+    "list": {
+      "emptyTitle": "Bu aralıkta randevu bulunamadı",
+      "emptyHint": "Tarih aralığını veya filtreleri değiştirin.",
+      "createCta": "Randevu oluştur",
+      "groupCount": "{n} randevu",
+      "minutesShort": "{n} dk",
+      "riskyTag": "Riskli",
+      "requiresConfirm": "Onay zorunlu"
+    },
+    "source": {
+      "PHONE": "Telefon",
+      "WALK_IN": "Yerinde",
+      "ONLINE": "Online"
+    },
+    "action": {
+      "confirm": "Onayla",
+      "complete": "Tamamla",
+      "cancel": "İptal",
+      "noShow": "Gelmedi"
+    },
+    "detail": {
+      "title": "Randevu detayı",
+      "emptyTitle": "Bir randevu seçin",
+      "emptyHint": "Detaylarını görmek için listeden bir randevu seçin.",
+      "customer": "Müşteri",
+      "employee": "Çalışan",
+      "service": "Hizmet",
+      "source": "Kaynak",
+      "notes": "Notlar",
+      "durationMin": "{n} dakika",
+      "requiresConfirm": "Onay zorunlu"
+    },
+    "cancelModal": {
+      "title": "Randevuyu iptal et",
+      "question": "{datetime} tarihli randevu iptal edilsin mi?",
+      "reasonLabel": "Sebep (opsiyonel)",
+      "reasonPlaceholder": "Müşteriye iletmek istediğiniz açıklama…",
+      "submit": "İptal et"
+    }
+  },
+  "packagesView": {
+    "title": "Paket Şablonları",
+    "lead": "Paket şablonlarını yönetin ve müşteri paketlerini görüntüleyin.",
+    "summary": "{templates} aktif şablon · {sales} satılan paket · {active} hala aktif",
+    "noBusiness": "İşletme bilgisi bulunamadı.",
+    "errorLoad": "Paketler yüklenemedi.",
+    "section": {
+      "templates": "Paket şablonları",
+      "templatesDesc": "Müşteriye atarken kullanacağınız şablonlar (ör. Saç Kesim 8'li).",
+      "sold": "Satılan paketler",
+      "soldDesc": "Şablona göre gruplandırılmış"
+    },
+    "action": {
+      "newTemplate": "Yeni Paket",
+      "edit": "Düzenle",
+      "deactivate": "Devre dışı"
+    },
+    "card": {
+      "perSession": "Seans başı {price}",
+      "sold": "Satılan",
+      "active": "Aktif"
+    },
+    "empty": {
+      "templates": "Henüz şablon yok. Yeni şablon ekleyin.",
+      "sold": "Henüz satılan paket yok. Müşteri detayından veya şablon üzerinden paket atayabilirsiniz."
+    },
+    "template": {
+      "passive": "Pasif",
+      "sessions": "{n} seans",
+      "sales": "{n} satış"
+    },
+    "stat": {
+      "totalSales": "Toplam satış",
+      "active": "Aktif",
+      "lowSessions": "Az kalan",
+      "expired": "Süresi dolan"
+    },
+    "group": {
+      "manual": "Manuel",
+      "activeCount": "{n} aktif",
+      "lowCount": "{n} az kalan",
+      "expiredCount": "{n} doldu",
+      "customers": "{n} müşteri",
+      "detail": "Detay"
+    },
+    "package": {
+      "statusExpired": "Doldu",
+      "statusLow": "Az",
+      "statusActive": "Aktif",
+      "expiryUnlimited": "Süresiz",
+      "expiryUntil": "{date}'e kadar"
+    },
+    "modal": {
+      "editTemplate": "Şablonu düzenle",
+      "newTemplate": "Yeni paket şablonu",
+      "deactivate": "Şablonu devre dışı bırak",
+      "deactivateBody": "«{name}» şablonu devre dışı bırakılacak. Mevcut müşteri paketleri etkilenmez.",
+      "confirmCancel": "Vazgeç",
+      "confirmDeactivate": "Devre dışı bırak",
+      "preview": "Önizleme",
+      "previewNamePlaceholder": "Paket adı",
+      "previewServicePlaceholder": "Hizmet seçin"
+    },
+    "field": {
+      "name": "Şablon adı",
+      "namePlaceholder": "Örn. Saç Kesim 8'li",
+      "service": "Hizmet",
+      "servicePlaceholder": "Seçin",
+      "serviceEmptyHint": "Önce 'paket uygun' bir hizmet ekleyin.",
+      "sessions": "Seans sayısı",
+      "price": "Paket fiyatı",
+      "priceOptional": "(opsiyonel)",
+      "color": "Renk"
+    },
+    "validation": {
+      "nameMin": "Şablon adı en az 2 karakter olmalıdır",
+      "serviceRequired": "Hizmet seçin",
+      "sessionsMin": "Seans sayısı en az 1 olmalıdır",
+      "saveFailed": "Kayıt başarısız",
+      "deactivateFailed": "Şablon devre dışı bırakılamadı."
+    }
+  },
+  "servicesView": {
+    "title": "Hizmetler",
+    "lead": "{total} hizmet · {active} aktif",
+    "search": {
+      "placeholder": "Hizmet ara…",
+      "aria": "Hizmet ara"
+    },
+    "filter": {
+      "label": "Filtrele",
+      "all": "Hepsi",
+      "active": "Aktif",
+      "passive": "Pasif",
+      "packageEligible": "Paket uygun"
+    },
+    "action": {
+      "new": "Yeni hizmet",
+      "addNew": "Yeni hizmet ekle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "activate": "Aktifleştir",
+      "deactivate": "Pasifleştir",
+      "employees": "Çalışanlar",
+      "employeesCount": "({count})",
+      "createPackage": "Paket oluştur"
+    },
+    "empty": {
+      "title": "Henüz hizmet yok",
+      "desc": "İlk hizmetinizi ekleyerek başlayın.",
+      "action": "İlk hizmeti ekle"
+    },
+    "status": {
+      "active": "Aktif",
+      "passive": "Pasif"
+    },
+    "tag": {
+      "packageEligible": "Paketli",
+      "requiresConfirmation": "Onay gerekli"
+    },
+    "field": {
+      "duration": "{n} dk",
+      "durationUnit": "dk",
+      "price": "{price} {currency}",
+      "notAssigned": "Henüz çalışan atanmamış"
+    },
+    "detail": {
+      "empty": "Soldan bir hizmet seçin",
+      "emptyDesc": "Detayları görmek için kart listesinden hizmet seçin.",
+      "info": {
+        "duration": "Süre",
+        "price": "Fiyat",
+        "bufferBefore": "Hazırlık süresi",
+        "bufferAfter": "Sonrası bekleme",
+        "confirmation": "Onay gerekir",
+        "package": "Paket uygun"
+      },
+      "employees": {
+        "title": "Çalışanlar",
+        "count": "· {assigned}/{total}",
+        "searchPlaceholder": "Çalışan ara…",
+        "noEmployees": "Henüz çalışan eklenmemiş.",
+        "empty": "Henüz atanmış çalışan yok.",
+        "changeSkill": "Yetkinlik seviyesini değiştir",
+        "assign": "Ata",
+        "unassign": "Kaldır"
+      }
+    },
+    "modal": {
+      "create": "Yeni hizmet",
+      "edit": "Hizmeti düzenle",
+      "delete": "Hizmeti sil",
+      "deleteBody": "«{name}» hizmeti kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+      "deleteCancel": "Vazgeç",
+      "deleteConfirm": "Sil",
+      "employees": "Çalışanlar — {name}"
+    },
+    "form": {
+      "section1": "Temel bilgiler",
+      "section2": "Süre & Fiyat",
+      "section3": "Ayarlar",
+      "nameLabel": "Hizmet adı",
+      "nameRequired": "*",
+      "namePlaceholder": "Örn. Saç Kesimi",
+      "descLabel": "Açıklama",
+      "descOptional": "(isteğe bağlı)",
+      "descPlaceholder": "Kısa bir açıklama ekleyin…",
+      "durationLabel": "Süre (dk)",
+      "durationUnit": "dk",
+      "priceLabel": "Fiyat",
+      "priceUnit": "₺",
+      "bufferBeforeLabel": "Hazırlık süresi (dk)",
+      "bufferAfterLabel": "Sonrası bekleme (dk)",
+      "requiresConfirmationLabel": "Onay gerekli",
+      "requiresConfirmationDesc": "Randevu oluşturulduğunda manuel onay bekler.",
+      "sameDayLabel": "Aynı gün randevuya açık",
+      "sameDayDesc": "Müşteri bugün için randevu alabilir.",
+      "packageEligibleLabel": "Paket hizmeti",
+      "packageEligibleDesc": "Bu hizmet için seanslı paket şablonu oluşturulabilir.",
+      "submitCreate": "Hizmet ekle",
+      "submitUpdate": "Güncelle"
+    },
+    "employeesModal": {
+      "capable": "Bu hizmeti yapabilenler",
+      "capableEmpty": "Henüz çalışan atanmamış.",
+      "assignTitle": "Çalışan ata",
+      "assignEmpty": "Atanabilecek başka aktif çalışan yok.",
+      "assignEmployeeLabel": "Çalışan",
+      "assignEmployeePlaceholder": "Çalışan seçin",
+      "assignSkillLabel": "Yetkinlik seviyesi",
+      "assignSkillPlaceholder": "Seviye seçin",
+      "assignButton": "Ata",
+      "removeButton": "Kaldır",
+      "close": "Kapat"
+    },
+    "packagePrompt": {
+      "title": "Paket şablonu oluşturun",
+      "body": "«{name}» paket şablonu ister misiniz?",
+      "desc": "Bu hizmeti pakete ekleyebilirsiniz. Şimdi paket şablonu oluşturmak ister misiniz?",
+      "later": "Sonra",
+      "create": "Paket oluştur"
+    },
+    "toast": {
+      "serviceCreated": "Hizmet eklendi · şimdi çalışan atayabilirsiniz",
+      "focusEmployee": "{name} için hizmet seçin"
+    },
+    "error": {
+      "load": "Liste yüklenemedi.",
+      "nameMin": "En az 2 karakter giriniz",
+      "durationRange": "15–360 dakika arasında olmalıdır",
+      "saveFailed": "Kaydedilemedi.",
+      "activateFailed": "Aktifleştirilemedi.",
+      "deactivateFailed": "Pasifleştirilemedi.",
+      "deleteFailed": "Silinemedi.",
+      "assignFailed": "Atama başarısız.",
+      "removeFailed": "Kaldırılamadı.",
+      "loadCapabilitiesFailed": "Yetkinlikler yüklenemedi.",
+      "loadEmployeesFailed": "Çalışanlar yüklenemedi.",
+      "reloadCapabilitiesFailed": "Yetkinlikler yeniden yüklenemedi."
+    }
+  },
+  "packageDetailView": {
+    "title": {
+      "fallback": "Paket Detayı"
+    },
+    "lead": "Şablon bilgileri ve bu pakete sahip müşteriler",
+    "error": {
+      "load": "Veriler yüklenemedi."
+    },
+    "action": {
+      "retry": "Tekrar dene",
+      "assign": "Bu paketten müşteriye ata"
+    },
+    "template": {
+      "active": "Aktif",
+      "passive": "Pasif",
+      "sessions": "{n} seans"
+    },
+    "stats": {
+      "totalSales": "Toplam satış",
+      "activeCustomers": "Aktif müşteri",
+      "remainingSessions": "Toplam kalan seans",
+      "usedSessions": "Kullanılan seans"
+    },
+    "section": {
+      "customers": "Bu pakete sahip müşteriler"
+    },
+    "filter": {
+      "all": "Tümü",
+      "active": "Aktif",
+      "low": "Az kalan",
+      "expired": "Süresi dolan"
+    },
+    "empty": {
+      "noAssigned": "Bu şablon henüz hiçbir müşteriye atanmamış.",
+      "noFilter": "Bu filtrede müşteri yok."
+    },
+    "status": {
+      "expired": "Süresi doldu",
+      "low": "Az kaldı",
+      "active": "Aktif"
+    },
+    "expiry": {
+      "unlimited": "Süresiz",
+      "until": "{date}'e kadar"
+    },
+    "sessions": {
+      "loading": "Seanslar yükleniyor…",
+      "empty": "Seans kaydı yok.",
+      "title": "Seanslar",
+      "createAppointment": "Randevu oluştur",
+      "assignAppointment": "Randevu ata"
+    },
+    "sessionStatus": {
+      "PENDING": "Bekliyor",
+      "SCHEDULED": "Planlandı",
+      "COMPLETED": "Tamamlandı",
+      "NO_SHOW": "Gelmedi",
+      "CANCELLED": "İptal"
+    },
+    "modal": {
+      "assign": {
+        "title": "Müşteriye paket ata",
+        "customerLabel": "Müşteri",
+        "customerRequired": "*",
+        "customerPlaceholder": "İsim veya telefon ara…",
+        "empty": "Müşteri bulunamadı",
+        "cancel": "İptal",
+        "submit": "Paketi ata",
+        "error": "Atama başarısız."
+      },
+      "appointment": {
+        "title": "Randevu Oluştur"
+      }
+    },
+    "wizard": {
+      "step": {
+        "employee": "Çalışan",
+        "date": "Tarih",
+        "time": "Saat",
+        "summary": "Özet"
+      },
+      "employeeSelect": {
+        "label": "Çalışan",
+        "required": "*",
+        "error": "Çalışan seçin"
+      },
+      "dateSelect": {
+        "empty": "Uygun tarih bulunamadı.",
+        "error": "Tarih seçin",
+        "days": {
+          "mon": "Pt",
+          "tue": "Sa",
+          "wed": "Ça",
+          "thu": "Pe",
+          "fri": "Cu",
+          "sat": "Ct",
+          "sun": "Pz"
+        }
+      },
+      "timeSelect": {
+        "empty": "Bu tarihte uygun saat yok.",
+        "error": "Saat seçin",
+        "morning": "Sabah",
+        "afternoon": "Öğleden Sonra",
+        "evening": "Akşam"
+      },
+      "summary": {
+        "customer": "Müşteri",
+        "employee": "Çalışan",
+        "service": "Hizmet",
+        "dateTime": "Tarih & saat",
+        "packageSession": "Paket seansı",
+        "sessionNumber": "Seans #{n}"
+      },
+      "action": {
+        "back": "← Geri",
+        "next": "Devam →",
+        "cancel": "Vazgeç",
+        "submit": "Randevu oluştur"
+      },
+      "bridge": {
+        "empty": "Bu çalışana atanmış hizmet yok",
+        "action": "Hizmetler sayfasına git ve ata"
+      }
+    }
+  },
+  "commandPalette": {
+    "title": "Komut Paleti",
+    "searchPlaceholder": "Komut ara veya sayfa...",
+    "empty": "Sonuç bulunamadı",
+    "sections": {
+      "navigation": "Sayfalar",
+      "actions": "Eylemler",
+      "recent": "Son kullanılan",
+      "help": "Yardım"
+    },
+    "commands": {
+      "gotoDashboard": "Dashboard'a git",
+      "gotoCalendar": "Takvime git",
+      "gotoAppointments": "Randevulara git",
+      "gotoCustomers": "Müşterilere git",
+      "gotoEmployees": "Çalışanlara git",
+      "gotoServices": "Hizmetlere git",
+      "gotoPackages": "Paketlere git",
+      "gotoSettings": "Ayarlara git"
+    },
+    "actions": {
+      "newAppointment": "Yeni randevu",
+      "newCustomer": "Yeni müşteri",
+      "toggleTheme": "Tema değiştir",
+      "logout": "Çıkış yap"
+    },
+    "actionsDesc": {
+      "newAppointment": "Yeni randevu oluştur",
+      "newCustomer": "Yeni müşteri ekle",
+      "toggleTheme": "Açık/koyu tema arasında geçiş yap",
+      "logout": "Hesaptan çıkış yap"
+    },
+    "help": {
+      "shortcuts": "Klavye kısayolları"
+    },
+    "helpDesc": {
+      "shortcuts": "Tüm klavye kısayollarını görüntüle"
+    },
+    "shortcutHint": "ESC ile kapat"
+  },
+  "customersView": {
+    "title": "Müşteriler",
+    "lead": "Müşteri kayıtları, iletişim bilgileri, paket ve randevu geçmişi.",
+    "summary": "{total} toplam · {recent} yeni bu ay",
+    "noBusiness": "İşletme bilgisi bulunamadı.",
+    "error": {
+      "load": "Liste yüklenemedi.",
+      "retry": "Tekrar dene",
+      "blacklist": "İşlem gerçekleştirilemedi.",
+      "removeBlacklist": "Kara listeden çıkarılamadı.",
+      "delete": "Müşteri silinemedi.",
+      "save": "Kaydedilemedi.",
+      "sessionAssign": "Randevu atanamadı.",
+      "sessionUnassign": "Randevu kaldırılamadı."
+    },
+    "action": {
+      "new": "Yeni müşteri",
+      "edit": "Düzenle",
+      "blacklist": "Kara listeye al",
+      "removeBlacklist": "Kara listeden çıkar",
+      "clearApproval": "Onay zorunluluğunu kaldır",
+      "delete": "Sil",
+      "assignPackage": "Paket ata"
+    },
+    "search": {
+      "placeholder": "İsim veya telefon ara…",
+      "aria": "Müşteri ara"
+    },
+    "toolbar": {
+      "filter": "Filtre",
+      "filterToggleAria": "Filtre seçeneklerini aç/kapat"
+    },
+    "filter": {
+      "all": "Hepsi",
+      "new": "Yeni",
+      "risky": "Riskli",
+      "blacklist": "Kara liste",
+      "approval": "Onay gerekli"
+    },
+    "list": {
+      "count": "{n} müşteri",
+      "aria": "Müşteri listesi",
+      "empty": "Henüz müşteri yok",
+      "emptyDesc": "İlk müşterinizi ekleyerek başlayın.",
+      "emptyAction": "+ Ekle",
+      "noResults": "«{q}» için sonuç bulunamadı."
+    },
+    "table": {
+      "name": "İsim",
+      "tag": "Etiket",
+      "joined": "Kayıt"
+    },
+    "badge": {
+      "blacklist": "Kara liste",
+      "risky": "Riskli",
+      "requireApproval": "Onay zorunlu",
+      "new": "Yeni",
+      "regular": "Düzenli",
+      "noShowCount": "{n}× gelmedi"
+    },
+    "relative": {
+      "justNow": "az önce",
+      "minute": "{n} dk önce",
+      "hour": "{n} sa önce",
+      "day": "{n} gün önce",
+      "week": "{n} hafta önce",
+      "month": "{n} ay önce"
+    },
+    "hero": {
+      "appointment": "Randevu",
+      "callAria": "{name} müşterisini ara"
+    },
+    "stat": {
+      "visits": "Ziyaret",
+      "completed": "Tamamlanan",
+      "packages": "Paket"
+    },
+    "detail": {
+      "empty": "Soldaki listeden bir müşteri seçin.",
+      "activePackage": "Aktif paket",
+      "moreActions": "Daha fazla işlem",
+      "viewAll": "Tümünü gör ({n})",
+      "noteLabel": "Not"
+    },
+    "section": {
+      "contact": "İletişim",
+      "packages": "Paketler",
+      "appointments": "Randevu geçmişi"
+    },
+    "field": {
+      "phone": "Telefon",
+      "email": "E-posta",
+      "createdAt": "Kayıt tarihi",
+      "address": "Adres",
+      "nationalId": "TC kimlik no",
+      "notes": "Notlar",
+      "blacklistReason": "Kara liste gerekçesi"
+    },
+    "package": {
+      "empty": "Bu müşteriye henüz paket atanmamış.",
+      "statusExpired": "Süresi doldu",
+      "statusLow": "Az kaldı",
+      "statusActive": "Aktif",
+      "sessionsRemaining": "{remaining}/{total} seans kaldı",
+      "expiry": "Bitiş: {date}",
+      "expiryNone": "Bitiş: —",
+      "deductLabel": "Seans düş: {name}",
+      "deductTitle": "1 seans düş",
+      "addLabel": "Seans ekle: {name}",
+      "addTitle": "1 seans ekle"
+    },
+    "session": {
+      "title": "Seanslar",
+      "statusPending": "Bekliyor",
+      "statusScheduled": "Randevulu",
+      "statusCompleted": "Tamamlandı",
+      "statusNoShow": "Gelmedi",
+      "statusCancelled": "İptal",
+      "selectAppointment": "Randevu seç",
+      "assignPlaceholder": "Randevu ata…",
+      "assignAction": "Ata",
+      "createAppointment": "+ Randevu oluştur",
+      "unassign": "Randevudan kaldır"
+    },
+    "appointment": {
+      "empty": "Bu müşteriye ait randevu kaydı yok.",
+      "packageBadge": "Paket",
+      "packageBadgeTitle": "Paket seansı",
+      "moreHint": "+{n} randevu daha"
+    },
+    "modal": {
+      "create": {
+        "title": "Yeni müşteri"
+      },
+      "edit": {
+        "title": "Müşteri düzenle"
+      },
+      "close": "Kapat",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "create": "Oluştur",
+      "saving": "Kaydediliyor…",
+      "nameLabel": "Ad soyad",
+      "nameRequired": "*",
+      "namePlaceholder": "Ad Soyad",
+      "phoneLabel": "Telefon",
+      "phonePlaceholder": "5XX XXX XX XX",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "ornek{'@'}mail.com",
+      "notesLabel": "Notlar",
+      "notesPlaceholder": "Müşteri hakkında not…",
+      "addressLabel": "Adres (fatura için)",
+      "addressPlaceholder": "Fatura adresi (isteğe bağlı)",
+      "nationalIdLabel": "TC kimlik no (fatura için)",
+      "nationalIdPlaceholder": "11 haneli (isteğe bağlı)",
+      "nationalIdHint": "Mevcut: {masked}",
+      "blacklist": {
+        "title": "Kara listeye al",
+        "body": "«{name}» kara listeye alınacak. Gerekçe giriniz.",
+        "reasonLabel": "Gerekçe (isteğe bağlı)",
+        "reasonPlaceholder": "Gerekçe…",
+        "submit": "Kara listeye al",
+        "submitting": "İşleniyor…"
+      },
+      "delete": {
+        "title": "Müşteriyi sil",
+        "body": "«{name}» kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+        "cancel": "Vazgeç",
+        "submit": "Kalıcı sil",
+        "submitting": "Siliniyor…"
+      },
+      "package": {
+        "title": "Paket ata",
+        "body": "{name} için yeni paket tanımlayın.",
+        "tabTemplate": "Şablondan",
+        "tabManual": "Manuel",
+        "templateLabel": "Paket şablonu",
+        "templatePlaceholder": "Seçin…",
+        "templateOption": "{name} ({sessions} seans)",
+        "templateEmptyHint": "Önce Paketler sayfasında paket şablonu oluşturun.",
+        "serviceLabel": "Hizmet",
+        "serviceOption": "{name} — {price} {currency}",
+        "serviceEmptyHint": "Paket oluşturulabilir hizmet tanımlayın. Hizmetler sayfasında «Paket hizmeti» işaretli olanlar burada listelenir.",
+        "nameLabel": "Paket adı",
+        "namePlaceholder": "Örn. 10 Seans Saç Kesimi",
+        "sessionsLabel": "Seans sayısı",
+        "expiryLabel": "Bitiş tarihi",
+        "previewLabel": "Özet:",
+        "previewText": "{sessions} seans × {price} = {total}",
+        "submit": "Paketi oluştur"
+      }
+    },
+    "validation": {
+      "nameRequired": "Ad soyad giriniz",
+      "nameMin": "En az 2 karakter olmalıdır",
+      "phoneRequired": "Telefon giriniz",
+      "phoneInvalid": "Geçerli bir telefon numarası giriniz",
+      "nationalIdInvalid": "TC kimlik numarası 11 haneli olmalıdır",
+      "serviceRequired": "Hizmet seçiniz",
+      "packageNameRequired": "Paket adı giriniz",
+      "sessionsMin": "En az 1 seans olmalıdır",
+      "expiryRequired": "Bitiş tarihi giriniz",
+      "expiryInvalid": "Bitiş tarihi gelecekte olmalıdır",
+      "templateRequired": "Şablon seçiniz"
+    }
   }
 }

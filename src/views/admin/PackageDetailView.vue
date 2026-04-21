@@ -4,48 +4,48 @@
     <div class="flex items-center gap-3">
       <button
         type="button"
-        class="flex size-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition"
+        class="back-btn"
         @click="router.back()"
       >
         <ChevronLeft class="size-5" />
       </button>
       <div class="min-w-0 flex-1">
-        <h1 class="truncate text-xl font-bold text-slate-900">{{ template?.name ?? 'Paket Detayı' }}</h1>
-        <p class="text-sm text-slate-500">Şablon bilgileri ve bu pakete sahip müşteriler</p>
+        <h1 class="truncate text-xl font-bold" style="color: var(--ink-1)">{{ template?.name ?? t('packageDetailView.title.fallback') }}</h1>
+        <p class="text-sm" style="color: var(--ink-3)">{{ t('packageDetailView.lead') }}</p>
       </div>
     </div>
 
     <div v-if="loading" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="h-20 animate-pulse rounded-xl bg-slate-100" />
+      <div v-for="i in 4" :key="i" class="h-20 animate-pulse rounded-xl" style="background: var(--surface-2)" />
     </div>
 
-    <div v-else-if="pageError" class="rounded-xl border border-red-200 bg-red-50 p-6 text-center" role="alert">
-      <p class="text-sm text-red-600">{{ pageError }}</p>
-      <AppButton variant="secondary" size="sm" class="mt-3" @click="load">Tekrar dene</AppButton>
+    <div v-else-if="pageError" class="card" style="background: var(--danger-tint); border-color: var(--danger)" role="alert">
+      <p class="text-sm" style="color: var(--danger)">{{ pageError }}</p>
+      <AppButton variant="secondary" size="sm" class="mt-3" @click="load">{{ t('packageDetailView.action.retry') }}</AppButton>
     </div>
 
     <template v-else>
       <!-- ── Şablon bilgi kartı ── -->
-      <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="card">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div class="space-y-2">
             <div class="flex items-center gap-2">
-              <span class="text-lg font-bold text-slate-800">{{ template?.name }}</span>
+              <span class="text-lg font-bold" style="color: var(--ink-2)">{{ template?.name }}</span>
               <span
-                class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                :class="template?.active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'"
-              >{{ template?.active ? 'Aktif' : 'Pasif' }}</span>
+                class="pill"
+                :class="template?.active ? 'pill--active' : 'pill--passive'"
+              >{{ template?.active ? t('packageDetailView.template.active') : t('packageDetailView.template.passive') }}</span>
             </div>
-            <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+            <div class="flex flex-wrap items-center gap-4 text-sm" style="color: var(--ink-3)">
               <span class="flex items-center gap-1.5">
-                <Scissors class="size-4 text-slate-400" />
+                <Scissors class="size-4" style="color: var(--ink-4)" />
                 {{ resolveServiceName(template?.serviceId) }}
               </span>
               <span class="flex items-center gap-1.5">
-                <Hash class="size-4 text-slate-400" />
-                {{ template?.totalSessions }} seans
+                <Hash class="size-4" style="color: var(--ink-4)" />
+                {{ t('packageDetailView.template.sessions', { n: template?.totalSessions }) }}
               </span>
-              <span v-if="template?.price != null" class="flex items-center gap-1.5 font-semibold text-indigo-600">
+              <span v-if="template?.price != null" class="flex items-center gap-1.5 font-semibold" style="color: var(--primary)">
                 <Tag class="size-4" />
                 {{ formatPrice(template.price) }}
               </span>
@@ -54,28 +54,28 @@
           <div class="flex gap-2 shrink-0">
             <AppButton variant="primary" @click="openCreateForCustomer()">
               <Plus class="size-4" />
-              Bu paketten müşteriye ata
+              {{ t('packageDetailView.action.assign') }}
             </AppButton>
           </div>
         </div>
 
         <!-- İstatistikler -->
-        <div class="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-4">
-          <div class="rounded-lg bg-slate-50 p-3 text-center">
-            <p class="text-xl font-bold text-slate-800">{{ packageOwners.length }}</p>
-            <p class="text-xs text-slate-500">Toplam satış</p>
+        <div class="mt-4 grid grid-cols-2 gap-3 pt-4 sm:grid-cols-4" style="border-top: 1px solid var(--hairline)">
+          <div class="rounded-lg p-3 text-center" style="background: var(--surface-2)">
+            <p class="text-xl font-bold" style="color: var(--ink-2)">{{ packageOwners.length }}</p>
+            <p class="text-xs" style="color: var(--ink-3)">{{ t('packageDetailView.stats.totalSales') }}</p>
           </div>
-          <div class="rounded-lg bg-emerald-50 p-3 text-center">
-            <p class="text-xl font-bold text-emerald-700">{{ activeOwners.length }}</p>
-            <p class="text-xs text-slate-500">Aktif müşteri</p>
+          <div class="rounded-lg p-3 text-center" style="background: var(--success-tint)">
+            <p class="text-xl font-bold" style="color: var(--success)">{{ activeOwners.length }}</p>
+            <p class="text-xs" style="color: var(--ink-3)">{{ t('packageDetailView.stats.activeCustomers') }}</p>
           </div>
-          <div class="rounded-lg bg-amber-50 p-3 text-center">
-            <p class="text-xl font-bold text-amber-600">{{ totalRemaining }}</p>
-            <p class="text-xs text-slate-500">Toplam kalan seans</p>
+          <div class="rounded-lg p-3 text-center" style="background: var(--warning-tint)">
+            <p class="text-xl font-bold" style="color: var(--warning)">{{ totalRemaining }}</p>
+            <p class="text-xs" style="color: var(--ink-3)">{{ t('packageDetailView.stats.remainingSessions') }}</p>
           </div>
-          <div class="rounded-lg bg-blue-50 p-3 text-center">
-            <p class="text-xl font-bold text-blue-600">{{ totalUsed }}</p>
-            <p class="text-xs text-slate-500">Kullanılan seans</p>
+          <div class="rounded-lg p-3 text-center" style="background: var(--primary-tint)">
+            <p class="text-xl font-bold" style="color: var(--primary)">{{ totalUsed }}</p>
+            <p class="text-xs" style="color: var(--ink-3)">{{ t('packageDetailView.stats.usedSessions') }}</p>
           </div>
         </div>
       </div>
@@ -83,38 +83,45 @@
       <!-- ── Müşteri listesi ── -->
       <section class="space-y-3">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="text-base font-semibold text-slate-800">Bu pakete sahip müşteriler</h2>
+          <h2 class="text-base font-semibold" style="color: var(--ink-2)">{{ t('packageDetailView.section.customers') }}</h2>
           <!-- Filtre -->
-          <div class="flex gap-0.5 rounded-lg border border-slate-200 bg-slate-100 p-0.5">
+          <div class="flex gap-0.5 rounded-lg p-0.5" style="border: 1px solid var(--hairline); background: var(--surface-2)">
             <button
               v-for="f in OWNER_FILTERS"
               :key="f.value"
               type="button"
               class="rounded-md px-3 py-1 text-xs font-medium transition"
-              :class="ownerFilter === f.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+              :style="ownerFilter === f.value ? 'background: var(--surface); color: var(--ink-1); box-shadow: var(--shadow-1)' : 'color: var(--ink-3)'"
               @click="ownerFilter = f.value"
             >{{ f.label }}</button>
           </div>
         </div>
 
-        <div v-if="packageOwners.length === 0" class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-400">
-          Bu şablon henüz hiçbir müşteriye atanmamış.
+        <div v-if="packageOwners.length === 0" class="rounded-xl p-8 text-center text-sm" style="border: 1px dashed var(--hairline); background: var(--surface-2); color: var(--ink-4)">
+          {{ t('packageDetailView.empty.noAssigned') }}
         </div>
-        <div v-else-if="filteredOwners.length === 0" class="py-6 text-center text-sm text-slate-400">
-          Bu filtrede müşteri yok.
+        <div v-else-if="filteredOwners.length === 0" class="py-6 text-center text-sm" style="color: var(--ink-4)">
+          {{ t('packageDetailView.empty.noFilter') }}
         </div>
 
         <ul v-else class="space-y-2">
           <li
             v-for="pkg in filteredOwners"
             :key="pkg.id"
-            class="rounded-xl border bg-white overflow-hidden"
-            :class="pkg.expired ? 'border-slate-200 opacity-70' : pkg.lowOnSessions ? 'border-amber-200' : 'border-slate-200'"
+            class="rounded-xl overflow-hidden"
+            :style="pkg.expired ? 'border: 1px solid var(--hairline); background: var(--surface); opacity: 0.7' : pkg.lowOnSessions ? 'border: 1px solid var(--warning); background: var(--surface)' : 'border: 1px solid var(--hairline); background: var(--surface)'"
           >
             <!-- Paket özet satırı -->
             <div
-              class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 transition-colors"
+              class="flex cursor-pointer flex-wrap items-center justify-between gap-3 px-4 py-3 transition-colors"
+              style="&:hover { background: var(--surface-2) }"
+              role="button"
+              tabindex="0"
+              :aria-expanded="expandedPackageId === pkg.id"
+              :aria-label="resolveCustomerName(pkg.customerId)"
               @click="toggleExpand(pkg.id)"
+              @keydown.enter.prevent="toggleExpand(pkg.id)"
+              @keydown.space.prevent="toggleExpand(pkg.id)"
             >
               <div class="flex items-center gap-3">
                 <div
@@ -122,52 +129,55 @@
                   :style="{ backgroundColor: avatarColor(pkg.customerId) }"
                 >{{ resolveCustomerName(pkg.customerId).charAt(0).toUpperCase() }}</div>
                 <div>
-                  <p class="font-semibold text-slate-800">{{ resolveCustomerName(pkg.customerId) }}</p>
-                  <p class="text-xs text-slate-500">{{ resolveCustomerPhone(pkg.customerId) }}</p>
+                  <p class="font-semibold" style="color: var(--ink-2)">{{ resolveCustomerName(pkg.customerId) }}</p>
+                  <p class="text-xs" style="color: var(--ink-3)">{{ resolveCustomerPhone(pkg.customerId) }}</p>
                 </div>
               </div>
 
               <div class="flex items-center gap-4">
                 <!-- Progress bar -->
                 <div class="flex items-center gap-2">
-                  <div class="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200">
+                  <div class="h-1.5 w-20 overflow-hidden rounded-full" style="background: var(--surface-2)">
                     <div
                       class="h-full rounded-full transition-all"
-                      :class="pkg.expired ? 'bg-slate-400' : pkg.lowOnSessions ? 'bg-amber-400' : 'bg-emerald-500'"
-                      :style="{ width: sessionsPercent(pkg) + '%' }"
+                      :style="{ 
+                        width: sessionsPercent(pkg) + '%',
+                        background: pkg.expired ? 'var(--ink-4)' : pkg.lowOnSessions ? 'var(--warning)' : 'var(--success)'
+                      }"
                     />
                   </div>
-                  <span class="whitespace-nowrap text-sm font-semibold tabular-nums text-slate-700">
+                  <span class="whitespace-nowrap text-sm font-semibold tabular-nums" style="color: var(--ink-2)">
                     {{ pkg.remainingSessions }}/{{ pkg.totalSessions }}
                   </span>
                 </div>
                 <!-- Status badge -->
                 <span
-                  class="rounded-full px-2 py-0.5 text-xs font-medium"
-                  :class="pkg.expired ? 'bg-slate-100 text-slate-500' : pkg.lowOnSessions ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'"
-                >{{ pkg.expired ? 'Süresi doldu' : pkg.lowOnSessions ? 'Az kaldı' : 'Aktif' }}</span>
+                  class="pill"
+                  :class="pkg.expired ? 'pill--expired' : pkg.lowOnSessions ? 'pill--low' : 'pill--active'"
+                >{{ pkg.expired ? t('packageDetailView.status.expired') : pkg.lowOnSessions ? t('packageDetailView.status.low') : t('packageDetailView.status.active') }}</span>
                 <!-- Bitiş -->
-                <span class="hidden text-xs text-slate-400 sm:block">{{ packageExpiryLine(pkg.expiresAt) }}</span>
+                <span class="hidden text-xs sm:block" style="color: var(--ink-4)">{{ packageExpiryLine(pkg.expiresAt) }}</span>
                 <!-- Expand icon -->
                 <ChevronDown
-                  class="size-4 text-slate-400 transition-transform"
+                  class="size-4 transition-transform"
+                  style="color: var(--ink-4)"
                   :class="expandedPackageId === pkg.id ? 'rotate-180' : ''"
                 />
               </div>
             </div>
 
             <!-- Seans detay paneli -->
-            <div v-if="expandedPackageId === pkg.id" class="border-t border-slate-100 bg-slate-50 px-4 py-3">
-              <div v-if="sessionsLoading[pkg.id]" class="flex items-center gap-2 py-2 text-xs text-slate-400">
-                <div class="size-3 animate-spin rounded-full border border-slate-300 border-t-indigo-400" />
-                Seanslar yükleniyor…
+            <div v-if="expandedPackageId === pkg.id" class="px-4 py-3" style="border-top: 1px solid var(--hairline); background: var(--surface-2)">
+              <div v-if="sessionsLoading[pkg.id]" class="flex items-center gap-2 py-2 text-xs" style="color: var(--ink-4)">
+                <div class="size-3 animate-spin rounded-full" style="border: 1px solid var(--hairline); border-top-color: var(--primary)" />
+                {{ t('packageDetailView.sessions.loading') }}
               </div>
-              <div v-else-if="!sessionsByPkg[pkg.id]?.length" class="py-2 text-xs text-slate-400">
-                Seans kaydı yok.
+              <div v-else-if="!sessionsByPkg[pkg.id]?.length" class="py-2 text-xs" style="color: var(--ink-4)">
+                {{ t('packageDetailView.sessions.empty') }}
               </div>
               <template v-else>
                 <div class="mb-2 flex items-center justify-between">
-                  <p class="text-xs font-semibold text-slate-500">Seanslar</p>
+                  <p class="text-xs font-semibold" style="color: var(--ink-3)">{{ t('packageDetailView.sessions.title') }}</p>
                   <AppButton
                     v-if="!pkg.expired && pkg.remainingSessions > 0"
                     variant="primary"
@@ -175,32 +185,30 @@
                     @click.stop="openAppointmentWizard(pkg)"
                   >
                     <CalendarPlus class="size-3.5" />
-                    Randevu oluştur
+                    {{ t('packageDetailView.sessions.createAppointment') }}
                   </AppButton>
                 </div>
-                <ul class="divide-y divide-slate-100">
+                <ul style="border-top: 1px solid var(--hairline)">
                   <li
                     v-for="s in sessionsByPkg[pkg.id]"
                     :key="s.id"
                     class="flex flex-wrap items-center gap-3 py-2 text-xs"
+                    style="border-bottom: 1px solid var(--hairline)"
                   >
-                    <span class="w-6 font-semibold tabular-nums text-slate-500">#{{ s.sessionNumber }}</span>
+                    <span class="w-6 font-semibold tabular-nums" style="color: var(--ink-3)">#{{ s.sessionNumber }}</span>
                     <span
                       class="rounded-full px-2 py-0.5 font-medium"
-                      :class="{
-                        'bg-slate-100 text-slate-500': s.status === 'PENDING',
-                        'bg-indigo-100 text-indigo-700': s.status === 'SCHEDULED',
-                        'bg-emerald-100 text-emerald-700': s.status === 'COMPLETED',
-                        'bg-red-100 text-red-600': s.status === 'NO_SHOW',
-                        'bg-slate-100 text-slate-400': s.status === 'CANCELLED',
+                      :style="{
+                        background: s.status === 'PENDING' ? 'var(--surface-2)' : s.status === 'SCHEDULED' ? 'var(--primary-tint)' : s.status === 'COMPLETED' ? 'var(--success-tint)' : s.status === 'NO_SHOW' ? 'var(--danger-tint)' : 'var(--surface-2)',
+                        color: s.status === 'PENDING' ? 'var(--ink-3)' : s.status === 'SCHEDULED' ? 'var(--primary)' : s.status === 'COMPLETED' ? 'var(--success)' : s.status === 'NO_SHOW' ? 'var(--danger)' : 'var(--ink-4)'
                       }"
                     >{{ sessionStatusLabel(s.status) }}</span>
-                    <span v-if="s.scheduledAt" class="text-slate-500">{{ formatDateTime(s.scheduledAt) }}</span>
-                    <span v-else class="text-slate-400">—</span>
+                    <span v-if="s.scheduledAt" style="color: var(--ink-3)">{{ formatDateTime(s.scheduledAt) }}</span>
+                    <span v-else style="color: var(--ink-4)">—</span>
                     <span v-if="s.status === 'PENDING'" class="ml-auto">
                       <AppButton size="sm" variant="primary" @click.stop="openAppointmentWizardForSession(pkg, s)">
                         <CalendarPlus class="size-3" />
-                        Randevu ata
+                        {{ t('packageDetailView.sessions.assignAppointment') }}
                       </AppButton>
                     </span>
                   </li>
@@ -215,7 +223,7 @@
     <!-- ── Randevu Oluşturma Modal (Wizard) ── -->
     <AppModal
       v-model:visible="showAppointmentModal"
-      title="Randevu Oluştur"
+      :title="t('packageDetailView.modal.appointment.title')"
       :dialog-style="{ width: 'min(38rem, 95vw)' }"
     >
       <!-- Step bar -->
@@ -224,42 +232,46 @@
           <div class="flex flex-col items-center gap-1">
             <div
               class="flex size-7 items-center justify-center rounded-full text-xs font-bold transition"
-              :class="apptStep > i + 1
-                ? 'bg-indigo-600 text-white'
+              :style="apptStep > i + 1
+                ? 'background: var(--primary); color: white'
                 : apptStep === i + 1
-                  ? 'bg-indigo-600 text-white ring-2 ring-indigo-200'
-                  : 'bg-slate-100 text-slate-400'"
+                  ? 'background: var(--primary); color: white; box-shadow: 0 0 0 2px var(--primary-tint)'
+                  : 'background: var(--surface-2); color: var(--ink-4)'"
             >
               <Check v-if="apptStep > i + 1" class="size-3.5" />
               <span v-else>{{ i + 1 }}</span>
             </div>
-            <span class="hidden text-[0.65rem] font-medium sm:block" :class="apptStep === i + 1 ? 'text-indigo-600' : 'text-slate-400'">{{ lbl }}</span>
+            <span class="hidden text-[0.65rem] font-medium sm:block" :style="apptStep === i + 1 ? 'color: var(--primary)' : 'color: var(--ink-4)'">{{ lbl }}</span>
           </div>
-          <div v-if="i < WIZARD_LABELS.length - 1" class="mb-4 h-px flex-1 transition" :class="apptStep > i + 1 ? 'bg-indigo-400' : 'bg-slate-200'" />
+          <div v-if="i < WIZARD_LABELS.length - 1" class="mb-4 h-px flex-1 transition" :style="apptStep > i + 1 ? 'background: var(--primary)' : 'background: var(--hairline)'" />
         </template>
       </div>
 
       <!-- Adım 1: Çalışan & Saat -->
       <div v-if="apptStep === 1" class="space-y-4">
         <!-- Seçilen müşteri & seans bilgisi -->
-        <div v-if="apptTargetPkg" class="rounded-xl bg-indigo-50 px-4 py-3 text-sm">
-          <p class="font-semibold text-indigo-800">{{ resolveCustomerName(apptTargetPkg.customerId) }}</p>
-          <p class="text-xs text-indigo-500 mt-0.5">{{ apptTargetPkg.name }}</p>
-          <p v-if="apptTargetSession" class="mt-1 text-xs text-indigo-600 font-medium">Seans #{{ apptTargetSession.sessionNumber }}</p>
+        <div v-if="apptTargetPkg" class="rounded-xl px-4 py-3 text-sm" style="background: var(--primary-tint)">
+          <p class="font-semibold" style="color: var(--primary)">{{ resolveCustomerName(apptTargetPkg.customerId) }}</p>
+          <p class="text-xs mt-0.5" style="color: var(--primary)">{{ apptTargetPkg.name }}</p>
+          <p v-if="apptTargetSession" class="mt-1 text-xs font-medium" style="color: var(--primary)">{{ t('packageDetailView.wizard.summary.sessionNumber', { n: apptTargetSession.sessionNumber }) }}</p>
         </div>
 
         <div class="space-y-1">
-          <label for="appt-employee" class="block text-sm font-medium text-slate-700">Çalışan <span class="text-red-500">*</span></label>
-          <div v-if="empLoading" class="flex gap-2"><div v-for="i in 2" :key="i" class="h-10 w-32 animate-pulse rounded-lg bg-slate-100" /></div>
+          <label for="appt-employee" class="block text-sm font-medium" style="color: var(--ink-2)">
+            {{ t('packageDetailView.wizard.employeeSelect.label') }} <span style="color: var(--danger)">{{ t('packageDetailView.wizard.employeeSelect.required') }}</span>
+          </label>
+          <div v-if="empLoading" class="flex gap-2">
+            <div v-for="i in 2" :key="i" class="h-10 w-32 animate-pulse rounded-lg" style="background: var(--surface-2)" />
+          </div>
           <div id="appt-employee" v-else class="grid gap-2 sm:grid-cols-2">
             <button
               v-for="emp in employees"
               :key="emp.id"
               type="button"
-              class="flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm transition"
-              :class="apptForm.employeeId === emp.id
-                ? 'border-indigo-400 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-300'
-                : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
+              class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm transition"
+              :style="apptForm.employeeId === emp.id
+                ? 'border: 1px solid var(--primary); background: var(--primary-tint); color: var(--primary); box-shadow: 0 0 0 1px var(--primary)'
+                : 'border: 1px solid var(--hairline); &:hover { border-color: var(--ink-4); background: var(--surface-2) }'"
               @click="selectEmpForAppt(emp.id)"
             >
               <div
@@ -268,27 +280,31 @@
               >{{ emp.name.charAt(0) }}</div>
               <div>
                 <p class="font-medium">{{ emp.name }}</p>
-                <p v-if="emp.title" class="text-xs text-slate-400">{{ emp.title }}</p>
+                <p v-if="emp.title" class="text-xs" style="color: var(--ink-4)">{{ emp.title }}</p>
               </div>
             </button>
           </div>
-          <span v-if="apptErrors.employeeId" class="text-xs text-red-600">{{ apptErrors.employeeId }}</span>
+          <span v-if="apptErrors.employeeId" class="text-xs" style="color: var(--danger)">{{ apptErrors.employeeId }}</span>
         </div>
       </div>
 
       <!-- Adım 2: Tarih -->
       <div v-else-if="apptStep === 2" class="space-y-4">
-        <div v-if="datesLoading" class="flex justify-center py-8"><div class="size-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" /></div>
-        <div v-else-if="availableDates.length === 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">Uygun tarih bulunamadı.</div>
+        <div v-if="datesLoading" class="flex justify-center py-8">
+          <div class="size-8 animate-spin rounded-full" style="border: 2px solid var(--primary); border-top-color: transparent" />
+        </div>
+        <div v-else-if="availableDates.length === 0" class="rounded-xl p-4 text-center text-sm" style="border: 1px solid var(--warning); background: var(--warning-tint); color: var(--warning)">
+          {{ t('packageDetailView.wizard.dateSelect.empty') }}
+        </div>
         <template v-else>
-          <div class="rounded-xl border border-slate-200 bg-white p-3">
+          <div class="rounded-xl p-3" style="border: 1px solid var(--hairline); background: var(--surface)">
             <div class="mb-3 flex items-center justify-between">
-              <button type="button" class="flex size-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-30" :disabled="calMonthIdx === 0" @click="calMonthIdx--"><ChevronLeft class="size-4" /></button>
+              <button type="button" class="flex size-8 items-center justify-center rounded-lg transition" style="color: var(--ink-3); &:hover { background: var(--surface-2) }" :disabled="calMonthIdx === 0" @click="calMonthIdx--"><ChevronLeft class="size-4" /></button>
               <span class="text-sm font-semibold capitalize">{{ currentMonthLabel }}</span>
-              <button type="button" class="flex size-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-30" :disabled="calMonthIdx >= availableMonths.length - 1" @click="calMonthIdx++"><ChevronRight class="size-4" /></button>
+              <button type="button" class="flex size-8 items-center justify-center rounded-lg transition" style="color: var(--ink-3); &:hover { background: var(--surface-2) }" :disabled="calMonthIdx >= availableMonths.length - 1" @click="calMonthIdx++"><ChevronRight class="size-4" /></button>
             </div>
-            <div class="mb-1 grid grid-cols-7 text-center text-[0.65rem] font-semibold uppercase tracking-wide text-slate-400">
-              <span v-for="d in ['Pt','Sa','Ça','Pe','Cu','Ct','Pz']" :key="d">{{ d }}</span>
+            <div class="mb-1 grid grid-cols-7 text-center text-[0.65rem] font-semibold uppercase tracking-wide" style="color: var(--ink-4)">
+              <span v-for="d in dayAbbreviations" :key="d">{{ d }}</span>
             </div>
             <div class="grid grid-cols-7 gap-1">
               <template v-for="cell in calCells" :key="cell.iso ?? cell.index">
@@ -297,105 +313,133 @@
                   v-else
                   type="button"
                   class="flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-sm font-medium transition"
-                  :class="cell.available ? apptForm.date === cell.iso ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-800 hover:bg-indigo-50 hover:text-indigo-700' : 'cursor-not-allowed opacity-35'"
+                  :style="cell.available 
+                    ? apptForm.date === cell.iso 
+                      ? 'background: var(--primary); color: white; box-shadow: var(--shadow-1)' 
+                      : 'color: var(--ink-2); &:hover { background: var(--primary-tint); color: var(--primary) }' 
+                    : 'cursor: not-allowed; opacity: 0.35'"
                   :disabled="!cell.available"
                   @click="apptForm.date = cell.iso"
                 >
                   <span>{{ cell.day }}</span>
-                  <span class="size-1 rounded-full" :class="cell.available ? apptForm.date === cell.iso ? 'bg-white/70' : 'bg-indigo-400' : 'bg-transparent'" />
+                  <span class="size-1 rounded-full" :style="cell.available ? (apptForm.date === cell.iso ? 'background: rgba(255,255,255,0.7)' : 'background: var(--primary)') : 'background: transparent'" />
                 </button>
               </template>
             </div>
           </div>
-          <span v-if="apptErrors.date" class="text-xs text-red-600">{{ apptErrors.date }}</span>
+          <span v-if="apptErrors.date" class="text-xs" style="color: var(--danger)">{{ apptErrors.date }}</span>
         </template>
       </div>
 
       <!-- Adım 3: Saat -->
       <div v-else-if="apptStep === 3" class="space-y-4">
-        <div v-if="slotsLoading" class="flex justify-center py-8"><div class="size-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" /></div>
-        <div v-else-if="availableSlots.length === 0" class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">Bu tarihte uygun saat yok.</div>
+        <div v-if="slotsLoading" class="flex justify-center py-8">
+          <div class="size-8 animate-spin rounded-full" style="border: 2px solid var(--primary); border-top-color: transparent" />
+        </div>
+        <div v-else-if="availableSlots.length === 0" class="rounded-xl p-4 text-center text-sm" style="border: 1px solid var(--warning); background: var(--warning-tint); color: var(--warning)">
+          {{ t('packageDetailView.wizard.timeSelect.empty') }}
+        </div>
         <template v-else>
           <div v-for="group in slotGroups" :key="group.label" class="space-y-2">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ group.label }}</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--ink-4)">{{ group.label }}</h3>
             <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
               <button
                 v-for="slot in group.slots"
                 :key="slot.startTime"
                 type="button"
-                class="flex flex-col items-center rounded-xl border px-2 py-2.5 text-center transition"
-                :class="apptForm.time === slot.startTime ? 'border-indigo-400 bg-indigo-600 text-white shadow-sm' : 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700'"
+                class="flex flex-col items-center rounded-xl px-2 py-2.5 text-center transition"
+                :style="apptForm.time === slot.startTime 
+                  ? 'border: 1px solid var(--primary); background: var(--primary); color: white; box-shadow: var(--shadow-1)' 
+                  : 'border: 1px solid var(--hairline); color: var(--ink-2); &:hover { border-color: var(--primary); background: var(--primary-tint) }'"
                 @click="apptForm.time = slot.startTime"
               >
                 <span class="text-sm font-semibold tabular-nums">{{ slot.startTime.slice(11, 16) }}</span>
-                <span class="mt-0.5 text-[0.65rem] tabular-nums" :class="apptForm.time === slot.startTime ? 'text-indigo-200' : 'text-slate-400'">→ {{ slot.endTime.slice(11, 16) }}</span>
+                <span class="mt-0.5 text-[0.65rem] tabular-nums" :style="apptForm.time === slot.startTime ? 'color: rgba(255,255,255,0.7)' : 'color: var(--ink-4)'">→ {{ slot.endTime.slice(11, 16) }}</span>
               </button>
             </div>
           </div>
-          <span v-if="apptErrors.time" class="text-xs text-red-600">{{ apptErrors.time }}</span>
+          <span v-if="apptErrors.time" class="text-xs" style="color: var(--danger)">{{ apptErrors.time }}</span>
         </template>
       </div>
 
       <!-- Adım 4: Özet & Onay -->
       <div v-else-if="apptStep === 4" class="space-y-4">
-        <div class="rounded-xl border border-indigo-100 bg-indigo-50 p-4 space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-slate-500">Müşteri</span><span class="font-semibold text-slate-800">{{ resolveCustomerName(apptTargetPkg?.customerId) }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">Çalışan</span><span class="font-semibold text-slate-800">{{ resolveEmployeeName(apptForm.employeeId) }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">Hizmet</span><span class="font-semibold text-slate-800">{{ resolveServiceName(template?.serviceId) }}</span></div>
-          <div class="flex justify-between"><span class="text-slate-500">Tarih & saat</span><span class="font-semibold text-slate-800">{{ formatApptDateTime(apptForm.date, apptForm.time) }}</span></div>
-          <div v-if="apptTargetSession" class="flex justify-between"><span class="text-slate-500">Paket seansı</span><span class="font-semibold text-indigo-600">Seans #{{ apptTargetSession.sessionNumber }}</span></div>
+        <div class="rounded-xl p-4 space-y-2 text-sm" style="border: 1px solid var(--primary-tint); background: var(--primary-tint)">
+          <div class="flex justify-between">
+            <span style="color: var(--ink-3)">{{ t('packageDetailView.wizard.summary.customer') }}</span>
+            <span class="font-semibold" style="color: var(--ink-2)">{{ resolveCustomerName(apptTargetPkg?.customerId) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span style="color: var(--ink-3)">{{ t('packageDetailView.wizard.summary.employee') }}</span>
+            <span class="font-semibold" style="color: var(--ink-2)">{{ resolveEmployeeName(apptForm.employeeId) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span style="color: var(--ink-3)">{{ t('packageDetailView.wizard.summary.service') }}</span>
+            <span class="font-semibold" style="color: var(--ink-2)">{{ resolveServiceName(template?.serviceId) }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span style="color: var(--ink-3)">{{ t('packageDetailView.wizard.summary.dateTime') }}</span>
+            <span class="font-semibold" style="color: var(--ink-2)">{{ formatApptDateTime(apptForm.date, apptForm.time) }}</span>
+          </div>
+          <div v-if="apptTargetSession" class="flex justify-between">
+            <span style="color: var(--ink-3)">{{ t('packageDetailView.wizard.summary.packageSession') }}</span>
+            <span class="font-semibold" style="color: var(--primary)">{{ t('packageDetailView.wizard.summary.sessionNumber', { n: apptTargetSession.sessionNumber }) }}</span>
+          </div>
         </div>
-        <p v-if="apptSubmitError" class="text-xs text-red-600" role="alert">{{ apptSubmitError }}</p>
+        <p v-if="apptSubmitError" class="text-xs" style="color: var(--danger)" role="alert">{{ apptSubmitError }}</p>
       </div>
 
       <template #footer>
         <AppButton variant="secondary" @click="apptStep === 1 ? showAppointmentModal = false : apptStep--">
-          {{ apptStep === 1 ? 'Vazgeç' : '← Geri' }}
+          {{ apptStep === 1 ? t('packageDetailView.wizard.action.cancel') : t('packageDetailView.wizard.action.back') }}
         </AppButton>
         <AppButton v-if="apptStep < 4" variant="primary" :disabled="datesLoading || slotsLoading" @click="apptWizardNext">
-          Devam →
+          {{ t('packageDetailView.wizard.action.next') }}
         </AppButton>
         <AppButton v-else variant="primary" :loading="apptSaving" @click="submitAppointment">
-          Randevu oluştur
+          {{ t('packageDetailView.wizard.action.submit') }}
         </AppButton>
       </template>
     </AppModal>
 
     <!-- ── Müşteriye paket atama modal ── -->
-    <AppModal v-model:visible="showAssignModal" title="Müşteriye paket ata" :dialog-style="{ width: 'min(30rem, 95vw)' }">
+    <AppModal v-model:visible="showAssignModal" :title="t('packageDetailView.modal.assign.title')" :dialog-style="{ width: 'min(30rem, 95vw)' }">
       <div class="space-y-4">
         <div class="space-y-1">
-          <label for="assign-customer-search" class="block text-sm font-medium text-slate-700">Müşteri <span class="text-red-500">*</span></label>
+          <label for="assign-customer-search" class="block text-sm font-medium" style="color: var(--ink-2)">
+            {{ t('packageDetailView.modal.assign.customerLabel') }} <span style="color: var(--danger)">{{ t('packageDetailView.modal.assign.customerRequired') }}</span>
+          </label>
           <input
             id="assign-customer-search"
             v-model="assignSearch"
             type="search"
-            placeholder="İsim veya telefon ara…"
-            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            :placeholder="t('packageDetailView.modal.assign.customerPlaceholder')"
+            class="w-full rounded-lg px-3 py-2 text-sm"
+            style="border: 1px solid var(--hairline); &:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 1px var(--primary) }"
           />
-          <ul class="mt-1 max-h-48 overflow-y-auto divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
-            <li v-if="filteredAssignCustomers.length === 0" class="px-3 py-2 text-center text-xs text-slate-400">Müşteri bulunamadı</li>
+          <ul class="mt-1 max-h-48 overflow-y-auto rounded-lg" style="border: 1px solid var(--hairline); background: var(--surface)">
+            <li v-if="filteredAssignCustomers.length === 0" class="px-3 py-2 text-center text-xs" style="color: var(--ink-4)">{{ t('packageDetailView.modal.assign.empty') }}</li>
             <li
               v-for="c in filteredAssignCustomers"
               :key="c.id"
-              class="flex cursor-pointer items-center gap-2.5 px-3 py-2 hover:bg-slate-50 transition"
-              :class="assignCustomerId === c.id ? 'bg-indigo-50' : ''"
+              class="flex cursor-pointer items-center gap-2.5 px-3 py-2 transition"
+              :style="assignCustomerId === c.id ? 'background: var(--primary-tint)' : '&:hover { background: var(--surface-2) }'"
               @click="assignCustomerId = c.id"
             >
               <div class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white" :style="{ backgroundColor: avatarColor(c.id) }">{{ c.name.charAt(0) }}</div>
               <div>
-                <p class="text-sm font-medium text-slate-800">{{ c.name }}</p>
-                <p class="text-xs text-slate-400">{{ c.phoneNumber }}</p>
+                <p class="text-sm font-medium" style="color: var(--ink-2)">{{ c.name }}</p>
+                <p class="text-xs" style="color: var(--ink-4)">{{ c.phoneNumber }}</p>
               </div>
-              <div v-if="assignCustomerId === c.id" class="ml-auto size-4 rounded-full bg-indigo-500" />
+              <div v-if="assignCustomerId === c.id" class="ml-auto size-4 rounded-full" style="background: var(--primary)" />
             </li>
           </ul>
         </div>
-        <p v-if="assignError" class="text-xs text-red-600" role="alert">{{ assignError }}</p>
+        <p v-if="assignError" class="text-xs" style="color: var(--danger)" role="alert">{{ assignError }}</p>
       </div>
       <template #footer>
-        <AppButton variant="secondary" @click="showAssignModal = false">İptal</AppButton>
-        <AppButton variant="primary" :loading="assignSaving" :disabled="!assignCustomerId" @click="doAssignPackage">Paketi ata</AppButton>
+        <AppButton variant="secondary" @click="showAssignModal = false">{{ t('packageDetailView.modal.assign.cancel') }}</AppButton>
+        <AppButton variant="primary" :loading="assignSaving" :disabled="!assignCustomerId" @click="doAssignPackage">{{ t('packageDetailView.modal.assign.submit') }}</AppButton>
       </template>
     </AppModal>
   </div>
@@ -404,6 +448,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
   ChevronLeft, ChevronDown, ChevronRight, Scissors, Hash, Tag, Plus,
@@ -425,8 +470,19 @@ import { businessApi } from '@/api/business'
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 const businessId = computed(() => auth.user?.businessId ?? null)
 const templateId = computed(() => Number(route.params.id))
+
+const dayAbbreviations = computed(() => [
+  t('packageDetailView.wizard.dateSelect.days.mon'),
+  t('packageDetailView.wizard.dateSelect.days.tue'),
+  t('packageDetailView.wizard.dateSelect.days.wed'),
+  t('packageDetailView.wizard.dateSelect.days.thu'),
+  t('packageDetailView.wizard.dateSelect.days.fri'),
+  t('packageDetailView.wizard.dateSelect.days.sat'),
+  t('packageDetailView.wizard.dateSelect.days.sun'),
+])
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const template = ref<PackageTemplateResponse | null>(null)
@@ -445,12 +501,12 @@ const sessionsLoading = ref<Record<number, boolean>>({})
 
 // ── Filter ────────────────────────────────────────────────────────────────────
 type OwnerFilter = 'all' | 'active' | 'low' | 'expired'
-const OWNER_FILTERS: { value: OwnerFilter; label: string }[] = [
-  { value: 'all', label: 'Tümü' },
-  { value: 'active', label: 'Aktif' },
-  { value: 'low', label: 'Az kalan' },
-  { value: 'expired', label: 'Süresi dolan' },
-]
+const OWNER_FILTERS = computed<{ value: OwnerFilter; label: string }[]>(() => [
+  { value: 'all', label: t('packageDetailView.filter.all') },
+  { value: 'active', label: t('packageDetailView.filter.active') },
+  { value: 'low', label: t('packageDetailView.filter.low') },
+  { value: 'expired', label: t('packageDetailView.filter.expired') },
+])
 const ownerFilter = ref<OwnerFilter>('all')
 
 const activeOwners = computed(() => packageOwners.value.filter(p => !p.expired && p.remainingSessions > 0))
@@ -483,18 +539,18 @@ const employeeMap = computed(() => {
 
 const AVATAR_COLORS = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#06b6d4']
 function avatarColor(id: number) { return AVATAR_COLORS[id % AVATAR_COLORS.length] }
-function resolveCustomerName(id?: number): string { return id == null ? '—' : (customerMap.value.get(id)?.name ?? `Müşteri #${id}`) }
+function resolveCustomerName(id?: number): string { return id == null ? '—' : (customerMap.value.get(id)?.name ?? t('common.customerFallback', { id })) }
 function resolveCustomerPhone(id: number): string { return customerMap.value.get(id)?.phoneNumber ?? '' }
-function resolveServiceName(id?: number): string { return id == null ? '—' : (serviceMap.value.get(id) ?? `Hizmet #${id}`) }
-function resolveEmployeeName(id?: number | ''): string { return id == null || id === '' ? '—' : (employeeMap.value.get(id as number) ?? `Çalışan #${id}`) }
+function resolveServiceName(id?: number): string { return id == null ? '—' : (serviceMap.value.get(id) ?? t('common.serviceFallback', { id })) }
+function resolveEmployeeName(id?: number | ''): string { return id == null || id === '' ? '—' : (employeeMap.value.get(id as number) ?? t('common.employeeFallback', { id })) }
 
 function sessionsPercent(p: PackageResponse): number {
   return p.totalSessions === 0 ? 0 : Math.round((p.remainingSessions / p.totalSessions) * 100)
 }
 function packageExpiryLine(iso: string | null | undefined): string {
-  if (!iso?.trim()) return 'Süresiz'
+  if (!iso?.trim()) return t('packageDetailView.expiry.unlimited')
   const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? 'Süresiz' : `${new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(d)}'e kadar`
+  return Number.isNaN(d.getTime()) ? t('packageDetailView.expiry.unlimited') : t('packageDetailView.expiry.until', { date: new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short' }).format(d) })
 }
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price)
@@ -504,7 +560,7 @@ function formatDateTime(iso: string | null): string {
   return new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(iso))
 }
 function sessionStatusLabel(s: string): string {
-  return { PENDING: 'Bekliyor', SCHEDULED: 'Planlandı', COMPLETED: 'Tamamlandı', NO_SHOW: 'Gelmedi', CANCELLED: 'İptal' }[s] ?? s
+  return t(`packageDetailView.sessionStatus.${s}` as any, s)
 }
 
 // ── Expand / sessions ─────────────────────────────────────────────────────────
@@ -555,14 +611,19 @@ async function doAssignPackage() {
     await loadOwners()
   } catch (e: unknown) {
     const err = e as { response?: { data?: { error?: { message?: string } } } }
-    assignError.value = err.response?.data?.error?.message ?? 'Atama başarısız.'
+    assignError.value = err.response?.data?.error?.message ?? t('packageDetailView.modal.assign.error')
   } finally {
     assignSaving.value = false
   }
 }
 
 // ── Appointment wizard ────────────────────────────────────────────────────────
-const WIZARD_LABELS = ['Çalışan', 'Tarih', 'Saat', 'Özet']
+const WIZARD_LABELS = computed(() => [
+  t('packageDetailView.wizard.step.employee'),
+  t('packageDetailView.wizard.step.date'),
+  t('packageDetailView.wizard.step.time'),
+  t('packageDetailView.wizard.step.summary'),
+])
 
 const showAppointmentModal = ref(false)
 const apptStep = ref(1)
@@ -621,7 +682,11 @@ const slotGroups = computed(() => {
     const h = Number(s.startTime.slice(11, 13))
     if (h < 12) m.push(s); else if (h < 17) a.push(s); else e.push(s)
   }
-  return [{ label: 'Sabah', slots: m }, { label: 'Öğleden Sonra', slots: a }, { label: 'Akşam', slots: e }].filter(g => g.slots.length > 0)
+  return [
+    { label: t('packageDetailView.wizard.timeSelect.morning'), slots: m },
+    { label: t('packageDetailView.wizard.timeSelect.afternoon'), slots: a },
+    { label: t('packageDetailView.wizard.timeSelect.evening'), slots: e }
+  ].filter(g => g.slots.length > 0)
 })
 
 function formatApptDateTime(date: string, time: string): string {
@@ -684,15 +749,15 @@ async function loadSlots() {
 async function apptWizardNext() {
   apptErrors.value = {}
   if (apptStep.value === 1) {
-    if (apptForm.value.employeeId === '') { apptErrors.value.employeeId = 'Çalışan seçin'; return }
+    if (apptForm.value.employeeId === '') { apptErrors.value.employeeId = t('packageDetailView.wizard.employeeSelect.error'); return }
     await loadDates()
     apptStep.value = 2
   } else if (apptStep.value === 2) {
-    if (!apptForm.value.date) { apptErrors.value.date = 'Tarih seçin'; return }
+    if (!apptForm.value.date) { apptErrors.value.date = t('packageDetailView.wizard.dateSelect.error'); return }
     await loadSlots()
     apptStep.value = 3
   } else if (apptStep.value === 3) {
-    if (!apptForm.value.time) { apptErrors.value.time = 'Saat seçin'; return }
+    if (!apptForm.value.time) { apptErrors.value.time = t('packageDetailView.wizard.timeSelect.error'); return }
     apptStep.value = 4
   }
 }
@@ -789,7 +854,7 @@ async function load() {
     )
     empLoading.value = false
   } catch {
-    pageError.value = 'Veriler yüklenemedi.'
+    pageError.value = t('packageDetailView.error.load')
   } finally {
     loading.value = false
   }
@@ -797,3 +862,53 @@ async function load() {
 
 onMounted(() => { if (businessId.value) load() })
 </script>
+
+<style scoped>
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.back-btn:hover {
+  background: var(--surface-2);
+}
+
+.card {
+  border-radius: var(--r-xl);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-1);
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 600;
+}
+.pill--active {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.pill--passive {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+.pill--low {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+.pill--expired {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+</style>

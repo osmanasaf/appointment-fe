@@ -1,445 +1,319 @@
 <template>
-  <div class="flex min-h-screen">
-    <!-- Left: Brand Panel -->
-    <div
-      class="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-800 p-12 text-white lg:flex lg:w-[46%]"
-    >
-      <div class="absolute inset-0 pointer-events-none">
-        <div class="absolute -left-24 -top-24 size-[28rem] rounded-full bg-white/5 blur-3xl" />
-        <div class="absolute -bottom-24 -right-24 size-[28rem] rounded-full bg-cyan-400/10 blur-3xl" />
-      </div>
+  <AuthSplitLayout>
+    <template #hero-subtitle>
+      {{ t('auth.register.subtitle') }}
+    </template>
 
-      <div class="relative z-10 flex items-center gap-3">
-        <div class="flex size-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
-          <CalendarDays class="size-5" />
+    <template #hero-features>
+      <li v-for="item in REGISTER_STEPS_INFO" :key="item.num" class="hero-step">
+        <span class="step-num">{{ item.num }}</span>
+        <span class="step-text">{{ item.label }}</span>
+      </li>
+    </template>
+
+    <template #hero-footer-title>
+      {{ BRAND_STATS_TEXT.title }}
+    </template>
+
+    <template #hero-footer-subtitle>
+      {{ BRAND_STATS_TEXT.subtitle }}
+    </template>
+
+    <div class="register-form-header">
+      <h1 class="display-md">{{ t('auth.register.title') }}</h1>
+      <p class="body">{{ t('auth.register.subtitle') }}</p>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <div
+        class="step-item"
+        :class="{ 'step-item--active': step === 1, 'step-item--done': step === 2 }"
+        :aria-current="step === 1 ? 'step' : undefined"
+      >
+        <div class="step-circle">
+          <Check v-if="step === 2" class="size-4" />
+          <span v-else>1</span>
         </div>
-        <span class="text-xl font-bold tracking-tight">{{ t('admin.brand') }}</span>
+        <span class="step-label">{{ t('auth.register.steps.account') }}</span>
       </div>
 
-      <div class="relative z-10">
-        <h2 class="mb-4 text-4xl font-bold leading-tight tracking-tight">
-          Randevunu ayarla,<br />işine odaklan
-        </h2>
-        <p class="mb-10 text-base leading-relaxed text-teal-100">
-          İki adımda hesabınızı oluşturun, hemen randevu almaya başlayın.
-        </p>
-        <ul class="space-y-3.5">
-          <li v-for="item in REGISTER_STEPS_INFO" :key="item.label" class="flex items-center gap-3">
-            <span
-              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold"
-            >
-              {{ item.num }}
-            </span>
-            <span class="text-sm text-teal-100">{{ item.label }}</span>
-          </li>
-        </ul>
-      </div>
+      <div class="step-line" :class="{ 'step-line--active': step === 2 }" />
 
-      <div class="relative z-10 grid grid-cols-2 gap-3">
-        <div
-          v-for="stat in BRAND_STATS"
-          :key="stat.label"
-          class="rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
-        >
-          <p class="text-2xl font-bold">{{ stat.value }}</p>
-          <p class="mt-0.5 text-xs text-teal-200">{{ stat.label }}</p>
-        </div>
+      <div
+        class="step-item"
+        :class="{ 'step-item--active': step === 2 }"
+        :aria-current="step === 2 ? 'step' : undefined"
+      >
+        <div class="step-circle">2</div>
+        <span class="step-label">{{ t('auth.register.steps.business') }}</span>
       </div>
     </div>
 
-    <!-- Right: Form Panel -->
-    <div class="flex flex-1 flex-col items-center justify-center bg-white px-6 py-16 sm:px-10">
-      <!-- Mobile logo -->
-      <div class="mb-10 flex items-center gap-2.5 lg:hidden">
-        <div class="flex size-9 items-center justify-center rounded-xl bg-teal-600">
-          <CalendarDays class="size-4 text-white" />
-        </div>
-        <span class="text-lg font-bold text-slate-900">{{ t('admin.brand') }}</span>
-      </div>
-
-      <div class="w-full max-w-[22rem]">
-        <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900">
-            {{ t('auth.registerTitle') }}
-          </h1>
-          <p class="mt-1.5 text-sm text-slate-500">{{ t('auth.registerSubtitle') }}</p>
-        </div>
-
-        <!-- Step indicator -->
-        <div class="mb-8 flex items-center gap-0">
-          <div class="flex flex-col items-center">
-            <div
-              class="flex size-8 items-center justify-center rounded-full text-sm font-bold transition-all"
-              :class="
-                step === 1
-                  ? 'bg-teal-600 text-white shadow-sm shadow-teal-300'
-                  : 'bg-teal-600 text-white'
-              "
-            >
-              <Check v-if="step === 2" class="size-4" />
-              <span v-else>1</span>
-            </div>
-            <span class="mt-1.5 text-xs font-medium" :class="step === 1 ? 'text-teal-600' : 'text-slate-400'">
-              {{ t('auth.stepAccount') }}
-            </span>
+    <form class="auth-form" novalidate @submit.prevent="onFormSubmit">
+      <!-- Step 1 -->
+      <template v-if="step === 1">
+        <div class="form-field">
+          <label :for="`reg-email-${uid}`" class="field-label">{{ t('auth.register.emailLabel') }}</label>
+          <div class="field-input-wrapper">
+            <Mail class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-email-${uid}`"
+              v-model="email"
+              v-bind="emailAttrs"
+              type="email"
+              autocomplete="email"
+              placeholder="ornek@sirket.com"
+              class="field-input"
+              :class="{ 'field-input--error': !!errors.email }"
+            />
           </div>
-
-          <div
-            class="mb-4 h-px flex-1 transition-all"
-            :class="step === 2 ? 'bg-teal-600' : 'bg-slate-200'"
-          />
-
-          <div class="flex flex-col items-center">
-            <div
-              class="flex size-8 items-center justify-center rounded-full text-sm font-bold transition-all"
-              :class="
-                step === 2
-                  ? 'bg-teal-600 text-white shadow-sm shadow-teal-300'
-                  : 'border-2 border-slate-200 bg-white text-slate-400'
-              "
-            >
-              2
-            </div>
-            <span
-              class="mt-1.5 text-xs font-medium"
-              :class="step === 2 ? 'text-teal-600' : 'text-slate-400'"
-            >
-              {{ t('auth.stepBusiness') }}
-            </span>
-          </div>
+          <p v-if="errors.email" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.email }}
+          </p>
         </div>
 
-        <form class="space-y-4" novalidate @submit.prevent="onFormSubmit">
-          <!-- Step 1 -->
-          <template v-if="step === 1">
-            <div>
-              <label for="reg-email" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.email') }}
-              </label>
-              <div class="relative">
-                <Mail
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="reg-email"
-                  v-model="email"
-                  v-bind="emailAttrs"
-                  type="email"
-                  autocomplete="email"
-                  placeholder="ornek@sirket.com"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                  :class="{
-                    'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                      !!errors.email,
-                  }"
-                />
-              </div>
-              <p
-                v-if="errors.email"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ errors.email }}
-              </p>
-            </div>
-
-            <div>
-              <label for="reg-password" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.password') }}
-              </label>
-              <div class="relative">
-                <Lock
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="reg-password"
-                  v-model="password"
-                  v-bind="passwordAttrs"
-                  :type="showPassword ? 'text' : 'password'"
-                  autocomplete="new-password"
-                  placeholder="••••••••"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-10 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                  :class="{
-                    'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                      !!errors.password,
-                  }"
-                />
-                <button
-                  type="button"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-400 transition hover:text-slate-600 focus:outline-none"
-                  :aria-label="showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'"
-                  @click="showPassword = !showPassword"
-                >
-                  <EyeOff v-if="showPassword" class="size-4" />
-                  <Eye v-else class="size-4" />
-                </button>
-              </div>
-              <p
-                v-if="errors.password"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ errors.password }}
-              </p>
-
-              <!-- Password strength bar -->
-              <div v-if="password" class="mt-2.5">
-                <div class="flex gap-1">
-                  <div
-                    v-for="i in 4"
-                    :key="i"
-                    class="h-1 flex-1 rounded-full transition-all"
-                    :class="i <= passwordStrength ? passwordStrengthColor : 'bg-slate-200'"
-                  />
-                </div>
-                <p class="mt-1 text-xs" :class="passwordStrengthTextColor">
-                  {{ passwordStrengthLabel }}
-                </p>
-              </div>
-            </div>
-
+        <div class="form-field">
+          <label :for="`reg-password-${uid}`" class="field-label">{{ t('auth.register.passwordLabel') }}</label>
+          <div class="field-input-wrapper">
+            <Lock class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-password-${uid}`"
+              v-model="password"
+              v-bind="passwordAttrs"
+              :type="showPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              class="field-input"
+              :class="{ 'field-input--error': !!errors.password }"
+            />
             <button
-              type="submit"
-              class="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40 active:scale-[0.98]"
+              type="button"
+              class="field-toggle-btn"
+              :aria-label="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
+              @click="showPassword = !showPassword"
             >
-              {{ t('auth.next') }}
-              <ArrowRight class="size-4" />
+              <EyeOff v-if="showPassword" class="size-4" />
+              <Eye v-else class="size-4" />
             </button>
-          </template>
+          </div>
+          <p v-if="errors.password" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.password }}
+          </p>
 
-          <!-- Step 2 -->
-          <template v-else>
-            <div>
-              <label for="reg-name" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.name') }}
-              </label>
-              <div class="relative">
-                <User
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="reg-name"
-                  v-model="name"
-                  v-bind="nameAttrs"
-                  type="text"
-                  autocomplete="name"
-                  placeholder="Adınız Soyadınız"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                  :class="{
-                    'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                      !!errors.name,
-                  }"
-                />
-              </div>
-              <p
-                v-if="errors.name"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ errors.name }}
-              </p>
+          <div v-if="password" class="password-strength">
+            <div class="strength-bars">
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="strength-bar"
+                :class="{ 'strength-bar--active': i <= passwordStrength, [`strength-bar--${passwordStrengthLevel}`]: i <= passwordStrength }"
+              />
             </div>
+            <p class="strength-label" :class="`strength-label--${passwordStrengthLevel}`">
+              {{ passwordStrengthLabel }}
+            </p>
+          </div>
+        </div>
 
-            <div>
-              <label for="reg-phone" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.phoneOptional') }}
-              </label>
-              <div class="relative">
-                <Phone
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="reg-phone"
-                  v-model="phoneNumber"
-                  v-bind="phoneNumberAttrs"
-                  type="tel"
-                  autocomplete="tel"
-                  placeholder="+90 5xx xxx xx xx"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label for="reg-category" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.businessCategory') }}
-              </label>
-              <div class="relative">
-                <Tag
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <select
-                  id="reg-category"
-                  v-model="businessCategory"
-                  v-bind="businessCategoryAttrs"
-                  class="app-select app-select--no-chevron w-full rounded-xl border-slate-200 bg-slate-50 py-2.5 !pl-10 pr-8 text-sm text-slate-900 transition focus:border-teal-500 focus:bg-white focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                  :class="{
-                    'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                      !!errors.businessCategory,
-                  }"
-                  :disabled="categoriesLoading || (!!categoriesError && !categories.length)"
-                  :aria-busy="categoriesLoading"
-                  :aria-invalid="!!errors.businessCategory"
-                >
-                  <option value="">
-                    {{ categoriesLoading ? t('common.loading') : t('auth.businessCategoryPlaceholder') }}
-                  </option>
-                  <option v-for="c in categories" :key="c.code" :value="c.code">
-                    {{ c.label }}
-                  </option>
-                </select>
-                <ChevronDown
-                  class="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-              </div>
-              <p
-                v-if="categoriesError"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ categoriesError }}
-              </p>
-              <p
-                v-else-if="errors.businessCategory"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ errors.businessCategory }}
-              </p>
-              <button
-                v-if="categoriesError"
-                type="button"
-                class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none"
-                @click="loadCategories(true)"
-              >
-                <RotateCcw class="size-3.5" />
-                {{ t('common.retry') }}
-              </button>
-            </div>
-
-            <div>
-              <label for="reg-business" class="mb-1.5 block text-sm font-medium text-slate-700">
-                {{ t('auth.businessName') }}
-              </label>
-              <div class="relative">
-                <Building2
-                  class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  id="reg-business"
-                  v-model="businessName"
-                  v-bind="businessNameAttrs"
-                  type="text"
-                  autocomplete="organization"
-                  placeholder="İşletmenizin adı"
-                  class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 transition placeholder:text-slate-400 focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                  :class="{
-                    'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-red-500/20':
-                      !!errors.businessName,
-                  }"
-                />
-              </div>
-              <p
-                v-if="errors.businessName"
-                class="mt-1.5 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ errors.businessName }}
-              </p>
-            </div>
-
-            <!-- Submit error banner -->
-            <div
-              v-if="submitError"
-              class="flex items-start gap-2.5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
-              role="alert"
+        <div class="form-field">
+          <label :for="`reg-confirm-password-${uid}`" class="field-label">
+            {{ t('auth.register.confirmPasswordLabel') }}
+          </label>
+          <div class="field-input-wrapper">
+            <Lock class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-confirm-password-${uid}`"
+              v-model="confirmPassword"
+              v-bind="confirmPasswordAttrs"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              class="field-input"
+              :class="{ 'field-input--error': !!errors.confirmPassword }"
+            />
+            <button
+              type="button"
+              class="field-toggle-btn"
+              :aria-label="showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')"
+              @click="showConfirmPassword = !showConfirmPassword"
             >
-              <AlertCircle class="mt-0.5 size-4 shrink-0" />
-              {{ submitError }}
-            </div>
+              <EyeOff v-if="showConfirmPassword" class="size-4" />
+              <Eye v-else class="size-4" />
+            </button>
+          </div>
+          <p v-if="errors.confirmPassword" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.confirmPassword }}
+          </p>
+        </div>
 
-            <!-- Terms & Privacy Agreement -->
-            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <div class="flex items-start gap-2.5">
-                <input
-                  id="terms-agree"
-                  v-model="termsAccepted"
-                  type="checkbox"
-                  class="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-slate-300 text-teal-600 transition focus:ring-2 focus:ring-teal-500/40"
-                />
-                <label for="terms-agree" class="cursor-pointer text-sm leading-relaxed text-slate-700">
-                  <RouterLink
-                    to="/terms"
-                    target="_blank"
-                    class="font-medium text-teal-600 transition hover:text-teal-700 hover:underline"
-                  >
-                    {{ t('auth.termsLink') }}
-                  </RouterLink>
-                  ve
-                  <RouterLink
-                    to="/privacy"
-                    target="_blank"
-                    class="font-medium text-teal-600 transition hover:text-teal-700 hover:underline"
-                  >
-                    {{ t('auth.privacyLink') }}
-                  </RouterLink>
-                  'nı okudum, kabul ediyorum.
-                </label>
-              </div>
-              <p
-                v-if="termsError"
-                class="mt-2 flex items-center gap-1.5 text-xs text-red-600"
-                role="alert"
-              >
-                <AlertCircle class="size-3.5 shrink-0" />
-                {{ termsError }}
-              </p>
-            </div>
+        <AppButton type="submit" variant="primary" size="lg" class="submit-btn">
+          {{ t('auth.next') }}
+          <ArrowRight class="size-4" />
+        </AppButton>
+      </template>
 
-            <!-- Step 2 actions -->
-            <div class="flex gap-2.5">
-              <button
-                type="button"
-                class="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 focus:outline-none active:scale-[0.98]"
-                @click="step = 1"
-              >
-                <ArrowLeft class="size-4" />
-                {{ t('auth.back') }}
-              </button>
-              <button
-                type="submit"
-                :disabled="loading || categoriesLoading || !categories.length"
-                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <span
-                  v-if="loading"
-                  class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                />
-                {{ loading ? t('auth.signingUp') : t('auth.signUp') }}
-              </button>
-            </div>
-          </template>
-        </form>
+      <!-- Step 2 -->
+      <template v-else>
+        <div class="form-field">
+          <label :for="`reg-name-${uid}`" class="field-label">{{ t('auth.register.nameLabel') }}</label>
+          <div class="field-input-wrapper">
+            <User class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-name-${uid}`"
+              v-model="name"
+              v-bind="nameAttrs"
+              type="text"
+              autocomplete="name"
+              placeholder="Adınız Soyadınız"
+              class="field-input"
+              :class="{ 'field-input--error': !!errors.name }"
+            />
+          </div>
+          <p v-if="errors.name" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.name }}
+          </p>
+        </div>
 
-        <p class="mt-6 text-center text-sm text-slate-500">
-          {{ t('auth.hasAccount') }}
-          <RouterLink
-            to="/login"
-            class="font-semibold text-teal-600 transition hover:text-teal-700"
+        <div class="form-field">
+          <label :for="`reg-phone-${uid}`" class="field-label">{{ t('auth.register.phoneLabel') }}</label>
+          <div class="field-input-wrapper">
+            <Phone class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-phone-${uid}`"
+              v-model="phoneNumber"
+              v-bind="phoneNumberAttrs"
+              type="tel"
+              autocomplete="tel"
+              placeholder="+90 5xx xxx xx xx"
+              class="field-input"
+            />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label :for="`reg-category-${uid}`" class="field-label">{{ t('auth.register.categoryLabel') }}</label>
+          <div class="field-input-wrapper">
+            <Tag class="field-icon" aria-hidden="true" />
+            <select
+              :id="`reg-category-${uid}`"
+              v-model="businessCategory"
+              v-bind="businessCategoryAttrs"
+              class="field-select"
+              :class="{ 'field-input--error': !!errors.businessCategory }"
+              :disabled="categoriesLoading || (!!categoriesError && !categories.length)"
+              :aria-busy="categoriesLoading"
+              :aria-invalid="!!errors.businessCategory"
+            >
+              <option value="">
+                {{ categoriesLoading ? t('common.loading') : t('auth.businessCategoryPlaceholder') }}
+              </option>
+              <option v-for="c in categories" :key="c.code" :value="c.code">
+                {{ c.label }}
+              </option>
+            </select>
+            <ChevronDown class="select-icon" aria-hidden="true" />
+          </div>
+          <p v-if="categoriesError" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ categoriesError }}
+          </p>
+          <p v-else-if="errors.businessCategory" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.businessCategory }}
+          </p>
+          <button
+            v-if="categoriesError"
+            type="button"
+            class="retry-btn"
+            @click="loadCategories(true)"
           >
-            {{ t('auth.loginLink') }}
-          </RouterLink>
-        </p>
-      </div>
-    </div>
-  </div>
+            <RotateCcw class="size-3.5" />
+            {{ t('common.retry') }}
+          </button>
+        </div>
+
+        <div class="form-field">
+          <label :for="`reg-business-${uid}`" class="field-label">{{ t('auth.register.businessNameLabel') }}</label>
+          <div class="field-input-wrapper">
+            <Building2 class="field-icon" aria-hidden="true" />
+            <input
+              :id="`reg-business-${uid}`"
+              v-model="businessName"
+              v-bind="businessNameAttrs"
+              type="text"
+              autocomplete="organization"
+              :placeholder="t('auth.register.businessNamePlaceholder')"
+              class="field-input"
+              :class="{ 'field-input--error': !!errors.businessName }"
+            />
+          </div>
+          <p v-if="errors.businessName" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ errors.businessName }}
+          </p>
+        </div>
+
+        <div v-if="submitError" class="submit-error" role="alert">
+          <AlertCircle class="size-4" aria-hidden="true" />
+          {{ submitError }}
+        </div>
+
+        <div class="terms-box">
+          <div class="terms-content">
+            <input
+              :id="`terms-${uid}`"
+              v-model="termsAccepted"
+              type="checkbox"
+              class="terms-checkbox"
+            />
+            <label :for="`terms-${uid}`" class="terms-label">
+              <i18n-t keypath="auth.termsAgreementFull" tag="span">
+                <template #terms>
+                  <RouterLink to="/terms" target="_blank" class="terms-link">{{ t('auth.termsLink') }}</RouterLink>
+                </template>
+                <template #privacy>
+                  <RouterLink to="/privacy" target="_blank" class="terms-link">{{ t('auth.privacyLink') }}</RouterLink>
+                </template>
+              </i18n-t>
+            </label>
+          </div>
+          <p v-if="termsError" class="field-error" role="alert">
+            <AlertCircle class="size-3.5" aria-hidden="true" />
+            {{ termsError }}
+          </p>
+        </div>
+
+        <div class="step2-actions">
+          <AppButton type="button" variant="secondary" size="lg" @click="step = 1">
+            <ArrowLeft class="size-4" />
+            {{ t('auth.back') }}
+          </AppButton>
+          <AppButton
+            type="submit"
+            variant="primary"
+            size="lg"
+            :loading="loading"
+            :disabled="categoriesLoading || !categories.length"
+            class="flex-1"
+          >
+            {{ loading ? t('auth.signingUp') : t('auth.register.submit') }}
+          </AppButton>
+        </div>
+      </template>
+    </form>
+
+    <p class="footer-text">
+      {{ t('auth.register.haveAccount') }}
+      <RouterLink to="/login" class="footer-link">
+        {{ t('auth.register.loginLink') }}
+      </RouterLink>
+    </p>
+  </AuthSplitLayout>
 </template>
 
 <script setup lang="ts">
@@ -449,8 +323,8 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { useI18n } from 'vue-i18n'
+import { validationPatterns } from '@/validation/schemas'
 import {
-  CalendarDays,
   Mail,
   Lock,
   Eye,
@@ -468,22 +342,26 @@ import {
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { businessApi, type BusinessCategoryResponse } from '@/api/business'
+import AuthSplitLayout from '@/components/auth/AuthSplitLayout.vue'
+import AppButton from '@/components/ui/AppButton.vue'
 
-const REGISTER_STEPS_INFO = [
-  { num: 1, label: 'E-posta ve şifrenizi girin' },
-  { num: 2, label: 'İşletme bilgilerini ekleyin' },
-]
+const { t, tm } = useI18n()
 
-const BRAND_STATS = [
-  { value: '%40', label: 'No-show azalması' },
-  { value: '7/24', label: 'Online randevu' },
-  { value: '6', label: 'Desteklenen sektör' },
-  { value: '14 gün', label: 'Ücretsiz deneme' },
-]
+const REGISTER_STEPS_INFO = computed(() => {
+  const labels = tm('auth.register.steps.labels') as string[]
+  return [
+    { num: 1, label: labels[0] ?? '' },
+    { num: 2, label: labels[1] ?? '' },
+  ]
+})
 
-const { t } = useI18n()
+const BRAND_STATS_TEXT = computed(() => ({
+  title: t('auth.hero.trialTitle'),
+  subtitle: t('auth.hero.trialSubtitleNoCreditCard'),
+}))
 const router = useRouter()
 const auth = useAuthStore()
+const uid = Math.random().toString(36).slice(2, 9)
 const step = ref<1 | 2>(1)
 
 const showPassword = ref(false)
@@ -494,14 +372,34 @@ const termsError = ref('')
 
 const validationSchema = computed(() =>
   toTypedSchema(
-    z.object({
-      email: z.string().min(1, t('auth.emailRequired')).email(t('auth.emailInvalid')),
-      password: z.string().min(6, t('auth.passwordMin')),
-      name: z.string().min(2, t('auth.nameMin')),
-      phoneNumber: z.string().optional(),
-      businessName: z.string().min(2, t('auth.businessRequired')),
-      businessCategory: z.string().min(1, t('auth.businessCategoryRequired')),
-    }),
+    z
+      .object({
+        email: z
+          .string()
+          .min(1, t('auth.emailRequired'))
+          .max(validationPatterns.emailMax, t('auth.emailTooLong'))
+          .email(t('auth.emailInvalid')),
+        password: z
+          .string()
+          .min(validationPatterns.passwordMin, t('auth.passwordMin'))
+          .regex(/[A-Z]/, t('auth.passwordUppercase'))
+          .regex(/[0-9]/, t('auth.passwordDigit')),
+        confirmPassword: z.string().min(1, t('auth.confirmPasswordRequired')),
+        name: z.string().min(2, t('auth.nameMin')).max(100, t('auth.nameMax')),
+        phoneNumber: z
+          .string()
+          .optional()
+          .or(z.literal(''))
+          .refine((v) => !v || validationPatterns.phoneFlexible.test(v), {
+            message: t('auth.phoneInvalid'),
+          }),
+        businessName: z.string().min(2, t('auth.businessRequired')).max(100, t('auth.businessMax')),
+        businessCategory: z.string().min(1, t('auth.businessCategoryRequired')),
+      })
+      .refine((data) => data.password === data.confirmPassword, {
+        message: t('auth.passwordMismatch'),
+        path: ['confirmPassword'],
+      }),
   ),
 )
 
@@ -510,6 +408,7 @@ const { handleSubmit, errors, defineField, validateField } = useForm({
   initialValues: {
     email: '',
     password: '',
+    confirmPassword: '',
     name: '',
     phoneNumber: '',
     businessCategory: '',
@@ -519,10 +418,13 @@ const { handleSubmit, errors, defineField, validateField } = useForm({
 
 const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
 const [name, nameAttrs] = defineField('name')
 const [phoneNumber, phoneNumberAttrs] = defineField('phoneNumber')
 const [businessCategory, businessCategoryAttrs] = defineField('businessCategory')
 const [businessName, businessNameAttrs] = defineField('businessName')
+
+const showConfirmPassword = ref(false)
 
 const categories = ref<BusinessCategoryResponse[]>([])
 const categoriesLoading = ref(false)
@@ -539,24 +441,19 @@ const passwordStrength = computed(() => {
   return score
 })
 
-const passwordStrengthColor = computed(() => {
-  if (passwordStrength.value <= 1) return 'bg-red-500'
-  if (passwordStrength.value <= 2) return 'bg-amber-500'
-  return 'bg-emerald-500'
-})
-
-const passwordStrengthTextColor = computed(() => {
-  if (passwordStrength.value <= 1) return 'text-red-600'
-  if (passwordStrength.value <= 2) return 'text-amber-600'
-  return 'text-emerald-600'
+const passwordStrengthLevel = computed(() => {
+  if (passwordStrength.value <= 1) return 'weak'
+  if (passwordStrength.value <= 2) return 'medium'
+  return 'strong'
 })
 
 const passwordStrengthLabel = computed(() => {
-  if (passwordStrength.value === 0) return ''
-  if (passwordStrength.value <= 1) return 'Zayıf şifre'
-  if (passwordStrength.value <= 2) return 'Orta şifre'
-  if (passwordStrength.value <= 3) return 'İyi şifre'
-  return 'Güçlü şifre'
+  const level = passwordStrength.value
+  if (level === 0) return ''
+  if (level <= 1) return t('auth.register.passwordStrength.weak')
+  if (level <= 2) return t('auth.register.passwordStrength.medium')
+  if (level <= 3) return t('auth.register.passwordStrength.good')
+  return t('auth.register.passwordStrength.strong')
 })
 
 async function loadCategories(force = false) {
@@ -590,8 +487,12 @@ watch(
 
 async function onFormSubmit() {
   if (step.value === 1) {
-    const [r1, r2] = await Promise.all([validateField('email'), validateField('password')])
-    if (r1.valid && r2.valid) step.value = 2
+    const [r1, r2, r3] = await Promise.all([
+      validateField('email'),
+      validateField('password'),
+      validateField('confirmPassword'),
+    ])
+    if (r1.valid && r2.valid && r3.valid) step.value = 2
     return
   }
   
@@ -627,3 +528,369 @@ const runRegister = handleSubmit(async values => {
   }
 })
 </script>
+
+<style scoped>
+.hero-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--surface) 85%, var(--primary));
+}
+
+.step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--surface) 15%, transparent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.step-text {
+  flex: 1;
+}
+
+.register-form-header {
+  margin-bottom: 2rem;
+}
+
+.register-form-header .display-md {
+  color: var(--ink-1);
+  margin-bottom: 0.375rem;
+}
+
+.register-form-header .body {
+  color: var(--ink-3);
+  margin: 0;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: all 0.2s;
+  border: 2px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-4);
+}
+
+.step-item--active .step-circle,
+.step-item--done .step-circle {
+  background: var(--primary);
+  color: var(--surface);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-1);
+}
+
+.step-label {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-4);
+}
+
+.step-item--active .step-label {
+  color: var(--primary);
+}
+
+.step-line {
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+  margin: 0 0 1rem 0;
+  transition: background 0.2s;
+}
+
+.step-line--active {
+  background: var(--primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.field-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 0.875rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ink-4);
+  pointer-events: none;
+}
+
+.field-input,
+.field-select {
+  width: 100%;
+  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 0.875rem;
+  color: var(--ink-1);
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.field-input::placeholder {
+  color: var(--ink-4);
+}
+
+.field-input:hover:not(:disabled),
+.field-select:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.field-input:focus,
+.field-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.field-input--error {
+  border-color: var(--danger);
+  background: var(--danger-tint);
+}
+
+.field-input--error:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent);
+}
+
+.field-select {
+  appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.field-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: var(--bg-subtle);
+}
+
+.select-icon {
+  position: absolute;
+  right: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--ink-4);
+  pointer-events: none;
+}
+
+.field-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: color 0.15s;
+}
+
+.field-toggle-btn:hover {
+  color: var(--ink-2);
+}
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin: 0;
+}
+
+.retry-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.retry-btn:hover {
+  background: var(--bg);
+}
+
+.password-strength {
+  margin-top: 0.625rem;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--hairline);
+  transition: background 0.2s;
+}
+
+.strength-bar--active.strength-bar--weak {
+  background: var(--danger);
+}
+
+.strength-bar--active.strength-bar--medium {
+  background: var(--warning);
+}
+
+.strength-bar--active.strength-bar--strong {
+  background: var(--success);
+}
+
+.strength-label {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.strength-label--weak {
+  color: var(--danger);
+}
+
+.strength-label--medium {
+  color: var(--warning);
+}
+
+.strength-label--strong {
+  color: var(--success);
+}
+
+.submit-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 15%, transparent);
+  border-radius: var(--r-md);
+  background: var(--danger-tint);
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--danger) 90%, var(--ink-1));
+}
+
+.terms-box {
+  padding: 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.terms-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.terms-checkbox {
+  margin-top: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  accent-color: var(--primary);
+}
+
+.terms-label {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.terms-link {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.terms-link:hover {
+  color: var(--primary-pressed);
+  text-decoration: underline;
+}
+
+.submit-btn {
+  width: 100%;
+}
+
+.step2-actions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.footer-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+.footer-link {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: var(--primary-pressed);
+}
+</style>

@@ -1,57 +1,33 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-6 py-16">
-    <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div v-if="state === 'loading'" class="flex flex-col items-center py-8">
-        <span
-          class="size-10 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600"
-          aria-hidden="true"
-        />
-        <p class="mt-4 text-sm text-slate-600">{{ t('auth.verifyEmailWorking') }}</p>
+  <div class="verified-view">
+    <div class="verified-card">
+      <div v-if="state === 'loading'" class="loading-state">
+        <span class="spinner" aria-hidden="true" />
+        <p>{{ t('auth.verifyEmailWorking') }}</p>
       </div>
 
       <template v-else-if="state === 'success'">
-        <div class="mb-6 flex justify-center">
-          <div class="flex size-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
-            <CheckCircle class="size-7" />
-          </div>
+        <div class="icon-container icon-container--success">
+          <CheckCircle class="icon" aria-hidden="true" />
         </div>
-        <h1 class="text-center text-2xl font-bold tracking-tight text-slate-900">
-          {{ t('auth.verifySuccessTitle') }}
-        </h1>
-        <p class="mt-3 text-center text-sm text-slate-600">
-          {{ t('auth.verifySuccessBody') }}
-        </p>
-        <RouterLink
-          to="/login"
-          class="mt-8 flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-        >
-          {{ t('auth.signIn') }}
+        <h1 class="display-md">{{ t('auth.emailVerified.title') }}</h1>
+        <p class="body">{{ t('auth.emailVerified.subtitle') }}</p>
+        <RouterLink to="/login" class="success-btn">
+          {{ t('auth.emailVerified.continue') }}
         </RouterLink>
       </template>
 
       <template v-else>
-        <div class="mb-6 flex justify-center">
-          <div class="flex size-14 items-center justify-center rounded-2xl bg-red-100 text-red-600">
-            <AlertCircle class="size-7" />
-          </div>
+        <div class="icon-container icon-container--error">
+          <AlertCircle class="icon" aria-hidden="true" />
         </div>
-        <h1 class="text-center text-2xl font-bold tracking-tight text-slate-900">
-          {{ t('auth.verifyErrorTitle') }}
-        </h1>
-        <p class="mt-3 text-center text-sm text-red-700">
-          {{ errorMessage }}
-        </p>
-        <div class="mt-8 flex flex-col gap-3">
-          <RouterLink
-            to="/register"
-            class="flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-          >
+        <h1 class="display-md">{{ t('auth.verifyErrorTitle') }}</h1>
+        <p class="error-message">{{ errorMessage }}</p>
+        <div class="action-buttons">
+          <RouterLink to="/register" class="primary-btn">
             {{ t('auth.registerLink') }}
           </RouterLink>
-          <RouterLink
-            to="/login"
-            class="text-center text-sm font-medium text-slate-600 underline-offset-2 hover:underline"
-          >
+          <RouterLink to="/login" class="secondary-link">
             {{ t('auth.backToLogin') }}
           </RouterLink>
         </div>
@@ -109,3 +85,161 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.verified-view {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  background: var(--bg);
+}
+
+.verified-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2rem;
+  border: 0.5px solid var(--hairline);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.loading-state p {
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+.spinner {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--primary-tint);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.icon-container .icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 1rem;
+  border-radius: var(--r-lg);
+}
+
+.icon-container--success .icon {
+  background: var(--success-tint);
+  color: var(--success);
+}
+
+.icon-container--error .icon {
+  background: var(--danger-tint);
+  color: var(--danger);
+}
+
+.display-md {
+  text-align: center;
+  color: var(--ink-1);
+  margin: 0 0 0.75rem 0;
+}
+
+.body {
+  text-align: center;
+  color: var(--ink-3);
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+.error-message {
+  margin: 0 0 2rem 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--danger);
+}
+
+.success-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: var(--surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-1);
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+.success-btn:hover {
+  background: var(--primary-pressed);
+  box-shadow: var(--shadow-2);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: var(--surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-1);
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+.primary-btn:hover {
+  background: var(--primary-pressed);
+  box-shadow: var(--shadow-2);
+}
+
+.secondary-link {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.secondary-link:hover {
+  color: var(--ink-1);
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+}
+</style>

@@ -134,6 +134,8 @@ import { useSetupStore } from '@/stores/setup'
 import { useToast } from '@/composables/useToast'
 import { businessApi, type BusinessCategoryResponse, type UpdateBusinessRequest } from '@/api/business'
 import { buildPublicBookingUrl } from '@/utils/publicBookingUrl'
+import { validationPatterns } from '@/validation/schemas'
+import { z } from 'zod'
 
 defineProps<{ stepIndex: number; totalSteps: number; isFinal?: boolean }>()
 
@@ -218,13 +220,19 @@ function validateField(field: keyof typeof form): boolean {
     }
   }
   if (field === 'phoneNumber') {
-    if (!form.phoneNumber.trim()) {
+    const phoneDigits = form.phoneNumber.replaceAll(/\D/g, '')
+    if (!phoneDigits) {
       fieldErrors.phoneNumber = t('setup.steps.business.phoneRequired')
+      return false
+    }
+    if (!validationPatterns.phoneFlexible.test(phoneDigits)) {
+      fieldErrors.phoneNumber = t('auth.phoneInvalid')
       return false
     }
   }
   if (field === 'email' && form.email.trim()) {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    const emailResult = z.string().email().max(validationPatterns.emailMax).safeParse(form.email.trim())
+    if (!emailResult.success) {
       fieldErrors.email = t('auth.emailInvalid')
       return false
     }

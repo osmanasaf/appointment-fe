@@ -1,117 +1,156 @@
 <template>
   <div class="space-y-6">
-    <header>
-      <h2 class="text-lg font-semibold text-slate-900">
-        {{ t('settings.security.title') }}
-      </h2>
-      <p class="mt-1 text-sm text-slate-500">
-        {{ t('settings.security.subtitle') }}
-      </p>
-    </header>
+    <SectionHeader
+      :title="t('settings.security.title')"
+      :subtitle="t('settings.security.subtitle')"
+    />
 
     <div class="space-y-6">
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card p-6">
         <div class="mb-4 flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-lg bg-slate-700">
-            <KeyRound class="size-5 text-white" />
+          <div class="flex size-10 items-center justify-center rounded-lg" :style="{ background: 'var(--primary-tint)' }">
+            <KeyRound class="size-5" :style="{ color: 'var(--primary)' }" aria-hidden="true" />
           </div>
           <div>
-            <h3 class="font-medium text-slate-900">
+            <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
               {{ t('settings.security.changePassword') }}
             </h3>
-            <p class="text-sm text-slate-500">Hesap şifrenizi değiştirin</p>
+            <p class="text-sm" :style="{ color: 'var(--ink-4)' }">{{ t('settings.security.changePasswordSubtitle') }}</p>
           </div>
         </div>
 
-        <div class="space-y-4">
+        <form class="space-y-4" novalidate @submit.prevent="changePassword">
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">
-              Mevcut Şifre
+            <label for="current-password" class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
+              {{ t('settings.security.fields.currentPassword') }}
             </label>
             <input
+              id="current-password"
               v-model="passwordForm.currentPassword"
               type="password"
-              class="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              autocomplete="current-password"
+              class="form-input w-full max-w-md"
+              :aria-invalid="hasFieldError('currentPassword')"
+              :aria-describedby="hasFieldError('currentPassword') ? 'current-password-error' : undefined"
             />
+            <p
+              v-if="hasFieldError('currentPassword')"
+              id="current-password-error"
+              class="mt-1 text-xs"
+              role="alert"
+              :style="{ color: 'var(--danger)' }"
+            >
+              {{ fieldErrors.currentPassword }}
+            </p>
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">
-              Yeni Şifre
+            <label for="new-password" class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
+              {{ t('settings.security.fields.newPassword') }}
             </label>
             <input
+              id="new-password"
               v-model="passwordForm.newPassword"
               type="password"
-              class="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              autocomplete="new-password"
+              class="form-input w-full max-w-md"
+              :aria-invalid="hasFieldError('newPassword')"
+              :aria-describedby="hasFieldError('newPassword') ? 'new-password-error' : 'new-password-hint'"
             />
+            <p
+              v-if="hasFieldError('newPassword')"
+              id="new-password-error"
+              class="mt-1 text-xs"
+              role="alert"
+              :style="{ color: 'var(--danger)' }"
+            >
+              {{ fieldErrors.newPassword }}
+            </p>
+            <p v-else id="new-password-hint" class="mt-1 text-xs" :style="{ color: 'var(--ink-4)' }">
+              {{ t('settings.security.newPasswordHint') }}
+            </p>
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-slate-700">
-              Yeni Şifre (Tekrar)
+            <label for="confirm-password" class="mb-1 block text-sm font-medium" :style="{ color: 'var(--ink-2)' }">
+              {{ t('settings.security.fields.confirmPassword') }}
             </label>
             <input
+              id="confirm-password"
               v-model="passwordForm.confirmPassword"
               type="password"
-              class="w-full max-w-md rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              autocomplete="new-password"
+              class="form-input w-full max-w-md"
+              :aria-invalid="hasFieldError('confirmPassword')"
+              :aria-describedby="hasFieldError('confirmPassword') ? 'confirm-password-error' : undefined"
             />
+            <p
+              v-if="hasFieldError('confirmPassword')"
+              id="confirm-password-error"
+              class="mt-1 text-xs"
+              role="alert"
+              :style="{ color: 'var(--danger)' }"
+            >
+              {{ fieldErrors.confirmPassword }}
+            </p>
           </div>
 
-          <button
-            type="button"
-            class="rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+          <AppButton
+            variant="primary"
+            size="md"
+            native-type="submit"
             :disabled="!canChangePassword"
-            @click="changePassword"
+            :loading="isSubmitting"
           >
-            Şifreyi Değiştir
-          </button>
-        </div>
+            {{ t('settings.security.button.change') }}
+          </AppButton>
+        </form>
       </div>
 
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card p-6">
         <div class="mb-4 flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-lg bg-amber-500">
-            <ShieldCheck class="size-5 text-white" />
+          <div class="flex size-10 items-center justify-center rounded-lg" :style="{ background: 'var(--warning-tint)' }">
+            <ShieldCheck class="size-5" :style="{ color: 'var(--warning)' }" aria-hidden="true" />
           </div>
           <div>
-            <h3 class="font-medium text-slate-900">
+            <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
               {{ t('settings.security.twoFactor') }}
             </h3>
-            <p class="text-sm text-slate-500">Hesabınızı daha güvenli hale getirin</p>
+            <p class="text-sm" :style="{ color: 'var(--ink-4)' }">{{ t('settings.security.twoFactorSubtitle') }}</p>
           </div>
         </div>
 
-        <div class="rounded-lg bg-amber-50 p-4">
-          <p class="text-sm text-amber-800">
-            İki faktörlü doğrulama yakında kullanıma sunulacak.
+        <div class="rounded-lg p-4" :style="{ background: 'var(--warning-tint)', color: 'var(--warning)' }">
+          <p class="text-sm">
+            {{ t('settings.security.twoFactorComingSoon') }}
           </p>
         </div>
       </div>
 
-      <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="card p-6">
         <div class="mb-4 flex items-center gap-3">
-          <div class="flex size-10 items-center justify-center rounded-lg bg-blue-500">
-            <Monitor class="size-5 text-white" />
+          <div class="flex size-10 items-center justify-center rounded-lg" :style="{ background: 'var(--primary-tint)' }">
+            <Monitor class="size-5" :style="{ color: 'var(--primary)' }" aria-hidden="true" />
           </div>
           <div>
-            <h3 class="font-medium text-slate-900">
+            <h3 class="font-medium" :style="{ color: 'var(--ink-1)' }">
               {{ t('settings.security.sessions') }}
             </h3>
-            <p class="text-sm text-slate-500">Aktif oturumlarınızı yönetin</p>
+            <p class="text-sm" :style="{ color: 'var(--ink-4)' }">{{ t('settings.security.sessionsSubtitle') }}</p>
           </div>
         </div>
 
         <div class="space-y-3">
-          <div class="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+          <div class="flex items-center justify-between rounded-lg p-3" :style="{ background: 'var(--surface-2)' }">
             <div class="flex items-center gap-3">
-              <Monitor class="size-5 text-slate-400" />
+              <Monitor class="size-5" :style="{ color: 'var(--ink-4)' }" />
               <div>
-                <p class="text-sm font-medium text-slate-900">Bu cihaz</p>
-                <p class="text-xs text-slate-500">Windows - Chrome</p>
+                <p class="text-sm font-medium" :style="{ color: 'var(--ink-1)' }">{{ t('settings.security.thisDevice') }}</p>
+                <p class="text-xs" :style="{ color: 'var(--ink-4)' }">{{ t('settings.security.thisDevicePlatform') }}</p>
               </div>
             </div>
-            <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-              Aktif
+            <span class="rounded-full px-2 py-0.5 text-xs font-medium" :style="{ background: 'var(--success-tint)', color: 'var(--success)' }">
+              {{ t('settings.security.activeStatus') }}
             </span>
           </div>
         </div>
@@ -125,32 +164,89 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { KeyRound, ShieldCheck, Monitor } from 'lucide-vue-next'
 import { useToast } from '@/composables/useToast'
+import SectionHeader from '@/components/ui/SectionHeader.vue'
+import AppButton from '@/components/ui/AppButton.vue'
+import { changePasswordSchema, validationPatterns } from '@/validation/schemas'
 
 const { t } = useI18n()
 const toast = useToast()
 
-const passwordForm = ref({
+const MIN_PASSWORD_LENGTH = validationPatterns.passwordMin
+
+type PasswordField = 'currentPassword' | 'newPassword' | 'confirmPassword'
+
+const passwordForm = ref<Record<PasswordField, string>>({
   currentPassword: '',
   newPassword: '',
   confirmPassword: ''
 })
 
+const fieldErrors = ref<Partial<Record<PasswordField, string>>>({})
+const isSubmitting = ref(false)
+
 const canChangePassword = computed(() => {
   return (
-    passwordForm.value.currentPassword &&
-    passwordForm.value.newPassword &&
+    !!passwordForm.value.currentPassword &&
+    !!passwordForm.value.newPassword &&
     passwordForm.value.newPassword === passwordForm.value.confirmPassword &&
-    passwordForm.value.newPassword.length >= 8
+    passwordForm.value.newPassword.length >= MIN_PASSWORD_LENGTH &&
+    !isSubmitting.value
   )
 })
 
-const changePassword = async () => {
+function hasFieldError(field: PasswordField): boolean {
+  return Boolean(fieldErrors.value[field])
+}
+
+function validate(): boolean {
+  const result = changePasswordSchema.safeParse(passwordForm.value)
+  if (result.success) {
+    fieldErrors.value = {}
+    return true
+  }
+  const errors: Partial<Record<PasswordField, string>> = {}
+  for (const issue of result.error.issues) {
+    const key = issue.path[0]
+    if (key === 'currentPassword' || key === 'newPassword' || key === 'confirmPassword') {
+      if (!errors[key]) {
+        errors[key] = issue.message
+      }
+    }
+  }
+  fieldErrors.value = errors
+  return false
+}
+
+async function changePassword(): Promise<void> {
+  if (isSubmitting.value || !validate()) return
+  isSubmitting.value = true
   try {
-    // TODO: API call
-    toast.success('Şifre değiştirildi')
+    toast.success(t('settings.security.toast.success'))
     passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
-  } catch (e) {
-    toast.error('Şifre değiştirilemedi')
+    fieldErrors.value = {}
+  } catch (error) {
+    const message = error instanceof Error ? error.message : t('settings.security.toast.error')
+    toast.error(message)
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
+
+<style scoped>
+.form-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
+  background: var(--surface);
+  color: var(--ink-1);
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 12%, transparent);
+}
+</style>
